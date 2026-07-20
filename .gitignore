@@ -21,3 +21,6 @@ site/
 web/dist/
 node_modules/
 .pnpm-store/
+
+# Local agent planning / design docs (not for the public repo)
+docs/superpowers/
