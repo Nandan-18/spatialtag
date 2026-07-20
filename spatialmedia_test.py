@@ -40,27 +40,6 @@ def _top_level_boxes(path):
     return boxes
 
 
-def _reorder_moov_before_mdat(src, dst):
-    """Write ftyp, then moov, then remaining boxes (e.g. free/mdat).
-
-    Produces a layout where growing moov would shift mdat. Playback
-    offsets may be wrong; used only to assert in-place inject refuses.
-    """
-    boxes = _top_level_boxes(src)
-    by_name = {name: (pos, size, hs) for pos, name, size, hs in boxes}
-    order = []
-    for name in (b"ftyp", b"moov"):
-        if name in by_name:
-            order.append(name)
-    for pos, name, size, hs in boxes:
-        if name not in (b"ftyp", b"moov"):
-            order.append(name)
-    with open(src, "rb") as in_fh, open(dst, "wb") as out_fh:
-        for name in order:
-            pos, size, hs = by_name[name]
-            in_fh.seek(pos)
-            out_fh.write(in_fh.read(size))
-
 def append_contents(contents):
     def append(x):
         contents = contents + x
