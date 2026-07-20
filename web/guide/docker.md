@@ -1,6 +1,6 @@
 # Docker Web UI
 
-Browser-based metadata injection for MP4/MOV files, running in Docker. Uses the same `cli` library as the command-line tool and desktop GUI.
+Browser-based metadata injection for MP4/MOV files, running in Docker. Uses the same `spatial` library as the command-line tool and desktop GUI.
 
 ## Features
 
@@ -55,7 +55,7 @@ docker run -p 5000:5000 \
 Copy or move files into that folder, then use the web UI to inject (with **Inject in place** enabled). Alternatively, use a [CLI binary](../download.html) on the host:
 
 ```bash
-cli -I --vr180 /path/to/your/videos/file.mp4
+spatial-media -I --vr180 /path/to/your/videos/file.mp4
 ```
 
 ## Usage

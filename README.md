@@ -10,8 +10,8 @@ One toolkit for **immersive MP4/MOV metadata**: 360° and VR180 spherical video 
 git clone https://github.com/Nandan-18/spatial-media.git
 cd spatial-media
 python3 -m pip install -e .
-cli video.mp4              # inspect metadata
-cli -I --vr180 video.mp4   # inject in place
+spatial-media video.mp4              # inspect metadata
+spatial-media -I --vr180 video.mp4   # inject in place
 ```
 
 Pre-built [CLI binaries and HRIR assets](https://github.com/Nandan-18/spatial-media/releases/latest) are on GitHub Releases if you prefer not to install Python.
@@ -21,7 +21,7 @@ Pre-built [CLI binaries and HRIR assets](https://github.com/Nandan-18/spatial-me
 | Path | Description |
 |------|-------------|
 | [web/](web/) | Site source, browser demo, specifications |
-| [cli/](cli/) | Core library, CLI, and desktop GUI |
+| [spatial/](spatial/) | Core library, CLI, and desktop GUI |
 | [docker/](docker/) | Flask web UI (Docker) |
 | [audio/](audio/) | HRIR reference assets for DAW monitoring |
 | [tests/](tests/) | Unit tests and media fixtures |
@@ -32,7 +32,7 @@ Pre-built [CLI binaries and HRIR assets](https://github.com/Nandan-18/spatial-me
 ```bash
 python3 -m pip install -e ".[dev]"
 python3 tests/test.py -v
-python3 -m ruff check cli tests/test.py docker
+python3 -m ruff check spatial tests/test.py docker
 ```
 
 ### Local site preview
@@ -44,12 +44,3 @@ pnpm dev
 ```
 
 User-facing docs live in [web/guide/](web/guide/) and are published to the site on push to `main`.
-
-### Publishing a release
-
-Tag a version to build CLI binaries and `audio.zip`:
-
-```bash
-git tag v1.0.0
-git push origin v1.0.0
-```

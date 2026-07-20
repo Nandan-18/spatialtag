@@ -6,7 +6,7 @@ Supports **v1** (XML in a UUID box) and **v2** (native `SV3D` / `ST3D` atoms). O
 
 ## Install
 
-**Recommended:** download a standalone binary from [GitHub Releases](../download.html). Make it executable, then run `cli -h`.
+**Recommended:** download a standalone binary from [GitHub Releases](../download.html). Make it executable, then run `spatial-media -h`.
 
 Or install from a git clone:
 
@@ -14,7 +14,7 @@ Or install from a git clone:
 git clone https://github.com/Nandan-18/spatial-media.git
 cd spatial-media
 python3 -m pip install -e .
-cli -h
+spatial-media -h
 ```
 
 ## Examine
@@ -22,8 +22,8 @@ cli -h
 Print spatial media metadata for each file:
 
 ```bash
-cli video.mp4
-cli clip1.mp4 clip2.mov
+spatial-media video.mp4
+spatial-media clip1.mp4 clip2.mov
 ```
 
 ## Inject
@@ -31,37 +31,37 @@ cli clip1.mp4 clip2.mov
 Write metadata to a **separate output file**:
 
 ```bash
-cli -i [options] <input> <output>
+spatial-media -i [options] <input> <output>
 ```
 
 Common examples:
 
 ```bash
 # Mono 360 equirectangular (v1)
-cli -i input.mp4 output.mp4
+spatial-media -i input.mp4 output.mp4
 
 # Stereoscopic left-right (v1)
-cli -i --stereo=left-right input.mp4 output.mp4
+spatial-media -i --stereo=left-right input.mp4 output.mp4
 
 # v2 atom metadata
-cli -i -2 --stereo=left-right input.mp4 output.mp4
+spatial-media -i -2 --stereo=left-right input.mp4 output.mp4
 
 # v2 with VR180 equirect bounds (fixed-point crop on each border)
-cli -i -2 --stereo=left-right \
+spatial-media -i -2 --stereo=left-right \
   --bounds="0:0:0x40000000:0x40000000" input.mp4 output.mp4
 
 # v1 crop region (w:h:full_w:full_h:left:top)
-cli -i --stereo=left-right \
+spatial-media -i --stereo=left-right \
   --crop="4096:4096:8192:4096:2048:0" input.mp4 output.mp4
 
 # Spatial audio (first-order ambisonics, ACN + SN3D)
-cli -i -a input.mp4 output.mp4
+spatial-media -i -a input.mp4 output.mp4
 ```
 
 You can also pass the same path twice with `-i` to request in-place output when supported:
 
 ```bash
-cli -i --stereo=left-right video.mp4 video.mp4
+spatial-media -i --stereo=left-right video.mp4 video.mp4
 ```
 
 ## In-place inject
@@ -69,7 +69,7 @@ cli -i --stereo=left-right video.mp4 video.mp4
 Rewrite metadata **without a full second copy** of the media. Prefer `-I` for a single file:
 
 ```bash
-cli -I --stereo=left-right video.mp4
+spatial-media -I --stereo=left-right video.mp4
 ```
 
 **Requirements:** the file layout must allow updating `moov` without shifting `mdat` offsets. This is typical when **`moov` comes after `mdat`** (common for files optimized for streaming). If `moov` is before `mdat`, in-place inject is refused; use separate input and output paths.
@@ -79,7 +79,7 @@ cli -I --stereo=left-right video.mp4
 For side-by-side equirectangular VR180, `--vr180` reads the video track dimensions and sets left-right stereo, v1 crop, and v2 180° bounds automatically:
 
 ```bash
-cli -I --vr180 video.mp4
+spatial-media -I --vr180 video.mp4
 ```
 
 Example: an 8192×4096 SBS frame gets half-width eye crop and `0x40000000` (90°) bounds on left and right.
@@ -117,7 +117,7 @@ Requires the `gui` extra when installing from source:
 
 ```bash
 python3 -m pip install -e ".[gui]"
-python3 -m cli.gui
+python3 -m spatial.gui
 ```
 
 The GUI supports spherical video, stereoscopic modes (none / left-right / top-bottom), and spatial audio when the file has a compatible ambisonics track.
@@ -130,7 +130,7 @@ When building from source, install build dependencies and run PyInstaller:
 
 ```bash
 python3 -m pip install -e ".[build]"
-pyinstaller --clean --noconfirm cli/cli.spec
+pyinstaller --clean --noconfirm spatial/spatial.spec
 ```
 
 The bundled app is built from `gui.py` (Tkinter). On Linux you may need `python3-tk` installed separately.
@@ -140,7 +140,7 @@ The bundled app is built from `gui.py` (Tkinter). On Linux you may need `python3
 The injector is importable as a library:
 
 ```python
-import cli.metadata as meta
+import spatial.metadata as meta
 
 meta.parse_metadata("video.mp4", print)
 md = meta.Metadata("equirectangular", "left-right", None)
@@ -148,4 +148,4 @@ md.video = meta.generate_spherical_xml("equirectangular", "left-right")
 meta.inject_metadata("input.mp4", "output.mp4", md, print)
 ```
 
-Lower-level MP4 box helpers live under `cli.mpeg`.
+Lower-level MP4 box helpers live under `spatial.mpeg`.

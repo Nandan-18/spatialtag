@@ -4,19 +4,19 @@ Pre-built assets are published on [GitHub Releases](https://github.com/Nandan-18
 
 | File | Description |
 |------|-------------|
-| `cli-linux-x86_64` | Linux CLI (x86_64) |
-| `cli-macos-arm64` | macOS CLI (Apple Silicon) |
+| `spatial-media-linux-x86_64` | Linux CLI (x86_64) |
+| `spatial-media-macos-arm64` | macOS CLI (Apple Silicon) |
 | `audio.zip` | HRIR reference WAV files |
 
 ## CLI usage
 
 ```bash
-chmod +x cli-macos-arm64   # macOS or Linux
-./cli-macos-arm64 -h
-./cli-macos-arm64 -I --vr180 /path/to/video.mp4
+chmod +x spatial-media-macos-arm64   # macOS or Linux
+./spatial-media-macos-arm64 -h
+./spatial-media-macos-arm64 -I --vr180 /path/to/video.mp4
 ```
 
-On macOS you may need: `xattr -dr com.apple.quarantine ./cli-macos-arm64`
+On macOS you may need: `xattr -dr com.apple.quarantine ./spatial-media-macos-arm64`
 
 See the [CLI guide](guide/cli.html) for all options.
 
@@ -26,7 +26,7 @@ See the [CLI guide](guide/cli.html) for all options.
 git clone https://github.com/Nandan-18/spatial-media.git
 cd spatial-media
 python3 -m pip install -e .
-cli -h
+spatial-media -h
 ```
 
 ## HRIR assets
