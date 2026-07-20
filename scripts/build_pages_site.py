@@ -64,6 +64,79 @@ NAV_ITEMS = [
     ("VR180", "spec/vr180.html"),
 ]
 
+# Shared global nav (keep in sync with docs/index.html)
+GLOBAL_NAV_GROUPS: list[tuple[str, list[tuple[str, str]]]] = [
+    (
+        "",
+        [
+            ("Demo", "index.html#demo"),
+            ("Download", "download.html"),
+        ],
+    ),
+    (
+        "Guides",
+        [
+            ("Overview", "guide/overview.html"),
+            ("CLI", "guide/cli.html"),
+            ("Docker", "guide/docker.html"),
+            ("GUI", "guide/cli.html#desktop-gui"),
+        ],
+    ),
+    (
+        "Specs",
+        [
+            ("Spherical v1", "spec/spherical-video-v1.html"),
+            ("Spherical v2", "spec/spherical-video-v2.html"),
+            ("VR180", "spec/vr180.html"),
+            ("Spatial audio", "spec/spatial-audio.html"),
+        ],
+    ),
+    (
+        "Resources",
+        [
+            ("HRIR assets", "guide/spatial-audio-resources.html"),
+        ],
+    ),
+]
+
+
+def nav_href(current_page: str, target: str) -> str:
+    if "#" in target:
+        path, anchor = target.split("#", 1)
+        if path == "index.html":
+            if current_page == "index.html":
+                return f"#{anchor}"
+            return f"{relpath(current_page, 'index.html')}#{anchor}"
+        return f"{relpath(current_page, path)}#{anchor}"
+    if target == "index.html":
+        return relpath(current_page, "index.html")
+    return relpath(current_page, target)
+
+
+def render_global_nav(current_page: str) -> str:
+    logo_href = html.escape(nav_href(current_page, "index.html"))
+    groups: list[str] = []
+    for label, links in GLOBAL_NAV_GROUPS:
+        link_html = "".join(
+            f'<a href="{html.escape(nav_href(current_page, href))}">{html.escape(text)}</a>'
+            for text, href in links
+        )
+        if label:
+            groups.append(
+                f'<div class="nav-group"><span class="nav-group-label">{html.escape(label)}</span>'
+                f'<div class="nav-sublinks">{link_html}</div></div>'
+            )
+        else:
+            groups.append(f'<div class="nav-group nav-group-primary">{link_html}</div>')
+    return (
+        f'<nav class="global-nav" aria-label="Global">\n'
+        f'  <div class="nav-inner">\n'
+        f'    <a class="nav-logo" href="{logo_href}">Spatial Media</a>\n'
+        f'    <div class="nav-links">{"".join(groups)}</div>\n'
+        f"  </div>\n"
+        f"</nav>"
+    )
+
 
 def sha256_file(path: Path) -> str:
     digest = hashlib.sha256()
@@ -131,6 +204,7 @@ def render_favicon_links(current_page: str) -> str:
 
 def render_doc_page(title: str, body_html: str, current_page: str) -> str:
     nav = render_nav(current_page)
+    global_nav = render_global_nav(current_page)
     style_href = relpath(current_page, "assets/css/style.css")
     site_href = relpath(current_page, "assets/css/site.css")
     favicon = render_favicon_links(current_page)
@@ -145,16 +219,7 @@ def render_doc_page(title: str, body_html: str, current_page: str) -> str:
   <link rel="stylesheet" href="{html.escape(site_href)}" />
 </head>
 <body class="doc-page">
-  <nav class="global-nav" aria-label="Global">
-    <div class="nav-inner">
-      <a class="nav-logo" href="{html.escape(relpath(current_page, "index.html"))}">Spatial Media</a>
-      <div class="nav-links">
-        <a href="{html.escape(relpath(current_page, "index.html"))}">Home</a>
-        <a href="{html.escape(relpath(current_page, "download.html"))}">Download</a>
-        <a href="{html.escape(relpath(current_page, "guide/cli.html"))}">CLI</a>
-      </div>
-    </div>
-  </nav>
+  {global_nav}
   <div class="page doc-shell">
     <main class="doc-content">
       <h1>{html.escape(title)}</h1>
