@@ -76,7 +76,7 @@ class TestAdd(unittest.TestCase):
                                       lambda x: contents.append(x))
         try:
             os.remove(args[-1])
-        except:
+        except OSError:
             return ''
         return '\n'.join(contents[2:])
 
@@ -254,6 +254,6 @@ class TestInPlace(unittest.TestCase):
 if __name__ == '__main__':
     try:
         os.mkdir('test_output')
-    except:
+    except FileExistsError:
         pass
     unittest.main()
