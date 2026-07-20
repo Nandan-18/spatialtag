@@ -28,7 +28,17 @@ For each file specified, prints spatial media metadata contained in the file.
     python spatialmedia -i [--stereo=(none|top-bottom|left-right)] [--spatial-audio] <input> <output>
 
 Saves a version of `<input>` injected with spatial media metadata to `<output>`.
-`<input>` and `<output>` must not be the same file.
+
+#### In-place inject
+
+Input and output may be the same path. The tool rewrites only the trailing
+`moov` metadata box when media offsets would not change (typically when
+`moov` follows `mdat`). This avoids making a full second copy of large files.
+
+    python spatialmedia -i [--stereo=...] <file> <file>
+
+If the file layout would require moving `mdat` (for example `moov` before
+`mdat`), in-place inject is refused and a separate output path must be used.
 
 ##### --stereo
 
