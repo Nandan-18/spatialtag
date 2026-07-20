@@ -1,6 +1,7 @@
 # Download
 
-Pre-built assets are published on [GitHub Releases](https://github.com/Nandan-18/spatial-media/releases/latest).
+Pre-built assets are published on [GitHub
+Releases](https://github.com/Nandan-18/spatial-media/releases/latest).
 
 | File | Description |
 |------|-------------|
@@ -16,7 +17,8 @@ chmod +x spatial-media-macos-arm64   # macOS or Linux
 ./spatial-media-macos-arm64 -I --vr180 /path/to/video.mp4
 ```
 
-On macOS you may need: `xattr -dr com.apple.quarantine ./spatial-media-macos-arm64`
+On macOS you may need: `xattr -dr com.apple.quarantine
+./spatial-media-macos-arm64`
 
 See the [CLI guide](cli.html) for all options.
 
@@ -31,4 +33,5 @@ spatial-media -h
 
 ## HRIR assets
 
-Extract `audio.zip` or clone the repository and use the files under `audio/`. See the [spatial audio resources guide](audio.html).
+Extract `audio.zip` or clone the repository and use the files under `audio/`.
+See the [spatial audio resources guide](audio.html).

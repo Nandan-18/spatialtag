@@ -1,12 +1,19 @@
 # Spatial Audio Resources
 
-Reference assets for **ambisonic binaural monitoring**: HRIR filters suited to immersive 360/VR playback and related decoders. Use these when building preview tools or monitoring ambisonic mixes in a DAW.
+Reference assets for **ambisonic binaural monitoring**: HRIR filters suited to
+immersive 360/VR playback and related decoders. Use these when building preview
+tools or monitoring ambisonic mixes in a DAW.
 
-These are **listening/monitoring assets**, not metadata injection code. To tag MP4/MOV files with spatial audio metadata (`SA3D` atoms), use the [browser demo](../index.html#demo), the [CLI/GUI](cli.html) (`-a`), or the [Docker web UI](docker.html). See the [Spatial Audio RFC](spec/audio.html) for the box format.
+These are **listening/monitoring assets**, not metadata injection code. To tag
+MP4/MOV files with spatial audio metadata (`SA3D` atoms), use the [browser
+demo](../index.html#demo), the [CLI/GUI](cli.html) (`-a`), or the [Docker web
+UI](docker.html). See the [Spatial Audio RFC](spec/audio.html) for the box
+format.
 
 ## Get the files
 
-HRIR WAV files are in the repository under `audio/` and packaged as `audio.zip` on [GitHub Releases](download.html). Clone the repo or download the zip.
+HRIR WAV files are in the repository under `audio/` and packaged as `audio.zip`
+on [GitHub Releases](download.html). Clone the repo or download the zip.
 
 ## Directory overview
 
@@ -19,7 +26,11 @@ HRIR WAV files are in the repository under `audio/` and packaged as `audio.zip` 
 
 ## Raw symmetric cube HRIRs
 
-Binaural measurements (Head Related Impulse Responses) from a **cube loudspeaker** configuration, used in a first-order ambisonic binaural decoder. Derived from the [SADIE binaural measurements](https://www.york.ac.uk/sadie-project/binaural.html) as individual time-domain FIR filters.
+Binaural measurements (Head Related Impulse Responses) from a **cube
+loudspeaker** configuration, used in a first-order ambisonic binaural decoder.
+Derived from the [SADIE binaural
+measurements](https://www.york.ac.uk/sadie-project/binaural.html) as individual
+time-domain FIR filters.
 
 ### Specification
 
@@ -36,57 +47,83 @@ Binaural measurements (Head Related Impulse Responses) from a **cube loudspeaker
 
 An ambiX binaural decoder preset (`cube.config`) is included.
 
-**Note:** Using these filters directly (or via the ambiX preset) will **not** match every reference decoder output unless you also apply phase-matched shelf filters, as described in [Is My Decoder Ambisonic?](http://www.ai.sri.com/ajh/ambisonics/BLaH3.pdf) (Heller, Lee, Benjamin). For a closer match without custom shelf design, use the **symmetric ambisonic binaural decoder** set below.
+**Note:** Using these filters directly (or via the ambiX preset) will **not**
+match every reference decoder output unless you also apply phase-matched shelf
+filters, as described in [Is My Decoder
+Ambisonic?](http://www.ai.sri.com/ajh/ambisonics/BLaH3.pdf) (Heller, Lee,
+Benjamin). For a closer match without custom shelf design, use the **symmetric
+ambisonic binaural decoder** set below.
 
 ## Symmetric ambisonic binaural decoder
 
-Spherical harmonic HRIR filters for **first-order ambisonic binaural decode**. Apply them to an ambisonic mix and route the convolver outputs to stereo L/R:
+Spherical harmonic HRIR filters for **first-order ambisonic binaural decode**.
+Apply them to an ambisonic mix and route the convolver outputs to stereo L/R:
 
-![symmetric binaural ambisonic decoder - signal flow diagram](https://cloud.githubusercontent.com/assets/26985965/24811254/2143fb12-1b7a-11e7-99a0-cef55c3f8365.png)
+![symmetric binaural ambisonic decoder - signal flow
+diagram](https://cloud.githubusercontent.com/assets/26985965/24811254/2143fb12-1b7a-11e7-99a0-cef55c3f8365.png)
 
-Convolution (`*`) can be done with multichannel convolver plugins such as [LAConvolver](http://audio.lernvall.com/) (macOS) or [Freeverb3](http://www.nongnu.org/freeverb3/) (Windows). The dotted red line with Ø denotes 180° phase inversion.
+Convolution (`*`) can be done with multichannel convolver plugins such as
+[LAConvolver](http://audio.lernvall.com/) (macOS) or
+[Freeverb3](http://www.nongnu.org/freeverb3/) (Windows). The dotted red line
+with Ø denotes 180° phase inversion.
 
 ## Ambisonic correction filters
 
-Filters that compensate for HRTF changes when switching the binaural decoder from **THRIVE** to **SADIE KU100**. Apply them to ambiX tracks so existing mixes retain similar timbre after the decoder change.
+Filters that compensate for HRTF changes when switching the binaural decoder
+from **THRIVE** to **SADIE KU100**. Apply them to ambiX tracks so existing mixes
+retain similar timbre after the decoder change.
 
 **Before correction:** spectral shift when switching decoders:
 
-![decoder output before correction](https://cloud.githubusercontent.com/assets/26985965/24811252/21399d66-1b7a-11e7-953c-2357d6be8f3a.png)
+![decoder output before
+correction](https://cloud.githubusercontent.com/assets/26985965/24811252/21399d66-1b7a-11e7-953c-2357d6be8f3a.png)
 
 **After correction:** minimized difference:
 
-![decoder output after correction](https://cloud.githubusercontent.com/assets/26985965/24811250/2137f42a-1b7a-11e7-9ff5-e09718293401.png)
+![decoder output after
+correction](https://cloud.githubusercontent.com/assets/26985965/24811250/2137f42a-1b7a-11e7-9ff5-e09718293401.png)
 
 Signal flow when applying correction in the DAW:
 
-![ambiX correction filters - signal flow diagram](https://cloud.githubusercontent.com/assets/26985965/24811249/21269c84-1b7a-11e7-8139-91e4fd0d0a20.png)
+![ambiX correction filters - signal flow
+diagram](https://cloud.githubusercontent.com/assets/26985965/24811249/21269c84-1b7a-11e7-8139-91e4fd0d0a20.png)
 
 ## FAQs
 
 ### Why did you change HRTFs?
 
-Binaural decoding depends on HRTFs, which vary by listener. In listening tests (53 participants, mobile VR, varied content), the **SADIE KU100** set ranked highest on average when individualized HRTFs were unavailable:
+Binaural decoding depends on HRTFs, which vary by listener. In listening tests
+(53 participants, mobile VR, varied content), the **SADIE KU100** set ranked
+highest on average when individualized HRTFs were unavailable:
 
-![perceived decoder quality](https://cloud.githubusercontent.com/assets/26985965/24811253/213b6628-1b7a-11e7-9079-f7a906e963a0.png)
+![perceived decoder
+quality](https://cloud.githubusercontent.com/assets/26985965/24811253/213b6628-1b7a-11e7-9079-f7a906e963a0.png)
 
 ### Should I monitor with HRTFs when mixing for 360/VR?
 
-Yes. Use the **symmetric ambisonic binaural decoder** filters and/or preview on your target platform to judge timbre and loudness. Decoder choice affects both coloration and level.
+Yes. Use the **symmetric ambisonic binaural decoder** filters and/or preview on
+your target platform to judge timbre and loudness. Decoder choice affects both
+coloration and level.
 
 ### What is timbral coloration?
 
-HRTFs impose listener-specific spectral coloration. Example frequency responses for THRIVE vs SADIE KU100:
+HRTFs impose listener-specific spectral coloration. Example frequency responses
+for THRIVE vs SADIE KU100:
 
-![HRTF coloration](https://cloud.githubusercontent.com/assets/26985965/24811251/2139476c-1b7a-11e7-865b-f37ac10b197f.png)
+![HRTF
+coloration](https://cloud.githubusercontent.com/assets/26985965/24811251/2139476c-1b7a-11e7-865b-f37ac10b197f.png)
 
 ### Can I retune an existing THRIVE-monitored mix?
 
-Apply the correction filters to your ambiX tracks to align timbre with the SADIE KU100 decoder.
+Apply the correction filters to your ambiX tracks to align timbre with the SADIE
+KU100 decoder.
 
 ### Expected loudness
 
-Binaural decode level depends on the HRTF set. The reference decoder targets loudness comparable to a standard M/S stereo decoder. Example measurements (0.5 normalized pink noise, eight directions, [ITU-R BS.1770-4](https://www.itu.int/dms_pubrec/itu-r/rec/bs/R-REC-BS.1770-4-201510-I!!PDF-E.pdf)):
+Binaural decode level depends on the HRTF set. The reference decoder targets
+loudness comparable to a standard M/S stereo decoder. Example measurements (0.5
+normalized pink noise, eight directions, [ITU-R
+BS.1770-4](https://www.itu.int/dms_pubrec/itu-r/rec/bs/R-REC-BS.1770-4-201510-I!!PDF-E.pdf)):
 
 | Decoder | Loudness (dB LUFS) | Absolute peak |
 |---------|-------------------|---------------|
@@ -98,4 +135,8 @@ Peaks may exceed 0 dBFS even when integrated loudness matches.
 
 ### Third-party monitoring tools
 
-Plugins such as [BlueRippleSound O3A View](http://www.blueripplesound.com/products/o3a-view-vst), [Noisemakers AmbiHead](http://www.noisemakers.fr/ambi-head/), and [SoundParticles](http://soundparticles.com/) implement binaural preview using these HRIR sets, aligned with common 360/VR playback.
+Plugins such as [BlueRippleSound O3A
+View](http://www.blueripplesound.com/products/o3a-view-vst), [Noisemakers
+AmbiHead](http://www.noisemakers.fr/ambi-head/), and
+[SoundParticles](http://soundparticles.com/) implement binaural preview using
+these HRIR sets, aligned with common 360/VR playback.

@@ -1,6 +1,8 @@
 # Spatial Media
 
-One toolkit for **immersive MP4/MOV metadata**: 360° and VR180 spherical video tags, plus first-order ambisonic spatial audio. Inspect and inject metadata without re-encoding media.
+One toolkit for **immersive MP4/MOV metadata**: 360° and VR180 spherical video
+tags, plus first-order ambisonic spatial audio. Inspect and inject metadata
+without re-encoding media.
 
 ## Choose your interface
 
@@ -14,11 +16,15 @@ One toolkit for **immersive MP4/MOV metadata**: 360° and VR180 spherical video 
 
 ## What you can do
 
-- **Spherical video:** tag 360° equirectangular and VR180 side-by-side layouts (v1 XML and v2 `SV3D` / `ST3D` atoms).
-- **Spatial audio:** tag first-order ambiX tracks with `SA3D` metadata (ACN channel order, SN3D normalization).
-- **In-place inject:** rewrite metadata without a second full copy when the file layout allows (`moov` after `mdat`).
+- **Spherical video:** tag 360° equirectangular and VR180 side-by-side layouts
+  (v1 XML and v2 `SV3D` / `ST3D` atoms).
+- **Spatial audio:** tag first-order ambiX tracks with `SA3D` metadata (ACN
+  channel order, SN3D normalization).
+- **In-place inject:** rewrite metadata without a second full copy when the file
+  layout allows (`moov` after `mdat`).
 - **Specifications:** read the format RFCs for video, VR180, and spatial audio.
-- **HRIR assets:** reference filters for ambisonic binaural monitoring in a DAW (listening only, not inject code).
+- **HRIR assets:** reference filters for ambisonic binaural monitoring in a DAW
+  (listening only, not inject code).
 
 ## Specifications
 
@@ -31,12 +37,19 @@ One toolkit for **immersive MP4/MOV metadata**: 360° and VR180 spherical video 
 
 ## Spatial audio workflow
 
-1. **Inject metadata** with the [browser demo](../index.html#demo), [CLI](cli.html), [GUI](cli.html#desktop-gui), or [Docker UI](docker.html). This writes the `SA3D` atom so players know the track is first-order ambisonics.
-2. **Monitor mixes** using the [HRIR reference assets](audio.html) when previewing ambisonic audio in a DAW.
+1. **Inject metadata** with the [browser demo](../index.html#demo),
+   [CLI](cli.html), [GUI](cli.html#desktop-gui), or [Docker UI](docker.html).
+   This writes the `SA3D` atom so players know the track is first-order
+   ambisonics.
+2. **Monitor mixes** using the [HRIR reference assets](audio.html) when
+   previewing ambisonic audio in a DAW.
 
 ## Requirements
 
 - **Browser demo:** any modern desktop browser; files stay local.
-- **CLI binaries:** Linux (x86_64) or macOS (Apple Silicon) from [GitHub Releases](download.html).
-- **Python install:** `git clone` and `pip install -e .`; see the [CLI guide](cli.html).
-- **Docker UI:** [Docker](https://docs.docker.com/get-docker/) and a local `docker build`.
+- **CLI binaries:** Linux (x86_64) or macOS (Apple Silicon) from [GitHub
+  Releases](download.html).
+- **Python install:** `git clone` and `pip install -e .`; see the [CLI
+  guide](cli.html).
+- **Docker UI:** [Docker](https://docs.docker.com/get-docker/) and a local
+  `docker build`.

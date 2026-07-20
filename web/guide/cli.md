@@ -1,12 +1,16 @@
 # CLI Guide
 
-Inspect and inject [spherical video](spec/v1.html) and [spatial audio](spec/audio.html) metadata into MP4 and MOV files.
+Inspect and inject [spherical video](spec/v1.html) and [spatial
+audio](spec/audio.html) metadata into MP4 and MOV files.
 
-Supports **v1** (XML in a UUID box) and **v2** (native `SV3D` / `ST3D` atoms). On inject, conflicting v1/v2 tags are cleared so players see a single coherent metadata set.
+Supports **v1** (XML in a UUID box) and **v2** (native `SV3D` / `ST3D` atoms).
+On inject, conflicting v1/v2 tags are cleared so players see a single coherent
+metadata set.
 
 ## Install
 
-**Recommended:** download a standalone binary from [GitHub Releases](download.html). Make it executable, then run `spatial-media -h`.
+**Recommended:** download a standalone binary from [GitHub
+Releases](download.html). Make it executable, then run `spatial-media -h`.
 
 Or install from a git clone:
 
@@ -58,7 +62,8 @@ spatial-media -i --stereo=left-right \
 spatial-media -i -a input.mp4 output.mp4
 ```
 
-You can also pass the same path twice with `-i` to request in-place output when supported:
+You can also pass the same path twice with `-i` to request in-place output when
+supported:
 
 ```bash
 spatial-media -i --stereo=left-right video.mp4 video.mp4
@@ -66,23 +71,30 @@ spatial-media -i --stereo=left-right video.mp4 video.mp4
 
 ## In-place inject
 
-Rewrite metadata **without a full second copy** of the media. Prefer `-I` for a single file:
+Rewrite metadata **without a full second copy** of the media. Prefer `-I` for a
+single file:
 
 ```bash
 spatial-media -I --stereo=left-right video.mp4
 ```
 
-**Requirements:** the file layout must allow updating `moov` without shifting `mdat` offsets. This is typical when **`moov` comes after `mdat`** (common for files optimized for streaming). If `moov` is before `mdat`, in-place inject is refused; use separate input and output paths.
+**Requirements:** the file layout must allow updating `moov` without shifting
+`mdat` offsets. This is typical when **`moov` comes after `mdat`** (common for
+files optimized for streaming). If `moov` is before `mdat`, in-place inject is
+refused; use separate input and output paths.
 
 ## VR180 helper
 
-For side-by-side equirectangular VR180, `--vr180` reads the video track dimensions and sets left-right stereo, v1 crop, and v2 180° bounds automatically:
+For side-by-side equirectangular VR180, `--vr180` reads the video track
+dimensions and sets left-right stereo, v1 crop, and v2 180° bounds
+automatically:
 
 ```bash
 spatial-media -I --vr180 video.mp4
 ```
 
-Example: an 8192×4096 SBS frame gets half-width eye crop and `0x40000000` (90°) bounds on left and right.
+Example: an 8192×4096 SBS frame gets half-width eye crop and `0x40000000` (90°)
+bounds on left and right.
 
 ## CLI reference
 
@@ -120,9 +132,11 @@ python3 -m pip install -e ".[gui]"
 python3 -m spatial.gui
 ```
 
-The GUI supports spherical video, stereoscopic modes (none / left-right / top-bottom), and spatial audio when the file has a compatible ambisonics track.
+The GUI supports spherical video, stereoscopic modes (none / left-right /
+top-bottom), and spatial audio when the file has a compatible ambisonics track.
 
-For large files or headless servers, use the [Docker web UI](docker.html), the [browser demo](../index.html#demo), or the CLI with `-I`.
+For large files or headless servers, use the [Docker web UI](docker.html), the
+[browser demo](../index.html#demo), or the CLI with `-I`.
 
 ## Standalone executable
 
@@ -133,7 +147,8 @@ python3 -m pip install -e ".[build]"
 pyinstaller --clean --noconfirm spatial/spatial.spec
 ```
 
-The bundled app is built from `gui.py` (Tkinter). On Linux you may need `python3-tk` installed separately.
+The bundled app is built from `gui.py` (Tkinter). On Linux you may need
+`python3-tk` installed separately.
 
 ## Programmatic use
 

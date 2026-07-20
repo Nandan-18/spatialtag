@@ -2,7 +2,8 @@
 
 Browser-based metadata injection for MP4/MOV files.
 
-**Full guide:** [nandan-18.github.io/spatial-media/guide/docker.html](https://nandan-18.github.io/spatial-media/guide/docker.html)
+**Full guide:**
+[nandan-18.github.io/spatial-media/guide/docker.html](https://nandan-18.github.io/spatial-media/guide/docker.html)
 
 ```bash
 docker build -t spatial-media-web -f docker/Dockerfile .

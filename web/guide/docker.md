@@ -1,21 +1,26 @@
 # Docker Web UI
 
-Browser-based metadata injection for MP4/MOV files, running in Docker. Uses the same `spatial` library as the command-line tool and desktop GUI.
+Browser-based metadata injection for MP4/MOV files, running in Docker. Uses the
+same `spatial` library as the command-line tool and desktop GUI.
 
 ## Features
 
 - **Web interface:** drag-and-drop upload, progress indicator, download links
 - **Stereoscopic modes:** none, left-right, or top-bottom
-- **In-place inject:** rewrite metadata in the uploaded file when the layout supports it (default on; avoids a second full copy on disk)
-- **Spatial audio:** inject ambisonics metadata when the source track is compatible
-- **Large files:** up to 16 GB per upload; mount a host directory to process files without uploading through the browser
+- **In-place inject:** rewrite metadata in the uploaded file when the layout
+  supports it (default on; avoids a second full copy on disk)
+- **Spatial audio:** inject ambisonics metadata when the source track is
+  compatible
+- **Large files:** up to 16 GB per upload; mount a host directory to process
+  files without uploading through the browser
 - **Headless:** no X11 or Tkinter in the container
 
 ## Prerequisites
 
 - [Docker](https://docs.docker.com/get-docker/)
 
-For quick one-off tagging without Docker, use the [browser demo](../index.html#demo) or [download a CLI binary](download.html).
+For quick one-off tagging without Docker, use the [browser
+demo](../index.html#demo) or [download a CLI binary](download.html).
 
 ## Build and run
 
@@ -44,7 +49,8 @@ docker run -p 5000:5000 `
 
 ### Working with very large files
 
-For multi-GB sources, skip the browser upload and bind-mount the directory that already contains your videos:
+For multi-GB sources, skip the browser upload and bind-mount the directory that
+already contains your videos:
 
 ```bash
 docker run -p 5000:5000 \
@@ -52,7 +58,9 @@ docker run -p 5000:5000 \
   spatial-media-web
 ```
 
-Copy or move files into that folder, then use the web UI to inject (with **Inject in place** enabled). Alternatively, use a [CLI binary](download.html) on the host:
+Copy or move files into that folder, then use the web UI to inject (with
+**Inject in place** enabled). Alternatively, use a [CLI binary](download.html)
+on the host:
 
 ```bash
 spatial-media -I --vr180 /path/to/your/videos/file.mp4
@@ -64,16 +72,19 @@ spatial-media -I --vr180 /path/to/your/videos/file.mp4
 2. Choose options:
    - **Spherical (360):** equirectangular video metadata
    - **Stereo mode:** none, left-right, or top-bottom
-   - **Inject in place:** overwrite the uploaded file when supported (recommended for large files on a mounted volume)
+   - **Inject in place:** overwrite the uploaded file when supported
+     (recommended for large files on a mounted volume)
    - **Spatial audio:** ambisonics metadata (requires a compatible track)
 3. Click **Inject Metadata**.
-4. Download results from the page, or read them from your mounted `data/` (or custom) folder.
+4. Download results from the page, or read them from your mounted `data/` (or
+   custom) folder.
 
 ## Troubleshooting
 
 ### "File not found" or missing output
 
-Ensure the volume mount is set: `-v ...:/app/uploads`. All uploads and in-place writes go to that path inside the container.
+Ensure the volume mount is set: `-v ...:/app/uploads`. All uploads and in-place
+writes go to that path inside the container.
 
 ### Container name already in use
 
@@ -83,10 +94,13 @@ docker rm -f spatial-media-metadata-injector
 
 ### In-place inject failed
 
-Some files have `moov` before `mdat`; those cannot be updated in place. Disable **Inject in place** in the UI (creates `injected_<filename>`) or use the CLI with separate input/output paths.
+Some files have `moov` before `mdat`; those cannot be updated in place. Disable
+**Inject in place** in the UI (creates `injected_<filename>`) or use the CLI
+with separate input/output paths.
 
 ## Security notes
 
 - Filenames are sanitized and path traversal (`..`, `/`) is rejected.
-- Do not expose this service on a public network without authentication; it accepts file uploads and writes to disk.
+- Do not expose this service on a public network without authentication; it
+  accepts file uploads and writes to disk.
 - Intended for local or trusted LAN use.
