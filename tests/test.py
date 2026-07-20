@@ -3,7 +3,7 @@ Unit tests for the spatial-media tool.
 
 # Test inputs are generated with
 ffmpeg -y -f lavfi -i testsrc -vf scale=320:240 -vcodec libx264 -t 0.05 tests/fixtures/h264.mp4
-ffmpeg -y -f lavfi -i testsrc=size=320x240:rate=1 -f lavfi -i anoisesrc=channel_layout=4.0:sample_rate=48000 \
+ffmpeg -y -f lavfi -i testsrc=size=320x240:rate=1 -f lavfi -i anoisesrc=d=0.05:c=4:r=48000 \
   -t 0.05 -c:v libx264 -c:a aac -shortest tests/fixtures/h264-4ch.mp4
 ffmpeg -y -f lavfi -i testsrc -vf scale=320:240 -vcodec libvpx-vp9 -t 0.05 tests/fixtures/vp9.mp4
 ffmpeg -y -f lavfi -i testsrc -vf scale=32:24 -vcodec prores -t 0.05 tests/fixtures/prores.mov
@@ -281,9 +281,7 @@ class TestInPlace(unittest.TestCase):
 
         logs = []
         metadata = meta.Metadata()
-        metadata.video = meta.generate_spherical_xml(
-            "equirectangular", "left-right", None
-        )
+        metadata.video = meta.generate_spherical_xml("equirectangular", "left-right", None)
 
         def console(msg):
             logs.append(msg)
@@ -315,9 +313,7 @@ class TestHelpers(unittest.TestCase):
         self.assertIsNone(meta.get_video_dimensions("tests/fixtures/does_not_exist.mp4"))
 
     def test_generate_spherical_xml_with_crop(self):
-        xml = meta.generate_spherical_xml(
-            "equirectangular", "left-right", "160:240:320:240:80:0"
-        )
+        xml = meta.generate_spherical_xml("equirectangular", "left-right", "160:240:320:240:80:0")
         self.assertIn("CroppedAreaImageWidthPixels>160", xml)
         self.assertIn("FullPanoWidthPixels>320", xml)
         self.assertIn("StereoMode>left-right", xml)
@@ -444,9 +440,7 @@ class TestMpeg4Container(unittest.TestCase):
         before = os.path.getsize(target)
 
         metadata = meta.Metadata("equirectangular", "left-right", None)
-        metadata.video = meta.generate_spherical_xml(
-            "equirectangular", "left-right", None
-        )
+        metadata.video = meta.generate_spherical_xml("equirectangular", "left-right", None)
 
         logs = []
         meta.inject_metadata(target, target, metadata, logs.append)

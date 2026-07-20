@@ -182,9 +182,7 @@ def main(main_args):
         for input_file in args.file:
             if args.spatial_audio:
                 parsed_metadata = meta.parse_metadata(input_file, console)
-                metadata.audio = meta.get_spatial_audio_description(
-                    parsed_metadata.num_channels
-                )
+                metadata.audio = meta.get_spatial_audio_description(parsed_metadata.num_channels)
 
             meta.parse_metadata(input_file, console)
         return
