@@ -6,10 +6,12 @@ One toolkit for **immersive MP4/MOV metadata**: 360° and VR180 spherical video 
 
 | Path | Description |
 |------|-------------|
-| [docs/](docs/) | RFCs, **browser demo** ([GitHub Pages](https://nandan-18.github.io/spatial-media/)), and specifications |
+| [web/](web/) | Site source, **browser demo** ([GitHub Pages](https://nandan-18.github.io/spatial-media/)), and specifications |
 | [spatialmedia/](spatialmedia/) | Core library, CLI, and desktop GUI for reading and injecting metadata |
 | [docker/](docker/) | Browser-based metadata injector (Flask + Docker) |
-| [spatial-audio/](spatial-audio/) | HRIR filters and ambisonic correction assets for binaural preview in a DAW (not inject code) |
+| [audio/](audio/) | HRIR filters and ambisonic correction assets for binaural preview in a DAW (not inject code) |
+| [tests/](tests/) | Unit tests and media fixtures |
+| [tools/](tools/) | PyInstaller helper for the desktop GUI |
 
 ## Requirements
 
@@ -76,7 +78,7 @@ All surfaces use the same `spatialmedia` library. Pick the one that fits your wo
 | **Desktop GUI** (`python3 -m spatialmedia.gui`) | Interactive desktop use with file pickers |
 | **Docker web UI** | Drag-and-drop in a browser; mount a host folder for multi-GB files |
 
-**Browser demo:** inspect and inject 360° / VR180 video and spatial audio metadata, read specifications, and download CLI binaries (Linux + macOS). Pages deploys from `docs/` via [.github/workflows/pages.yml](.github/workflows/pages.yml).
+**Browser demo:** inspect and inject 360° / VR180 video and spatial audio metadata, read specifications, and download CLI binaries (Linux + macOS). Pages deploys from [web/](web/) via [.github/workflows/pages.yml](.github/workflows/pages.yml).
 
 **Desktop GUI** (requires `[gui]` extra):
 
@@ -96,17 +98,17 @@ Open [http://localhost:5000](http://localhost:5000). Details: [docker/README.md]
 ## Spatial audio workflow
 
 1. **Inject metadata** into your MP4 with the CLI (`-a`), GUI, Docker UI, or browser demo. This writes the `SA3D` atom so players know the track is first-order ambisonics (ACN/SN3D).
-2. **Monitor mixes** using the HRIR reference assets in [spatial-audio/](spatial-audio/README.md) when previewing ambisonic audio in a DAW.
+2. **Monitor mixes** using the HRIR reference assets in [audio/](audio/README.md) when previewing ambisonic audio in a DAW.
 
-See the [Spatial Audio RFC](docs/spatial-audio-rfc.md) for the `SA3D` box specification.
+See the [Spatial Audio RFC](web/spec/spatial-audio.md) for the `SA3D` box specification.
 
 ## Development
 
 ```bash
 python3 -m pip install -e ".[dev]"
-python3 spatialmedia_test.py -v
-python3 -m ruff check spatialmedia spatialmedia_test.py docker
-python3 -m ruff format --check spatialmedia spatialmedia_test.py docker
+python3 tests/test_spatialmedia.py -v
+python3 -m ruff check spatialmedia tests/test_spatialmedia.py docker
+python3 -m ruff format --check spatialmedia tests/test_spatialmedia.py docker
 ```
 
 ### Local site preview
@@ -114,15 +116,16 @@ python3 -m ruff format --check spatialmedia spatialmedia_test.py docker
 Preview the GitHub Pages site (landing page, docs, browser demo) with one command:
 
 ```bash
+cd web
 pnpm install   # or: npm install
-pnpm dev       # builds site/, serves http://localhost:8888, rebuilds on save
+pnpm dev       # builds web/dist, serves http://localhost:8888, rebuilds on save
 ```
 
-Other scripts:
+Other scripts (from `web/`):
 
 ```bash
-pnpm build       # build static site to site/ only
-pnpm preview     # serve site/ (run build first)
+pnpm build       # build static site to web/dist only
+pnpm preview     # serve web/dist (run build first)
 pnpm test:demo   # browser inject smoke test
 ```
 

@@ -1,6 +1,6 @@
 # Spatial Media Metadata Injector
 
-Inspect and inject [spherical video](../docs/spherical-video-rfc.md) and [spatial audio](../docs/spatial-audio-rfc.md) metadata into MP4 and MOV files.
+Inspect and inject [spherical video](../web/spec/spherical-v1.md) and [spatial audio](../web/spec/spatial-audio.md) metadata into MP4 and MOV files.
 
 Supports **v1** (XML in a UUID box) and **v2** (native `SV3D` / `ST3D` atoms). On inject, conflicting v1/v2 tags are cleared so players see a single coherent metadata set.
 
@@ -96,7 +96,7 @@ Example: an 8192×4096 SBS frame gets half-width eye crop and `0x40000000` (90°
 | Flag | Values | Default | Description |
 |------|--------|---------|-------------|
 | `-2`, `--v2` | flag | off | Use v2 box metadata instead of v1 XML |
-| `-s`, `--stereo` | `none`, `top-bottom`, `left-right` | `none` | Stereoscopic layout ([RFC](../docs/spherical-video-rfc.md)) |
+| `-s`, `--stereo` | `none`, `top-bottom`, `left-right` | `none` | Stereoscopic layout ([RFC](../web/spec/spherical-v1.md)) |
 | `-p`, `--projection` | `none`, `equirectangular` | `equirectangular` | Projection type |
 | `-c`, `--crop` | `w:h:f_w:f_h:x:y` | (none) | v1 crop region (six integers) |
 | `-b`, `--bounds` | `top:bottom:left:right` | (none) | v2 equirect bounds (four 0.32 fixed-point values) |
@@ -106,7 +106,7 @@ Example: an 8192×4096 SBS frame gets half-width eye crop and `0x40000000` (90°
 
 | Flag | Description |
 |------|-------------|
-| `-a`, `--spatial-audio` | Inject spatial audio metadata. Input must contain a supported first-order ambisonics track (ACN channel order, SN3D normalization). See the [Spatial Audio RFC](../docs/spatial-audio-rfc.md). |
+| `-a`, `--spatial-audio` | Inject spatial audio metadata. Input must contain a supported first-order ambisonics track (ACN channel order, SN3D normalization). See the [Spatial Audio RFC](../web/spec/spatial-audio.md). |
 
 ## Desktop GUI
 

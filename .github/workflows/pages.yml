@@ -10,12 +10,10 @@ on:
   push:
     branches: [main]
     paths:
-      - "docs/**"
-      - "scripts/build_pages_site.py"
-      - "scripts/test-demo-inject.mjs"
+      - "web/**"
       - "spatialmedia/**"
       - "docker/README.md"
-      - "spatial-audio/README.md"
+      - "audio/README.md"
       - "README.md"
       - "pyproject.toml"
       - ".github/workflows/pages.yml"
@@ -148,7 +146,7 @@ jobs:
                       "arch": arch,
                       "note": note,
                   })
-          Path("site-manifest.json").write_text(json.dumps({"downloads": downloads}, indent=2) + "\n")
+          Path("web/manifest.json").write_text(json.dumps({"downloads": downloads}, indent=2) + "\n")
           print(f"Manifest: {len(downloads)} binary(ies)")
           PY
 
@@ -157,13 +155,13 @@ jobs:
           sudo apt-get update -qq
           sudo apt-get install -y -qq ffmpeg
           ffmpeg -y -f lavfi -i testsrc=size=320x240:rate=1 -f lavfi -i anoisesrc=channel_layout=4.0:sample_rate=48000 \
-            -t 0.05 -c:v libx264 -c:a aac -shortest data/testsrc_320x240_h264_4ch.mp4
-          node scripts/test-demo-inject.mjs
+            -t 0.05 -c:v libx264 -c:a aac -shortest tests/fixtures/testsrc_320x240_h264_4ch.mp4
+          node web/test-inject.mjs
 
       - name: Build static site
         run: |
           python -m pip install markdown pygments
-          python scripts/build_pages_site.py --output site --manifest site-manifest.json
+          python web/build.py --output web/dist --manifest web/manifest.json
 
       - name: Save CLI binaries cache
         if: needs.changes.outputs.cli == 'true'
@@ -179,6 +177,6 @@ jobs:
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: site
+          path: web/dist
       - id: deployment
         uses: actions/deploy-pages@v4

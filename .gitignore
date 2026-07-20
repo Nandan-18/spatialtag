@@ -10,6 +10,7 @@ venv/
 .DS_Store
 **/.DS_Store
 test_output/
+tests/output/
 .ruff_cache/
 .mypy_cache/
 .pytest_cache/
@@ -17,6 +18,7 @@ test_output/
 .vscode/
 *.app
 site/
-site-manifest.json
+web/dist/
+web/manifest.json
 node_modules/
 .pnpm-store/

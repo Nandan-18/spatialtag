@@ -1,20 +1,21 @@
 #!/usr/bin/env node
-/** Quick smoke test for browser mp4 inject logic (run from repo root). */
+/** Quick smoke test for browser mp4 inject logic (run from web/). */
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { injectMetadata, parseMetadata } from "../docs/assets/js/mp4.js";
+import { injectMetadata, parseMetadata } from "./assets/js/mp4.js";
 import {
   buildSa3dContents,
   getSpatialAudioMetadata,
   parseSa3d,
-} from "../docs/assets/js/metadata.js";
+} from "./assets/js/metadata.js";
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const fixture = path.join(__dirname, "../data/testsrc_320x240_h264.mp4");
-const fixture4ch = path.join(__dirname, "../data/testsrc_320x240_h264_4ch.mp4");
-const out = path.join(__dirname, "../test_output/demo_inject.mp4");
-const outAudio = path.join(__dirname, "../test_output/demo_inject_audio.mp4");
+const webDir = path.dirname(fileURLToPath(import.meta.url));
+const root = path.join(webDir, "..");
+const fixture = path.join(root, "tests/fixtures/testsrc_320x240_h264.mp4");
+const fixture4ch = path.join(root, "tests/fixtures/testsrc_320x240_h264_4ch.mp4");
+const out = path.join(root, "tests/output/demo_inject.mp4");
+const outAudio = path.join(root, "tests/output/demo_inject_audio.mp4");
 
 function testSa3dRoundtrip() {
   const meta = getSpatialAudioMetadata(1, false);
@@ -57,7 +58,7 @@ function testVideoInject() {
 
 function testSpatialAudioInject() {
   if (!fs.existsSync(fixture4ch)) {
-    console.log("Skip 4ch inject test: data/testsrc_320x240_h264_4ch.mp4 not found");
+    console.log("Skip 4ch inject test: tests/fixtures/testsrc_320x240_h264_4ch.mp4 not found");
     return;
   }
 

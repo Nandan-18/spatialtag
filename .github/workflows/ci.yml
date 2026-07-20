@@ -5,10 +5,9 @@ on:
     branches: [main]
     paths:
       - "spatialmedia/**"
-      - "spatialmedia_test.py"
+      - "tests/**"
       - "docker/**"
       - "pyproject.toml"
-      - "requirements.txt"
       - ".github/workflows/ci.yml"
   pull_request:
     branches: [main]
@@ -25,11 +24,11 @@ jobs:
       - name: Install package
         run: python -m pip install -e ".[dev]"
       - name: Ruff lint
-        run: python -m ruff check spatialmedia spatialmedia_test.py docker
+        run: python -m ruff check spatialmedia tests/test_spatialmedia.py docker
       - name: Ruff format
-        run: python -m ruff format --check spatialmedia spatialmedia_test.py docker
+        run: python -m ruff format --check spatialmedia tests/test_spatialmedia.py docker
       - name: Unit tests
-        run: python spatialmedia_test.py -v
+        run: python tests/test_spatialmedia.py -v
       - name: Mypy (mpeg package)
         run: python -m mypy spatialmedia/mpeg
         continue-on-error: true

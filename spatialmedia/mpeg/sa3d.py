@@ -17,7 +17,7 @@
 """MPEG SA3D box processing classes.
 
 Enables the injection of an SA3D MPEG-4. The SA3D box specification
-conforms to that outlined in docs/spatial-audio-rfc.md
+conforms to that outlined in web/spec/spatial-audio.md
 """
 
 import struct

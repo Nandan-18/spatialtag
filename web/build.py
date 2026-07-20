@@ -17,36 +17,36 @@ from markdown.extensions.fenced_code import FencedCodeExtension
 from markdown.extensions.tables import TableExtension
 
 ROOT = Path(__file__).resolve().parent.parent
-DOCS_SRC = ROOT / "docs"
-DEFAULT_OUT = ROOT / "site"
+WEB = Path(__file__).resolve().parent
+DEFAULT_OUT = WEB / "dist"
 
 # (source path relative to ROOT, output path relative to site root, page title)
 DOC_PAGES: list[tuple[str, str, str]] = [
     ("README.md", "guide/overview.html", "Overview"),
     ("spatialmedia/README.md", "guide/cli.html", "CLI Guide"),
     ("docker/README.md", "guide/docker.html", "Docker Web UI"),
-    ("spatial-audio/README.md", "guide/spatial-audio-resources.html", "Spatial Audio Resources"),
-    ("docs/spatial-audio-rfc.md", "spec/spatial-audio.html", "Spatial Audio RFC"),
-    ("docs/spherical-video-rfc.md", "spec/spherical-video-v1.html", "Spherical Video v1 RFC"),
-    ("docs/spherical-video-v2-rfc.md", "spec/spherical-video-v2.html", "Spherical Video v2 RFC"),
-    ("docs/vr180.md", "spec/vr180.html", "VR180 Format"),
+    ("audio/README.md", "guide/spatial-audio-resources.html", "Spatial Audio Resources"),
+    ("web/spec/spatial-audio.md", "spec/spatial-audio.html", "Spatial Audio RFC"),
+    ("web/spec/spherical-v1.md", "spec/spherical-video-v1.html", "Spherical Video v1 RFC"),
+    ("web/spec/spherical-v2.md", "spec/spherical-video-v2.html", "Spherical Video v2 RFC"),
+    ("web/spec/vr180.md", "spec/vr180.html", "VR180 Format"),
 ]
 
 LINK_REWRITES: dict[str, str] = {
-    "spatial-audio-rfc.md": "spec/spatial-audio.html",
-    "spherical-video-rfc.md": "spec/spherical-video-v1.html",
-    "spherical-video-v2-rfc.md": "spec/spherical-video-v2.html",
+    "spatial-audio.md": "spec/spatial-audio.html",
+    "spherical-v1.md": "spec/spherical-video-v1.html",
+    "spherical-v2.md": "spec/spherical-video-v2.html",
     "vr180.md": "spec/vr180.html",
-    "../docs/spatial-audio-rfc.md": "spec/spatial-audio.html",
-    "../docs/spherical-video-rfc.md": "spec/spherical-video-v1.html",
-    "../docs/spherical-video-v2-rfc.md": "spec/spherical-video-v2.html",
-    "../docs/vr180.md": "spec/vr180.html",
+    "../web/spec/spatial-audio.md": "spec/spatial-audio.html",
+    "../web/spec/spherical-v1.md": "spec/spherical-video-v1.html",
+    "../web/spec/spherical-v2.md": "spec/spherical-video-v2.html",
+    "../web/spec/vr180.md": "spec/vr180.html",
     "spatialmedia/README.md": "guide/cli.html",
     "../spatialmedia/README.md": "guide/cli.html",
     "docker/README.md": "guide/docker.html",
     "../docker/README.md": "guide/docker.html",
-    "spatial-audio/README.md": "guide/spatial-audio-resources.html",
-    "../spatial-audio/README.md": "guide/spatial-audio-resources.html",
+    "audio/README.md": "guide/spatial-audio-resources.html",
+    "../audio/README.md": "guide/spatial-audio-resources.html",
     "README.md": "guide/overview.html",
 }
 
@@ -64,7 +64,7 @@ NAV_ITEMS = [
     ("VR180", "spec/vr180.html"),
 ]
 
-# Shared global nav (keep in sync with docs/index.html)
+# Shared global nav (keep in sync with web/index.html)
 GLOBAL_NAV_GROUPS: list[tuple[str, list[tuple[str, str]]]] = [
     (
         "",
@@ -311,8 +311,10 @@ def build_site(output_dir: Path, manifest_path: Path) -> None:
     output_dir.mkdir(parents=True)
 
     # Static assets + demo
-    shutil.copytree(DOCS_SRC / "assets", output_dir / "assets")
-    shutil.copy2(DOCS_SRC / "index.html", output_dir / "index.html")
+    shutil.copytree(WEB / "assets", output_dir / "assets")
+    shutil.copy2(WEB / "index.html", output_dir / "index.html")
+    if (WEB / "img").is_dir():
+        shutil.copytree(WEB / "img", output_dir / "img")
 
     # Markdown docs
     for src_rel, out_rel, title in DOC_PAGES:
@@ -363,7 +365,7 @@ def main() -> None:
     parser.add_argument(
         "--manifest",
         type=Path,
-        default=ROOT / "site-manifest.json",
+        default=WEB / "manifest.json",
         help="JSON manifest listing built CLI binaries",
     )
     args = parser.parse_args()

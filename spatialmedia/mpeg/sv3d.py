@@ -17,7 +17,7 @@
 """MPEG SV3D box processing classes.
 
 Enables the injection of an SV3D MPEG-4. The SV3D box specification
-conforms to that outlined in docs/spatial-video-v2-rfc.md
+conforms to that outlined in web/spec/spherical-v2.md
 """
 
 import struct

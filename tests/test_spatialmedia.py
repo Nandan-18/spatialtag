@@ -2,11 +2,11 @@
 Unit tests for the spatialmedia CLI tool.
 
 # Test inputs are generated with
-ffmpeg -y -f lavfi -i testsrc -vf scale=320:240 -vcodec libx264 -t 0.05 data/testsrc_320x240_h264.mp4
+ffmpeg -y -f lavfi -i testsrc -vf scale=320:240 -vcodec libx264 -t 0.05 tests/fixtures/testsrc_320x240_h264.mp4
 ffmpeg -y -f lavfi -i testsrc=size=320x240:rate=1 -f lavfi -i anoisesrc=channel_layout=4.0:sample_rate=48000 \
-  -t 0.05 -c:v libx264 -c:a aac -shortest data/testsrc_320x240_h264_4ch.mp4
-ffmpeg -y -f lavfi -i testsrc -vf scale=320:240 -vcodec libvpx-vp9 -t 0.05 data/testsrc_320x240_vp9.mp4
-ffmpeg -y -f lavfi -i testsrc -vf scale=32:24 -vcodec prores -t 0.05 data/testsrc_32x24_prores.mov
+  -t 0.05 -c:v libx264 -c:a aac -shortest tests/fixtures/testsrc_320x240_h264_4ch.mp4
+ffmpeg -y -f lavfi -i testsrc -vf scale=320:240 -vcodec libvpx-vp9 -t 0.05 tests/fixtures/testsrc_320x240_vp9.mp4
+ffmpeg -y -f lavfi -i testsrc -vf scale=32:24 -vcodec prores -t 0.05 tests/fixtures/testsrc_32x24_prores.mov
 
 """
 
@@ -21,8 +21,8 @@ from spatialmedia import metadata_utils
 from spatialmedia.__main__ import main
 from spatialmedia.mpeg import mpeg4_container
 
-_OUTPUT_DIR = "test_output"
-_FIXTURE_H264 = "data/testsrc_320x240_h264.mp4"
+_OUTPUT_DIR = "tests/output"
+_FIXTURE_H264 = "tests/fixtures/testsrc_320x240_h264.mp4"
 
 
 def _ensure_output_dir():
@@ -85,7 +85,7 @@ class TestAdd(unittest.TestCase):
                 "-i",
                 "--projection",
                 "equirectangular",
-                "data/testsrc_320x240_h264.mp4",
+                "tests/fixtures/testsrc_320x240_h264.mp4",
                 f"{_OUTPUT_DIR}/equirect_mono_v1.mp4",
             ]
         )
@@ -104,7 +104,7 @@ class TestAdd(unittest.TestCase):
                 "left-right",
                 "--projection",
                 "none",
-                "data/testsrc_320x240_h264.mp4",
+                "tests/fixtures/testsrc_320x240_h264.mp4",
                 f"{_OUTPUT_DIR}/rectangular_left_right_v1.mp4",
             ]
         )
@@ -124,7 +124,7 @@ class TestAdd(unittest.TestCase):
                 "--v2",
                 "--projection",
                 "equirectangular",
-                "data/testsrc_320x240_h264.mp4",
+                "tests/fixtures/testsrc_320x240_h264.mp4",
                 f"{_OUTPUT_DIR}/equirect_mono.mp4",
             ]
         )
@@ -148,7 +148,7 @@ class TestAdd(unittest.TestCase):
                 "0x1:-2:0x7FFFFFFF:32",
                 "--projection",
                 "equirectangular",
-                "data/testsrc_320x240_h264.mp4",
+                "tests/fixtures/testsrc_320x240_h264.mp4",
                 f"{_OUTPUT_DIR}/equirect_mono.mp4",
             ]
         )
@@ -170,7 +170,7 @@ class TestAdd(unittest.TestCase):
                 "--v2",
                 "--projection",
                 "equirectangular",
-                "data/testsrc_320x240_vp9.mp4",
+                "tests/fixtures/testsrc_320x240_vp9.mp4",
                 f"{_OUTPUT_DIR}/equirect_mono_vp9.mp4",
             ]
         )
@@ -189,7 +189,7 @@ class TestAdd(unittest.TestCase):
                 "--v2",
                 "--projection",
                 "equirectangular",
-                "data/testsrc_32x24_prores.mov",
+                "tests/fixtures/testsrc_32x24_prores.mov",
                 f"{_OUTPUT_DIR}/equirect_mono_prores.mov",
             ]
         )
@@ -209,7 +209,7 @@ class TestAdd(unittest.TestCase):
                 "left-right",
                 "--projection",
                 "none",
-                "data/testsrc_320x240_h264.mp4",
+                "tests/fixtures/testsrc_320x240_h264.mp4",
                 f"{_OUTPUT_DIR}/rectangular_left_right.mp4",
             ]
         )
@@ -228,7 +228,7 @@ class TestAdd(unittest.TestCase):
                 "top-bottom",
                 "--projection",
                 "none",
-                "data/testsrc_320x240_h264.mp4",
+                "tests/fixtures/testsrc_320x240_h264.mp4",
                 f"{_OUTPUT_DIR}/rectangular_top_bottom.mp4",
             ]
         )
@@ -246,7 +246,7 @@ class TestInPlace(unittest.TestCase):
 
     def test_inject_inplace_left_right(self):
         target = f"{_OUTPUT_DIR}/inplace_left_right.mp4"
-        shutil.copyfile("data/testsrc_320x240_h264.mp4", target)
+        shutil.copyfile("tests/fixtures/testsrc_320x240_h264.mp4", target)
         before = os.path.getsize(target)
         names_before = [n for _, n, _, _ in _top_level_boxes(target)]
         self.assertEqual(names_before[-1], b"moov")
@@ -275,7 +275,7 @@ class TestInPlace(unittest.TestCase):
 
     def test_inject_inplace_refuses_moov_before_mdat(self):
         target = f"{_OUTPUT_DIR}/moov_before_mdat.mp4"
-        shutil.copyfile("data/testsrc_320x240_h264_moov_first.mp4", target)
+        shutil.copyfile("tests/fixtures/testsrc_320x240_h264_moov_first.mp4", target)
         with open(target, "rb") as f:
             original = f.read()
 
@@ -297,7 +297,7 @@ class TestInPlace(unittest.TestCase):
 
     def test_in_place_flag_and_vr180(self):
         target = f"{_OUTPUT_DIR}/cli_vr180.mp4"
-        shutil.copyfile("data/testsrc_320x240_h264.mp4", target)
+        shutil.copyfile("tests/fixtures/testsrc_320x240_h264.mp4", target)
         self.assertIsNone(main(["-I", "--vr180", target]))
         contents = []
         metadata_utils.parse_metadata(target, contents.append)
@@ -312,7 +312,7 @@ class TestHelpers(unittest.TestCase):
         self.assertEqual(metadata_utils.get_video_dimensions(_FIXTURE_H264), (320, 240))
 
     def test_get_video_dimensions_missing_file(self):
-        self.assertIsNone(metadata_utils.get_video_dimensions("data/does_not_exist.mp4"))
+        self.assertIsNone(metadata_utils.get_video_dimensions("tests/fixtures/does_not_exist.mp4"))
 
     def test_generate_spherical_xml_with_crop(self):
         xml = metadata_utils.generate_spherical_xml(
@@ -351,7 +351,7 @@ class TestCliValidation(unittest.TestCase):
         self.assertIn("not both", out)
 
     def test_vr180_on_missing_file(self):
-        out = _run_main(["-I", "--vr180", "data/no_such_file.mp4"])
+        out = _run_main(["-I", "--vr180", "tests/fixtures/no_such_file.mp4"])
         self.assertIn("Could not read video dimensions", out)
 
 
@@ -434,7 +434,7 @@ class TestMpeg4Container(unittest.TestCase):
         self.assertEqual(_top_level_boxes(_FIXTURE_H264)[-1][1], b"moov")
 
     def test_moov_first_fixture_is_unsupported_for_inplace(self):
-        names = [n for _, n, _, _ in _top_level_boxes("data/testsrc_320x240_h264_moov_first.mp4")]
+        names = [n for _, n, _, _ in _top_level_boxes("tests/fixtures/testsrc_320x240_h264_moov_first.mp4")]
         self.assertEqual(names[:2], [b"ftyp", b"moov"])
         self.assertNotEqual(names[-1], b"moov")
 
@@ -457,7 +457,7 @@ class TestMpeg4Container(unittest.TestCase):
         self.assertIn("StereoMode = left-right", _parse_text(target))
 
     def test_save_moov_inplace_raises_for_moov_first(self):
-        with open("data/testsrc_320x240_h264_moov_first.mp4", "r+b") as fh:
+        with open("tests/fixtures/testsrc_320x240_h264_moov_first.mp4", "r+b") as fh:
             mpeg4 = mpeg4_container.load(fh)
             with self.assertRaises(ValueError) as ctx:
                 mpeg4.save_moov_inplace(fh)
