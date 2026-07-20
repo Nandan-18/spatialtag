@@ -1,5 +1,5 @@
 # -*- mode: python -*-
-# PyInstaller spec for the spatial-media console binary.
+# PyInstaller spec for the spatialtag console binary.
 
 import sys
 from pathlib import Path
@@ -27,7 +27,7 @@ exe = EXE(
     a.binaries,
     a.zipfiles,
     a.datas,
-    name="spatial-media",
+    name="spatialtag",
     debug=False,
     strip=False,
     upx=True,

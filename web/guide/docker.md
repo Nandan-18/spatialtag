@@ -27,12 +27,12 @@ demo](../index.html#demo) or [download a CLI binary](download.html).
 ```bash
 git clone https://github.com/Nandan-18/spatial-media.git
 cd spatial-media
-docker build -t spatial-media-web -f docker/Dockerfile .
+docker build -t spatialtag-web -f docker/Dockerfile .
 mkdir -p data
 docker run -p 5000:5000 \
-  --name spatial-media-metadata-injector \
+  --name spatialtag \
   -v "$(pwd)/data:/app/uploads" \
-  spatial-media-web
+  spatialtag-web
 ```
 
 Open [http://localhost:5000](http://localhost:5000).
@@ -42,9 +42,9 @@ Open [http://localhost:5000](http://localhost:5000).
 ```powershell
 mkdir data -ErrorAction SilentlyContinue
 docker run -p 5000:5000 `
-  --name spatial-media-metadata-injector `
+  --name spatialtag `
   -v ${PWD}\data:/app/uploads `
-  spatial-media-web
+  spatialtag-web
 ```
 
 ### Working with very large files
@@ -55,7 +55,7 @@ already contains your videos:
 ```bash
 docker run -p 5000:5000 \
   -v /path/to/your/videos:/app/uploads \
-  spatial-media-web
+  spatialtag-web
 ```
 
 Copy or move files into that folder, then use the web UI to inject (with
@@ -63,7 +63,7 @@ Copy or move files into that folder, then use the web UI to inject (with
 on the host:
 
 ```bash
-spatial-media -I --vr180 /path/to/your/videos/file.mp4
+spatialtag -I --vr180 /path/to/your/videos/file.mp4
 ```
 
 ## Usage
@@ -89,7 +89,7 @@ writes go to that path inside the container.
 ### Container name already in use
 
 ```bash
-docker rm -f spatial-media-metadata-injector
+docker rm -f spatialtag
 ```
 
 ### In-place inject failed

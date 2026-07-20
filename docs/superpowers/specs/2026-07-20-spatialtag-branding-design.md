@@ -1,8 +1,8 @@
 # SpatialTag branding design
 
 **Date:** 2026-07-20  
-**Status:** Approved for implementation planning  
-**Scope:** Full public branding pass (name, visual system, homepage, docs chrome, README, favicon). No repo/package/module rename.
+**Status:** Approved (site pass complete; CLI/package rename approved 2026-07-20)  
+**Scope:** Full public branding plus CLI, PyPI project name, release binaries, and Docker image names. GitHub repo URL and Python import path `spatial.*` stay unchanged for now.
 
 ## Problem
 
@@ -12,15 +12,16 @@ The project is a clear immersive-metadata toolkit, but the public face reads as 
 
 - Product name that matches the job: tagging media as spatial.
 - Distinctive visual system (type, color, mark) that still feels like a precision tool.
-- Homepage and README lead with brand + outcome; keep CLI/package identifiers stable.
-- Docs keep technical RFC content; only chrome/branding updates.
+- Homepage, README, CLI, binaries, and Docker use SpatialTag / `spatialtag` naming.
+- Docs keep technical RFC content; branding strings and command examples stay aligned.
 
 ## Non-goals
 
-- Renaming the GitHub repo (`spatial-media`).
-- Renaming the Python package, import paths, or CLI entry point (`spatial-media`).
+- Renaming the GitHub repo (`spatial-media`) or Pages base path (until done on GitHub).
+- Renaming Python import packages (`spatial.*` stays).
 - Rewriting RFC / spec body content.
 - Dark-mode-first redesign, purple/glow aesthetics, or card-heavy marketing layouts.
+- Keeping a `spatial-media` CLI alias (clean break).
 
 ## Identity
 
@@ -35,9 +36,12 @@ The project is a clear immersive-metadata toolkit, but the public face reads as 
 ### Naming rules
 
 - **Public face:** SpatialTag on site nav, page titles, README title, meta description.
-- **Repo:** remains `spatial-media`.
-- **CLI:** remains `spatial-media`; docs/README refer to “SpatialTag CLI (`spatial-media`)”.
-- **Code:** Python modules and package metadata unchanged in this pass.
+- **Repo / Pages URL:** remains `Nandan-18/spatial-media` until renamed on GitHub.
+- **CLI:** `spatialtag` (replaces `spatial-media`).
+- **PyPI / project name:** `spatialtag`.
+- **Python imports:** keep `spatial.*`.
+- **Release binaries:** `spatialtag-linux-x86_64`, `spatialtag-macos-arm64`.
+- **Docker image:** `spatialtag-web`; container name `spatialtag`.
 
 ## Visual system
 
@@ -82,33 +86,26 @@ Two to three intentional motions on the homepage hero only (e.g. tag “stamp”
 ### Homepage
 
 1. Nav: SpatialTag wordmark + Demo / Docs / Download / GitHub.
-2. Hero (first viewport): brand → one headline → one supporting sentence → CTA group (“Try in browser”, “Download CLI”) → privacy note. Full-bleed illustration of the job (file gains a spatial tag), not abstract SV3D rings or inset cards.
+2. Hero (first viewport): brand → one headline → one supporting sentence → CTA group (“Try in browser”, “Download CLI”) → privacy note.
 3. Below fold: three paths (Browser / CLI / Docs), then existing demo restyled to new tokens.
-4. First screen avoids RFC jargon; specs linked from Docs.
+4. CLI examples use `spatialtag`.
 
-### Docs chrome
+### Docs / README
 
-- Apply color/type tokens and SpatialTag header/sidebar branding.
-- Spec and guide **content** stays as-is aside from branding string replacements in chrome/titles where needed.
+- Docs chrome uses SpatialTag.
+- Quick start and guides use `spatialtag` commands.
+- Clone paths may still say `spatial-media` (repo name).
 
-### README
+### CLI / packaging
 
-- H1: SpatialTag.
-- Opening uses positioning + subtitle.
-- Quick start keeps `spatial-media` commands; one clarifying line for CLI naming.
-
-### Meta / assets
-
-- Update `<title>` and meta description to SpatialTag.
-- New favicon/mark as specified.
+- `pyproject.toml` project name and console script: `spatialtag`.
+- PyInstaller console binary name: `spatialtag`.
+- Release workflow artifact names: `spatialtag-*`.
+- Docker image: `spatialtag-web`.
 
 ## Success criteria
 
-- First viewport fails the “could this be another brand?” test after removing nav: SpatialTag is the hero-level signal.
-- Creators understand the job in one sentence; developers still see working install/CLI commands.
-- Visual language is consistent across homepage, docs chrome, favicon, and README.
-- No breaking changes to CLI invocation or Python imports.
-
-## Implementation notes (for planning)
-
-Likely touchpoints: `web/index.html`, `web/assets/css/style.css`, `web/assets/css/site.css`, `web/assets/favicon.svg`, `web/build.py` (nav/logo strings), `README.md`, and any hardcoded “Spatial Media” strings in site chrome.
+- First viewport brand test passes with SpatialTag as hero-level signal.
+- Developers install/run via `spatialtag`.
+- No remaining user-facing `spatial-media` CLI command (repo URLs may still say `spatial-media`).
+- `import spatial` still works.

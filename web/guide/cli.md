@@ -10,7 +10,7 @@ metadata set.
 ## Install
 
 **Recommended:** download a standalone binary from [GitHub
-Releases](download.html). Make it executable, then run `spatial-media -h`.
+Releases](download.html). Make it executable, then run `spatialtag -h`.
 
 Or install from a git clone:
 
@@ -18,7 +18,7 @@ Or install from a git clone:
 git clone https://github.com/Nandan-18/spatial-media.git
 cd spatial-media
 python3 -m pip install -e .
-spatial-media -h
+spatialtag -h
 ```
 
 ## Examine
@@ -26,8 +26,8 @@ spatial-media -h
 Print spatial media metadata for each file:
 
 ```bash
-spatial-media video.mp4
-spatial-media clip1.mp4 clip2.mov
+spatialtag video.mp4
+spatialtag clip1.mp4 clip2.mov
 ```
 
 ## Inject
@@ -35,38 +35,38 @@ spatial-media clip1.mp4 clip2.mov
 Write metadata to a **separate output file**:
 
 ```bash
-spatial-media -i [options] <input> <output>
+spatialtag -i [options] <input> <output>
 ```
 
 Common examples:
 
 ```bash
 # Mono 360 equirectangular (v1)
-spatial-media -i input.mp4 output.mp4
+spatialtag -i input.mp4 output.mp4
 
 # Stereoscopic left-right (v1)
-spatial-media -i --stereo=left-right input.mp4 output.mp4
+spatialtag -i --stereo=left-right input.mp4 output.mp4
 
 # v2 atom metadata
-spatial-media -i -2 --stereo=left-right input.mp4 output.mp4
+spatialtag -i -2 --stereo=left-right input.mp4 output.mp4
 
 # v2 with VR180 equirect bounds (fixed-point crop on each border)
-spatial-media -i -2 --stereo=left-right \
+spatialtag -i -2 --stereo=left-right \
   --bounds="0:0:0x40000000:0x40000000" input.mp4 output.mp4
 
 # v1 crop region (w:h:full_w:full_h:left:top)
-spatial-media -i --stereo=left-right \
+spatialtag -i --stereo=left-right \
   --crop="4096:4096:8192:4096:2048:0" input.mp4 output.mp4
 
 # Spatial audio (first-order ambisonics, ACN + SN3D)
-spatial-media -i -a input.mp4 output.mp4
+spatialtag -i -a input.mp4 output.mp4
 ```
 
 You can also pass the same path twice with `-i` to request in-place output when
 supported:
 
 ```bash
-spatial-media -i --stereo=left-right video.mp4 video.mp4
+spatialtag -i --stereo=left-right video.mp4 video.mp4
 ```
 
 ## In-place inject
@@ -75,7 +75,7 @@ Rewrite metadata **without a full second copy** of the media. Prefer `-I` for a
 single file:
 
 ```bash
-spatial-media -I --stereo=left-right video.mp4
+spatialtag -I --stereo=left-right video.mp4
 ```
 
 **Requirements:** the file layout must allow updating `moov` without shifting
@@ -90,7 +90,7 @@ dimensions and sets left-right stereo, v1 crop, and v2 180° bounds
 automatically:
 
 ```bash
-spatial-media -I --vr180 video.mp4
+spatialtag -I --vr180 video.mp4
 ```
 
 Example: an 8192×4096 SBS frame gets half-width eye crop and `0x40000000` (90°)

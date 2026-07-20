@@ -3,7 +3,7 @@
 HRIR reference WAV files for ambisonic binaural monitoring in a DAW.
 
 **Full guide:**
-[nandan-18.github.io/spatial-media/guide/audio.html](https://nandan-18.github.io/spatial-media/guide/audio.html)
+[nandan-18.github.io/spatial-media/docs/audio.html](https://nandan-18.github.io/spatial-media/docs/audio.html)
 
 Download `audio.zip` from [GitHub
 Releases](https://github.com/Nandan-18/spatial-media/releases/latest) or use the

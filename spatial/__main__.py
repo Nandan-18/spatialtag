@@ -22,8 +22,9 @@ def main(main_args):
     """Main function for printing and injecting spatial media metadata."""
 
     parser = argparse.ArgumentParser(
-        usage="%(prog)s [options] [files...]\n\nBy default prints out spatial media "
-        "metadata from specified files."
+        prog="spatialtag",
+        usage="%(prog)s [options] [files...]\n\nBy default prints out immersive "
+        "media metadata from specified files.",
     )
     parser.add_argument(
         "-i",

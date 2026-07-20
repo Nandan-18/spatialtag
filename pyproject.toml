@@ -3,9 +3,9 @@ requires = ["setuptools>=61"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "spatial-media"
+name = "spatialtag"
 version = "1.0.0"
-description = "Specifications and tools for 360 video and spatial audio."
+description = "SpatialTag: inspect and inject immersive MP4/MOV metadata."
 readme = "README.md"
 requires-python = ">=3.9"
 dependencies = []
@@ -16,7 +16,7 @@ build = ["pyinstaller", "pillow", "packaging"]
 dev = ["ruff>=0.6", "mypy>=1.8", "markdown>=3.5", "pygments>=2.17"]
 
 [project.scripts]
-spatial-media = "spatial.__main__:main_entry"
+spatialtag = "spatial.__main__:main_entry"
 
 [tool.setuptools.packages.find]
 include = ["spatial*"]

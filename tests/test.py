@@ -1,5 +1,5 @@
 """
-Unit tests for the spatial-media tool.
+Unit tests for the spatialtag tool.
 
 # Test inputs are generated with
 ffmpeg -y -f lavfi -i testsrc -vf scale=320:240 -vcodec libx264 -t 0.05 tests/fixtures/h264.mp4

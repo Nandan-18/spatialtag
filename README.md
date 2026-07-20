@@ -17,7 +17,7 @@ everywhere.
   spatial-audio metadata from any MP4/MOV file.
 - **Writes** the correct MPEG-4 boxes so players recognise a file as 360°
   equirectangular, VR180 side-by-side, or ambisonics-enabled.
-- Works as a **SpatialTag CLI** (`spatial-media`), a **desktop GUI**
+- Works as a **SpatialTag CLI** (`spatialtag`), a **desktop GUI**
   (Tkinter), a **browser demo**, or a **Docker web UI** (Flask).
 
 **Site:**
@@ -26,14 +26,14 @@ everywhere.
 
 ## Quick start
 
-SpatialTag CLI command: `spatial-media`
+SpatialTag CLI command: `spatialtag`
 
 ```bash
 git clone https://github.com/Nandan-18/spatial-media.git
 cd spatial-media
 python3 -m pip install -e .
-spatial-media video.mp4              # inspect metadata
-spatial-media -I --vr180 video.mp4   # inject in place
+spatialtag video.mp4              # inspect metadata
+spatialtag -I --vr180 video.mp4   # inject in place
 ```
 
 Pre-built [CLI binaries and HRIR
