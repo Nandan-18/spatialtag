@@ -15,7 +15,7 @@ Browser-based metadata injection for MP4/MOV files, running in Docker. Uses the 
 
 - [Docker](https://docs.docker.com/get-docker/)
 
-For quick one-off tagging without Docker, use the [browser demo](../index.html#demo) or [download a CLI binary](../download.html).
+For quick one-off tagging without Docker, use the [browser demo](../index.html#demo) or [download a CLI binary](download.html).
 
 ## Build and run
 
@@ -52,7 +52,7 @@ docker run -p 5000:5000 \
   spatial-media-web
 ```
 
-Copy or move files into that folder, then use the web UI to inject (with **Inject in place** enabled). Alternatively, use a [CLI binary](../download.html) on the host:
+Copy or move files into that folder, then use the web UI to inject (with **Inject in place** enabled). Alternatively, use a [CLI binary](download.html) on the host:
 
 ```bash
 spatial-media -I --vr180 /path/to/your/videos/file.mp4

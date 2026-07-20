@@ -1,12 +1,12 @@
 # CLI Guide
 
-Inspect and inject [spherical video](../spec/v1.html) and [spatial audio](../spec/audio.html) metadata into MP4 and MOV files.
+Inspect and inject [spherical video](spec/v1.html) and [spatial audio](spec/audio.html) metadata into MP4 and MOV files.
 
 Supports **v1** (XML in a UUID box) and **v2** (native `SV3D` / `ST3D` atoms). On inject, conflicting v1/v2 tags are cleared so players see a single coherent metadata set.
 
 ## Install
 
-**Recommended:** download a standalone binary from [GitHub Releases](../download.html). Make it executable, then run `spatial-media -h`.
+**Recommended:** download a standalone binary from [GitHub Releases](download.html). Make it executable, then run `spatial-media -h`.
 
 Or install from a git clone:
 
@@ -99,7 +99,7 @@ Example: an 8192×4096 SBS frame gets half-width eye crop and `0x40000000` (90°
 | Flag | Values | Default | Description |
 |------|--------|---------|-------------|
 | `-2`, `--v2` | flag | off | Use v2 box metadata instead of v1 XML |
-| `-s`, `--stereo` | `none`, `top-bottom`, `left-right` | `none` | Stereoscopic layout ([RFC](../spec/v1.html)) |
+| `-s`, `--stereo` | `none`, `top-bottom`, `left-right` | `none` | Stereoscopic layout ([RFC](spec/v1.html)) |
 | `-p`, `--projection` | `none`, `equirectangular` | `equirectangular` | Projection type |
 | `-c`, `--crop` | `w:h:f_w:f_h:x:y` | (none) | v1 crop region (six integers) |
 | `-b`, `--bounds` | `top:bottom:left:right` | (none) | v2 equirect bounds (four 0.32 fixed-point values) |
@@ -109,7 +109,7 @@ Example: an 8192×4096 SBS frame gets half-width eye crop and `0x40000000` (90°
 
 | Flag | Description |
 |------|-------------|
-| `-a`, `--spatial-audio` | Inject spatial audio metadata. Input must contain a supported first-order ambisonics track (ACN channel order, SN3D normalization). See the [Spatial Audio RFC](../spec/audio.html). |
+| `-a`, `--spatial-audio` | Inject spatial audio metadata. Input must contain a supported first-order ambisonics track (ACN channel order, SN3D normalization). See the [Spatial Audio RFC](spec/audio.html). |
 
 ## Desktop GUI
 

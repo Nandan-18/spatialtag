@@ -2,11 +2,11 @@
 
 Reference assets for **ambisonic binaural monitoring**: HRIR filters suited to immersive 360/VR playback and related decoders. Use these when building preview tools or monitoring ambisonic mixes in a DAW.
 
-These are **listening/monitoring assets**, not metadata injection code. To tag MP4/MOV files with spatial audio metadata (`SA3D` atoms), use the [browser demo](../index.html#demo), the [CLI/GUI](cli.html) (`-a`), or the [Docker web UI](docker.html). See the [Spatial Audio RFC](../spec/audio.html) for the box format.
+These are **listening/monitoring assets**, not metadata injection code. To tag MP4/MOV files with spatial audio metadata (`SA3D` atoms), use the [browser demo](../index.html#demo), the [CLI/GUI](cli.html) (`-a`), or the [Docker web UI](docker.html). See the [Spatial Audio RFC](spec/audio.html) for the box format.
 
 ## Get the files
 
-HRIR WAV files are in the repository under `audio/` and packaged as `audio.zip` on [GitHub Releases](../download.html). Clone the repo or download the zip.
+HRIR WAV files are in the repository under `audio/` and packaged as `audio.zip` on [GitHub Releases](download.html). Clone the repo or download the zip.
 
 ## Directory overview
 

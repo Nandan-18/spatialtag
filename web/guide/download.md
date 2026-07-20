@@ -18,7 +18,7 @@ chmod +x spatial-media-macos-arm64   # macOS or Linux
 
 On macOS you may need: `xattr -dr com.apple.quarantine ./spatial-media-macos-arm64`
 
-See the [CLI guide](guide/cli.html) for all options.
+See the [CLI guide](cli.html) for all options.
 
 ## Install from source
 
@@ -31,4 +31,4 @@ spatial-media -h
 
 ## HRIR assets
 
-Extract `audio.zip` or clone the repository and use the files under `audio/`. See the [spatial audio resources guide](guide/audio.html).
+Extract `audio.zip` or clone the repository and use the files under `audio/`. See the [spatial audio resources guide](audio.html).

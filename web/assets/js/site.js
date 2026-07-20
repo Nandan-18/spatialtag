@@ -1,4 +1,4 @@
-/** Global nav: mobile menu toggle. */
+/** Global nav and docs sidebar toggles. */
 const toggle = document.querySelector(".nav-toggle");
 const links = document.getElementById("global-nav-links");
 
@@ -15,5 +15,15 @@ if (toggle && links) {
       toggle.setAttribute("aria-expanded", "false");
       toggle.setAttribute("aria-label", "Open menu");
     });
+  });
+}
+
+const docsToggle = document.querySelector(".docs-sidebar-toggle");
+const docsNav = document.getElementById("docs-sidebar-nav");
+
+if (docsToggle && docsNav) {
+  docsToggle.addEventListener("click", () => {
+    const open = docsNav.classList.toggle("is-open");
+    docsToggle.setAttribute("aria-expanded", String(open));
   });
 }

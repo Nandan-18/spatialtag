@@ -7,7 +7,7 @@ One toolkit for **immersive MP4/MOV metadata**: 360° and VR180 spherical video 
 | Interface | Best for |
 |-----------|----------|
 | **[Browser demo](../index.html#demo)** | Quick inspect/inject under ~2 GB; no install |
-| **[CLI binaries](../download.html)** | Scripting, large files, in-place inject (`-I`), VR180 helper |
+| **[CLI binaries](download.html)** | Scripting, large files, in-place inject (`-I`), VR180 helper |
 | **[CLI guide](cli.html)** | All command-line flags and examples |
 | **[Desktop GUI](cli.html#desktop-gui)** | Interactive desktop use with file pickers |
 | **[Docker web UI](docker.html)** | Drag-and-drop in a browser with mounted folders |
@@ -24,10 +24,10 @@ One toolkit for **immersive MP4/MOV metadata**: 360° and VR180 spherical video 
 
 | Topic | Document |
 |-------|----------|
-| Spherical video v1 | [RFC](../spec/v1.html) |
-| Spherical video v2 | [RFC](../spec/v2.html) |
-| VR180 | [Format](../spec/vr180.html) |
-| Spatial audio | [RFC](../spec/audio.html) |
+| Spherical video v1 | [RFC](spec/v1.html) |
+| Spherical video v2 | [RFC](spec/v2.html) |
+| VR180 | [Format](spec/vr180.html) |
+| Spatial audio | [RFC](spec/audio.html) |
 
 ## Spatial audio workflow
 
@@ -37,6 +37,6 @@ One toolkit for **immersive MP4/MOV metadata**: 360° and VR180 spherical video 
 ## Requirements
 
 - **Browser demo:** any modern desktop browser; files stay local.
-- **CLI binaries:** Linux (x86_64) or macOS (Apple Silicon) from [GitHub Releases](../download.html).
+- **CLI binaries:** Linux (x86_64) or macOS (Apple Silicon) from [GitHub Releases](download.html).
 - **Python install:** `git clone` and `pip install -e .`; see the [CLI guide](cli.html).
 - **Docker UI:** [Docker](https://docs.docker.com/get-docker/) and a local `docker build`.

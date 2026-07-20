@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import html
 import os
+import re
 import shutil
 from pathlib import Path
 
@@ -17,34 +18,52 @@ ROOT = Path(__file__).resolve().parent.parent
 WEB = Path(__file__).resolve().parent
 DEFAULT_OUT = WEB / "dist"
 
+# (source path relative to ROOT, output path relative to site root, page title)
 DOC_PAGES: list[tuple[str, str, str]] = [
-    ("web/guide/overview.md", "guide/overview.html", "Overview"),
-    ("web/guide/download.md", "download.html", "Download"),
-    ("web/guide/cli.md", "guide/cli.html", "CLI Guide"),
-    ("web/guide/docker.md", "guide/docker.html", "Docker Web UI"),
-    ("web/guide/audio.md", "guide/audio.html", "Spatial Audio Resources"),
-    ("web/spec/audio.md", "spec/audio.html", "Spatial Audio RFC"),
-    ("web/spec/v1.md", "spec/v1.html", "Spherical Video v1 RFC"),
-    ("web/spec/v2.md", "spec/v2.html", "Spherical Video v2 RFC"),
-    ("web/spec/vr180.md", "spec/vr180.html", "VR180 Format"),
+    ("web/guide/overview.md", "docs/index.html", "Overview"),
+    ("web/guide/download.md", "docs/download.html", "Download"),
+    ("web/guide/cli.md", "docs/cli.html", "CLI Guide"),
+    ("web/guide/docker.md", "docs/docker.html", "Docker Web UI"),
+    ("web/guide/audio.md", "docs/audio.html", "Spatial Audio Resources"),
+    ("web/spec/audio.md", "docs/spec/audio.html", "Spatial Audio RFC"),
+    ("web/spec/v1.md", "docs/spec/v1.html", "Spherical Video v1 RFC"),
+    ("web/spec/v2.md", "docs/spec/v2.html", "Spherical Video v2 RFC"),
+    ("web/spec/vr180.md", "docs/spec/vr180.html", "VR180 Format"),
 ]
 
-# None = visual divider. Keep in sync with web/index.html.
-GLOBAL_NAV_LINKS: list[tuple[str, str] | None] = [
+# Sidebar navigation. Keep section labels short.
+DOC_SIDEBAR: list[tuple[str, list[tuple[str, str]]]] = [
+    (
+        "Getting started",
+        [
+            ("Overview", "docs/index.html"),
+            ("Download", "docs/download.html"),
+        ],
+    ),
+    (
+        "Guides",
+        [
+            ("CLI", "docs/cli.html"),
+            ("Docker", "docs/docker.html"),
+            ("HRIR assets", "docs/audio.html"),
+        ],
+    ),
+    (
+        "Specifications",
+        [
+            ("Spherical video v1", "docs/spec/v1.html"),
+            ("Spherical video v2", "docs/spec/v2.html"),
+            ("VR180", "docs/spec/vr180.html"),
+            ("Spatial audio", "docs/spec/audio.html"),
+        ],
+    ),
+]
+
+# Keep in sync with web/index.html.
+GLOBAL_NAV_LINKS: list[tuple[str, str]] = [
     ("Demo", "index.html#demo"),
-    ("Download", "download.html"),
-    None,
-    ("Overview", "guide/overview.html"),
-    ("CLI", "guide/cli.html"),
-    ("Docker", "guide/docker.html"),
-    ("GUI", "guide/cli.html#desktop-gui"),
-    None,
-    ("Spherical v1", "spec/v1.html"),
-    ("Spherical v2", "spec/v2.html"),
-    ("VR180", "spec/vr180.html"),
-    ("Spatial audio", "spec/audio.html"),
-    None,
-    ("HRIR", "guide/audio.html"),
+    ("Download", "docs/download.html"),
+    ("Docs", "docs/index.html"),
 ]
 
 
@@ -71,11 +90,7 @@ def nav_href(current_page: str, target: str) -> str:
 def render_global_nav(current_page: str) -> str:
     logo_href = html.escape(nav_href(current_page, "index.html"))
     items: list[str] = []
-    for entry in GLOBAL_NAV_LINKS:
-        if entry is None:
-            items.append('<span class="nav-divider" aria-hidden="true"></span>')
-            continue
-        text, href = entry
+    for text, href in GLOBAL_NAV_LINKS:
         items.append(
             f'<a href="{html.escape(nav_href(current_page, href))}">{html.escape(text)}</a>'
         )
@@ -95,6 +110,32 @@ def render_global_nav(current_page: str) -> str:
     )
 
 
+def render_docs_sidebar(current_page: str) -> str:
+    sections: list[str] = []
+    for label, links in DOC_SIDEBAR:
+        items: list[str] = []
+        for text, href in links:
+            url = html.escape(nav_href(current_page, href))
+            active = ' class="is-active"' if href == current_page else ""
+            items.append(f'<li><a href="{url}"{active}>{html.escape(text)}</a></li>')
+        sections.append(
+            f'<div class="docs-sidebar-section">\n'
+            f'  <p class="docs-sidebar-label">{html.escape(label)}</p>\n'
+            f'  <ul class="docs-sidebar-links">{"".join(items)}</ul>\n'
+            f"</div>"
+        )
+    return (
+        f'<aside class="docs-sidebar" aria-label="Documentation">\n'
+        f'  <button class="docs-sidebar-toggle" type="button" '
+        f'aria-expanded="false" aria-controls="docs-sidebar-nav">'
+        f"Browse docs</button>\n"
+        f'  <nav class="docs-sidebar-nav" id="docs-sidebar-nav">\n'
+        f'{"".join(sections)}\n'
+        f"  </nav>\n"
+        f"</aside>"
+    )
+
+
 def render_favicon_links(current_page: str) -> str:
     icon_href = html.escape(relpath(current_page, "assets/favicon.svg"))
     return (
@@ -105,9 +146,11 @@ def render_favicon_links(current_page: str) -> str:
 
 def render_doc_page(title: str, body_html: str, current_page: str) -> str:
     global_nav = render_global_nav(current_page)
+    sidebar = render_docs_sidebar(current_page)
     style_href = relpath(current_page, "assets/css/style.css")
     site_href = relpath(current_page, "assets/css/site.css")
     favicon = render_favicon_links(current_page)
+    site_js = html.escape(relpath(current_page, "assets/js/site.js"))
     return f"""<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -120,19 +163,33 @@ def render_doc_page(title: str, body_html: str, current_page: str) -> str:
 </head>
 <body class="doc-page">
   {global_nav}
-  <div class="page doc-shell">
-    <main class="doc-content">
-      <h1>{html.escape(title)}</h1>
-      {body_html}
-    </main>
-    <footer class="doc-footer">
-      <p>Spatial Media metadata tools</p>
-    </footer>
+  <div class="docs-layout">
+    {sidebar}
+    <div class="docs-main">
+      <main class="doc-content">
+        <h1>{html.escape(title)}</h1>
+        {body_html}
+      </main>
+      <footer class="doc-footer">
+        <p>Spatial Media metadata tools</p>
+      </footer>
+    </div>
   </div>
-  <script src="{html.escape(relpath(current_page, "assets/js/site.js"))}" defer></script>
+  <script src="{site_js}" defer></script>
 </body>
 </html>
 """
+
+
+def prepare_markdown(text: str) -> str:
+    """Drop the leading markdown H1; the page title is rendered from the body."""
+    lines = text.splitlines()
+    if lines and lines[0].startswith("# "):
+        lines = lines[1:]
+        while lines and not lines[0].strip():
+            lines = lines[1:]
+    text = "\n".join(lines)
+    return re.sub(r"\]\(([^)]+\.md)\)", lambda m: f"]({m.group(1)[:-3]}.html)", text)
 
 
 def md_to_html(text: str) -> str:
@@ -164,7 +221,7 @@ def build_site(output_dir: Path) -> None:
 
     for src_rel, out_rel, title in DOC_PAGES:
         src = ROOT / src_rel
-        body = md_to_html(src.read_text(encoding="utf-8"))
+        body = md_to_html(prepare_markdown(src.read_text(encoding="utf-8")))
         page_html = render_doc_page(title, body, out_rel)
         out_path = output_dir / out_rel
         out_path.parent.mkdir(parents=True, exist_ok=True)
