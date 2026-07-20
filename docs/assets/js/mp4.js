@@ -5,7 +5,12 @@
 
 import {
   SPHERICAL_UUID_BYTES,
+  buildSa3dContents,
   generateSphericalXml,
+  getExpectedNumAudioChannels,
+  getSpatialAudioDescription,
+  getSpatialAudioMetadata,
+  parseSa3d,
   parseSphericalXml,
   stereoLabel,
 } from "./metadata.js";
@@ -270,7 +275,7 @@ function loadBox(source, position, end) {
   const contentSize = size - headerSize;
   if (isLeaf) {
     const box = new LeafBox(name, position, headerSize, contentSize);
-    if (name === "uuid") {
+    if (name === "uuid" || name === "SA3D" || name === "esds") {
       const start = box.contentStart();
       box.contents = source.slice(start, start + contentSize);
     }
@@ -320,6 +325,133 @@ function isVideoTrack(source, trak) {
     }
   }
   return false;
+}
+
+function isAudioTrack(source, trak) {
+  for (const child of trak.contents) {
+    if (child.name !== "mdia") continue;
+    for (const mdiaChild of child.contents) {
+      if (mdiaChild.name !== "hdlr") continue;
+      const handler = fourCC(source, mdiaChild.contentStart() + 8);
+      if (handler === "soun") return true;
+    }
+  }
+  return false;
+}
+
+function readDescriptorLength(source, offset) {
+  let length = 0;
+  let pos = offset;
+  for (let i = 0; i < 4; i++) {
+    const sizeByte = source[pos];
+    pos += 1;
+    length = (length << 7) | (sizeByte & 0x7f);
+    if (sizeByte !== 0x80) break;
+  }
+  return length;
+}
+
+function getAacNumChannels(sampleBox, source) {
+  const walkBox = (box) => {
+    if (box.name === "esds") {
+      const start = box.contentStart() + 4;
+      if (source[start] !== 0x03) return -1;
+      let pos = start + 1;
+      readDescriptorLength(source, pos);
+      while (source[pos] === 0x80) pos++;
+      pos += 1;
+      pos += 3;
+      if (source[pos] !== 0x04) return -1;
+      pos += 1;
+      readDescriptorLength(source, pos);
+      while (source[pos] === 0x80) pos++;
+      pos += 1;
+      pos += 13;
+      if (source[pos] !== 0x05) return -1;
+      pos += 1;
+      readDescriptorLength(source, pos);
+      while (source[pos] === 0x80) pos++;
+      pos += 1;
+      const descriptor = (source[pos] << 8) | source[pos + 1];
+      return (descriptor & 0x78) >> 3;
+    }
+    if (box instanceof ContainerBox) {
+      for (const child of box.contents) {
+        const channels = walkBox(child);
+        if (channels > 0) return channels;
+      }
+    }
+    return -1;
+  };
+  return walkBox(sampleBox);
+}
+
+function getSampleDescriptionNumChannels(sampleBox, source) {
+  const start = sampleBox.contentStart() + 8;
+  const version = readU16(source, start);
+  if (version === 0) {
+    return readU16(source, start + 8);
+  }
+  if (version === 1) {
+    return readU16(source, start + 8);
+  }
+  if (version === 2) {
+    return readU32(source, start + 32);
+  }
+  return -1;
+}
+
+function getNumAudioChannels(stsd, source) {
+  for (const sample of stsd.contents) {
+    if (sample.name === "mp4a") {
+      const aac = getAacNumChannels(sample, source);
+      if (aac > 0) return aac;
+      return getSampleDescriptionNumChannels(sample, source);
+    }
+    if (SOUND_SAMPLES.has(sample.name)) {
+      return getSampleDescriptionNumChannels(sample, source);
+    }
+  }
+  return 0;
+}
+
+function countAudioTracks(source, moov) {
+  let count = 0;
+  for (const trak of moov.contents) {
+    if (trak.name === "trak" && isAudioTrack(source, trak)) count += 1;
+  }
+  return count;
+}
+
+function findAudioSampleDescription(source, moov) {
+  for (const trak of moov.contents) {
+    if (trak.name !== "trak" || !isAudioTrack(source, trak)) continue;
+    for (const mdia of trak.contents) {
+      if (mdia.name !== "mdia") continue;
+      for (const minf of mdia.contents) {
+        if (minf.name !== "minf") continue;
+        for (const stbl of minf.contents) {
+          if (stbl.name !== "stbl") continue;
+          for (const stsd of stbl.contents) {
+            if (stsd.name !== "stsd") continue;
+            for (const sample of stsd.contents) {
+              if (sample.name === "mp4a" || SOUND_SAMPLES.has(sample.name)) {
+                return { stsd, sample, channels: getNumAudioChannels(stsd, source) };
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  return null;
+}
+
+function createSa3dBox(metadata, numChannels) {
+  const body = buildSa3dContents(metadata, numChannels);
+  const box = new LeafBox("SA3D", 0, 8, body.length);
+  box.contents = body;
+  return box;
 }
 
 function readTkhdDimensions(source, trak) {
@@ -404,6 +536,28 @@ function injectV1(moov, source, xmlText) {
   return false;
 }
 
+function injectSpatialAudio(moov, source, audioMetadata) {
+  const audio = findAudioSampleDescription(source, moov);
+  if (!audio) throw new Error("No audio track found for spatial audio metadata.");
+
+  const expected = getExpectedNumAudioChannels(
+    audioMetadata.ambisonic_type,
+    audioMetadata.ambisonic_order,
+    audioMetadata.head_locked_stereo,
+  );
+  if (audio.channels !== expected) {
+    const hls = audioMetadata.head_locked_stereo ? " with head-locked stereo" : "";
+    throw new Error(
+      `Found ${audio.channels} audio channel(s). Expected ${expected} for ` +
+        `${audioMetadata.ambisonic_type} ambisonics of order ${audioMetadata.ambisonic_order}${hls}.`,
+    );
+  }
+
+  audio.sample.remove("SA3D");
+  audio.sample.add(createSa3dBox(audioMetadata, audio.channels));
+  return true;
+}
+
 function injectV2(moov, source, stereoMode, bounds) {
   for (const trak of moov.contents) {
     if (trak.name !== "trak" || !isVideoTrack(source, trak)) continue;
@@ -478,12 +632,23 @@ function parseMetadata(source) {
     dimensions: null,
     v1: null,
     v2: { stereo: null, bounds: null },
+    audio: null,
+    numAudioChannels: 0,
+    numAudioTracks: countAudioTracks(source, moov),
+    spatialAudioSupported: false,
   };
 
   let trackNum = 0;
   for (const trak of moov.contents) {
     if (trak.name !== "trak") continue;
-    const track = { id: trackNum++, video: isVideoTrack(source, trak), v1: null, v2: {} };
+    const track = {
+      id: trackNum++,
+      video: isVideoTrack(source, trak),
+      audio: isAudioTrack(source, trak),
+      v1: null,
+      v2: {},
+      sa3d: null,
+    };
     if (track.video) {
       result.dimensions = readTkhdDimensions(source, trak);
     }
@@ -509,11 +674,25 @@ function parseMetadata(source) {
             track.v2.bounds = [read(4), read(8), read(12), read(16)];
             result.v2.bounds = track.v2.bounds;
           }
+          if (box.name === "SA3D") {
+            const sa3d = parseSa3d(box.contents, source, box.contentStart());
+            track.sa3d = sa3d;
+            result.audio = sa3d;
+          }
         });
       }
     }
     result.tracks.push(track);
   }
+
+  const audioInfo = findAudioSampleDescription(source, moov);
+  if (audioInfo) {
+    result.numAudioChannels = audioInfo.channels;
+    const desc = getSpatialAudioDescription(audioInfo.channels);
+    result.spatialAudioSupported = desc.isSupported;
+    result.spatialAudioDescription = desc;
+  }
+
   return result;
 }
 
@@ -565,6 +744,25 @@ export function injectMetadata(source, options) {
   if (useV2) {
     if (!injectV2(moov, source, options.stereo, options.bounds ?? [0, 0, 0, 0])) {
       throw new Error("No video sample description found for v2 metadata.");
+    }
+  }
+
+  if (options.spatialAudio) {
+    if (countAudioTracks(source, moov) > 1) {
+      throw new Error("Expected 1 audio track. Multiple audio tracks are not supported.");
+    }
+    const parsed = parseMetadata(source);
+    const desc = parsed.spatialAudioDescription;
+    if (!desc?.isSupported) {
+      throw new Error(
+        parsed.numAudioChannels
+          ? `Audio has ${parsed.numAudioChannels} channel(s) and is not a supported spatial audio format.`
+          : "No compatible audio track found for spatial audio metadata.",
+      );
+    }
+    const audioMetadata = getSpatialAudioMetadata(desc.order, desc.hasHeadLockedStereo);
+    if (!injectSpatialAudio(moov, source, audioMetadata)) {
+      throw new Error("Failed to inject spatial audio metadata.");
     }
   }
 
