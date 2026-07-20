@@ -52,20 +52,31 @@ function setBusy(busy) {
   if (spinner) spinner.classList.toggle("hidden", !busy);
 }
 
+function escapeHtml(value) {
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#39;");
+}
+
 function metaGroup(title, chipClass, chipText, rows) {
   const group = document.createElement("div");
   group.className = "meta-group";
   const rowsHtml = rows
     .map(
       ([label, value, valueClass = ""]) =>
-        `<div class="meta-row"><span class="meta-row-label">${label}</span>` +
-        `<span class="meta-row-value ${valueClass}">${value}</span></div>`,
+        `<div class="meta-row"><span class="meta-row-label">${escapeHtml(label)}</span>` +
+        `<span class="meta-row-value ${escapeHtml(valueClass)}">${escapeHtml(value)}</span></div>`,
     )
     .join("");
   group.innerHTML =
     `<div class="meta-group-head">` +
-    `<h4 class="meta-group-title">${title}</h4>` +
-    (chipText ? `<span class="meta-chip ${chipClass}">${chipText}</span>` : "") +
+    `<h4 class="meta-group-title">${escapeHtml(title)}</h4>` +
+    (chipText
+      ? `<span class="meta-chip ${escapeHtml(chipClass)}">${escapeHtml(chipText)}</span>`
+      : "") +
     `</div><div class="meta-rows">${rowsHtml}</div>`;
   return group;
 }
@@ -94,7 +105,8 @@ function renderLayout(layout) {
     .map((item) => {
       const name = item.name.trim();
       const pct = ((item.size / total) * 100).toFixed(1);
-      return `<span><i class="dot layout-${name}"></i>${LAYOUT_LABELS[name] ?? name} ${formatBytes(item.size)} (${pct}%)</span>`;
+      const label = LAYOUT_LABELS[name] ?? name;
+      return `<span><i class="dot layout-${escapeHtml(name)}"></i>${escapeHtml(label)} ${escapeHtml(formatBytes(item.size))} (${pct}%)</span>`;
     })
     .join("");
 }
@@ -317,6 +329,15 @@ async function handleFile(file) {
   if (!file || state.busy) return;
   if (!/\.(mp4|mov)$/i.test(file.name)) {
     setStatus("Please choose an MP4 or MOV file.", "error");
+    return;
+  }
+
+  const maxBytes = 2 * 1024 * 1024 * 1024;
+  if (file.size > maxBytes) {
+    setStatus(
+      `File is too large for the browser demo (${formatBytes(file.size)}). Use the SpatialTag CLI for files over 2 GB.`,
+      "error",
+    );
     return;
   }
 
