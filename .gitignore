@@ -16,4 +16,5 @@ test_output/
 .idea/
 .vscode/
 *.app
-*.exe
+site/
+site-manifest.json

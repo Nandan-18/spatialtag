@@ -5,6 +5,11 @@ on:
     branches: [main]
     paths:
       - "docs/**"
+      - "scripts/build_pages_site.py"
+      - "spatialmedia/**"
+      - "docker/README.md"
+      - "spatial-audio/README.md"
+      - "README.md"
       - ".github/workflows/pages.yml"
   workflow_dispatch:
 
@@ -18,16 +23,82 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Build Linux CLI binary
+        run: |
+          python -m pip install -e ".[build]"
+          pyinstaller --clean --noconfirm spatialmedia/spatialmedia_cli.spec
+          cp dist/spatialmedia spatialmedia-linux-x86_64
+          chmod +x spatialmedia-linux-x86_64
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cli-linux
+          path: spatialmedia-linux-x86_64
+
+  build-macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Build macOS CLI binary
+        run: |
+          python -m pip install -e ".[build]"
+          pyinstaller --clean --noconfirm spatialmedia/spatialmedia_cli.spec
+          cp dist/spatialmedia spatialmedia-macos-arm64
+          chmod +x spatialmedia-macos-arm64
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cli-macos
+          path: spatialmedia-macos-arm64
+
   deploy:
+    needs: [build-linux, build-macos]
     runs-on: ubuntu-latest
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+      - name: Write download manifest
+        run: |
+          cat > site-manifest.json <<'EOF'
+          {
+            "downloads": [
+              {
+                "source": "artifacts/cli-linux/spatialmedia-linux-x86_64",
+                "filename": "spatialmedia-linux-x86_64",
+                "label": "Linux (x86_64)",
+                "arch": "Ubuntu / most Linux distros",
+                "note": "Single-file executable. chmod +x then run from a terminal."
+              },
+              {
+                "source": "artifacts/cli-macos/spatialmedia-macos-arm64",
+                "filename": "spatialmedia-macos-arm64",
+                "label": "macOS (Apple Silicon)",
+                "arch": "arm64 (M1/M2/M3+)",
+                "note": "May need: xattr -dr com.apple.quarantine ./spatialmedia-macos-arm64"
+              }
+            ]
+          }
+          EOF
+      - name: Build static site
+        run: |
+          python -m pip install markdown
+          python scripts/build_pages_site.py --output site --manifest site-manifest.json
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: docs
+          path: site
       - id: deployment
         uses: actions/deploy-pages@v4

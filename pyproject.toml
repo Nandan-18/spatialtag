@@ -15,7 +15,7 @@ dependencies = []
 [project.optional-dependencies]
 gui = ["pillow", "packaging"]
 build = ["pyinstaller", "pillow", "packaging"]
-dev = ["ruff>=0.6", "mypy>=1.8"]
+dev = ["ruff>=0.6", "mypy>=1.8", "markdown>=3.5"]
 
 [project.scripts]
 spatialmedia = "spatialmedia.__main__:main_entry"
