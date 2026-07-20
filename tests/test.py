@@ -3,7 +3,7 @@ Unit tests for the spatial-media tool.
 
 # Test inputs are generated with
 ffmpeg -y -f lavfi -i testsrc -vf scale=320:240 -vcodec libx264 -t 0.05 tests/fixtures/h264.mp4
-ffmpeg -y -f lavfi -i testsrc=size=320x240:rate=1 -f lavfi -i anoisesrc=d=0.05:c=4:r=48000 \
+ffmpeg -y -f lavfi -i testsrc=size=320x240:rate=1 -f lavfi -i anullsrc=r=48000:cl=4.0 \
   -t 0.05 -c:v libx264 -c:a aac -shortest tests/fixtures/h264-4ch.mp4
 ffmpeg -y -f lavfi -i testsrc -vf scale=320:240 -vcodec libvpx-vp9 -t 0.05 tests/fixtures/vp9.mp4
 ffmpeg -y -f lavfi -i testsrc -vf scale=32:24 -vcodec prores -t 0.05 tests/fixtures/prores.mov
