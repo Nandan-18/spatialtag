@@ -6,7 +6,7 @@ Specifications and tools for **360° video** and **spatial audio** metadata in M
 
 | Path | Description |
 |------|-------------|
-| [docs/](docs/) | RFCs for [spatial audio](docs/spatial-audio-rfc.md), [spherical video v1](docs/spherical-video-rfc.md), [spherical video v2](docs/spherical-video-v2-rfc.md), and [VR180](docs/vr180.md) |
+| [docs/](docs/) | RFCs, **browser demo** ([GitHub Pages](https://nandan-18.github.io/spatial-media/)), and specifications |
 | [spatialmedia/](spatialmedia/) | Python CLI and desktop GUI for reading and injecting metadata |
 | [docker/](docker/) | Browser-based metadata injector (Flask + Docker) |
 | [spatial-audio/](spatial-audio/) | HRIR filters and ambisonic correction assets for binaural preview |
@@ -61,6 +61,12 @@ spatialmedia -I --vr180 video.mp4
 **In-place inject** works when rewriting the `moov` atom does not require moving `mdat` (typically `moov` after `mdat`). If the layout is incompatible, use separate input/output paths instead.
 
 See [spatialmedia/README.md](spatialmedia/README.md) for all CLI flags, GUI usage, and PyInstaller builds.
+
+## Browser demo (GitHub Pages)
+
+**[Live demo →](https://nandan-18.github.io/spatial-media/)** — inspect and inject 360° / VR180 metadata entirely in your browser (no upload to a server). Best for files under ~2 GB; for multi‑GB sources use the CLI with `-I`.
+
+To deploy from this repo: enable **GitHub Pages → Source: GitHub Actions** in repository settings. Pushes to `main` that touch `docs/` run [.github/workflows/pages.yml](.github/workflows/pages.yml).
 
 ## Other interfaces
 

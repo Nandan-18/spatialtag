@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Inject 360° and VR180 spatial metadata into MP4/MOV files — entirely in your browser."
+    />
+    <title>Spatial Media — Browser Demo</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="assets/css/style.css" />
+  </head>
+  <body>
+    <canvas id="starfield" aria-hidden="true"></canvas>
+    <div class="aurora" aria-hidden="true"></div>
+
+    <div class="page">
+      <header class="hero">
+        <div class="badge">100% client-side · no upload</div>
+        <h1>
+          Spatial Media
+          <span class="gradient">Metadata Injector</span>
+        </h1>
+        <p class="lede">
+          Drop an MP4 or MOV, inspect spherical metadata, and inject 360° or VR180 tags —
+          processed locally in your browser. Nothing leaves your device.
+        </p>
+        <div class="hero-links">
+          <a href="https://github.com/Nandan-18/spatial-media" target="_blank" rel="noopener">GitHub</a>
+          <a href="https://github.com/Nandan-18/spatial-media/blob/main/spatialmedia/README.md" target="_blank" rel="noopener">CLI docs</a>
+          <a href="spherical-video-v2-rfc.md">Spherical v2 RFC</a>
+        </div>
+      </header>
+
+      <main class="grid">
+        <section class="panel glass">
+          <h2>1 · Load video</h2>
+          <div id="drop-zone" class="drop-zone" tabindex="0" role="button" aria-label="Upload video">
+            <div class="drop-icon">◎</div>
+            <p class="drop-title">Drop MP4 / MOV here</p>
+            <p class="drop-sub">or click to browse · best under ~2 GB</p>
+            <input id="file-input" type="file" accept=".mp4,.mov,video/mp4,video/quicktime" hidden />
+          </div>
+          <div id="workspace" class="workspace hidden">
+            <div class="file-card">
+              <span id="file-name">—</span>
+              <span id="file-size" class="mono">—</span>
+            </div>
+            <div class="layout-wrap">
+              <p class="label">File layout</p>
+              <div id="layout-bar" class="layout-bar"></div>
+              <div id="layout-legend" class="layout-legend"></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel glass">
+          <h2>2 · Metadata</h2>
+          <div id="metadata-panel" class="metadata-panel empty">
+            <p id="meta-empty">Load a file to see spherical v1/v2 metadata and track layout.</p>
+            <div id="metadata-tags" class="metadata-tags"></div>
+          </div>
+        </section>
+
+        <section class="panel glass span-2">
+          <h2>3 · Inject</h2>
+          <div id="controls" class="controls disabled">
+            <div class="options">
+              <label class="field">
+                <span>Stereo mode</span>
+                <select id="stereo-mode">
+                  <option value="none">Mono</option>
+                  <option value="left-right" selected>Left-right (SBS)</option>
+                  <option value="top-bottom">Top-bottom</option>
+                </select>
+              </label>
+
+              <label class="check">
+                <input type="checkbox" id="vr180" />
+                <span><strong>VR180 helper</strong> — auto crop + 180° bounds from frame size</span>
+              </label>
+
+              <label class="check">
+                <input type="checkbox" id="use-v2" checked />
+                <span>Write v2 box metadata (<code>SV3D</code> / <code>ST3D</code>)</span>
+              </label>
+            </div>
+
+            <button id="inject-btn" class="btn-primary" disabled>Inject &amp; download</button>
+            <p id="status" class="status" data-tone="neutral">Waiting for a file…</p>
+
+            <div id="results" class="results hidden">
+              <p id="results-text"></p>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <footer class="footer">
+        <p>
+          For multi‑GB in-place inject without browser memory limits, use the
+          <a href="https://github.com/Nandan-18/spatial-media#quick-start-cli">CLI</a>
+          with <code>-I --vr180</code>.
+        </p>
+      </footer>
+    </div>
+
+    <script type="module" src="assets/js/app.js"></script>
+  </body>
+</html>
