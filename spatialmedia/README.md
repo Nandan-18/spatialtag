@@ -1,85 +1,148 @@
 # Spatial Media Metadata Injector
 
-A tool for manipulating spatial media
-([spherical video](../docs/spherical-video-rfc.md) and
-[spatial audio](../docs/spatial-audio-rfc.md)) metadata in MP4 and MOV files.
-It can be used to inject spatial media metadata into a file or validate metadata
-in an existing file.
+Inspect and inject [spherical video](../docs/spherical-video-rfc.md) and [spatial audio](../docs/spatial-audio-rfc.md) metadata into MP4 and MOV files.
 
-## Usage
+Supports **v1** (XML in a UUID box) and **v2** (native `SV3D` / `ST3D` atoms). On inject, conflicting v1/v2 tags are cleared so players see a single coherent metadata set.
 
-**Python 3.9+** is required. From the repository root (or after `pip install -e .`):
+## Install
 
-#### Help
+From the repository root:
 
-    python3 -m spatialmedia -h
+```bash
+python3 -m pip install -e .
+# or, after install:
+spatialmedia -h
+```
 
-Prints help and usage information.
+## Examine
 
-#### Examine
+Print spatial media metadata for each file:
 
-    python3 -m spatialmedia <files...>
+```bash
+spatialmedia video.mp4
+spatialmedia clip1.mp4 clip2.mov
+```
 
-For each file specified, prints spatial media metadata contained in the file.
+## Inject
 
-#### Inject
+Write metadata to a **separate output file**:
 
-    python3 -m spatialmedia -i [--stereo=(none|top-bottom|left-right)] [--spatial-audio] <input> <output>
+```bash
+spatialmedia -i [options] <input> <output>
+```
 
-Saves a version of `<input>` injected with spatial media metadata to `<output>`.
+Common examples:
 
-#### In-place inject
+```bash
+# Mono 360 equirectangular (v1)
+spatialmedia -i input.mp4 output.mp4
 
-Rewrite metadata without making a full second copy of the media. Requires a
-layout where `mdat` offsets would not change (typically `moov` after `mdat`).
+# Stereoscopic left-right (v1)
+spatialmedia -i --stereo=left-right input.mp4 output.mp4
 
-    python3 -m spatialmedia -I [--stereo=...] <file>
+# v2 atom metadata
+spatialmedia -i -2 --stereo=left-right input.mp4 output.mp4
 
-You can also pass the same path twice with `-i`:
+# v2 with VR180 equirect bounds (fixed-point crop on each border)
+spatialmedia -i -2 --stereo=left-right \
+  --bounds="0:0:0x40000000:0x40000000" input.mp4 output.mp4
 
-    python3 -m spatialmedia -i [--stereo=...] <file> <file>
+# v1 crop region (w:h:full_w:full_h:left:top)
+spatialmedia -i --stereo=left-right \
+  --crop="4096:4096:8192:4096:2048:0" input.mp4 output.mp4
 
-If the file layout would require moving `mdat` (for example `moov` before
-`mdat`), in-place inject is refused and a separate output path must be used.
+# Spatial audio (first-order ambisonics, ACN + SN3D)
+spatialmedia -i -a input.mp4 output.mp4
+```
 
-#### VR180 helper
+You can also pass the same path twice with `-i` to request in-place output when supported:
 
-For side-by-side equirectangular VR180, `--vr180` derives stereo mode and 180°
-crop / v2 bounds from the video track dimensions:
+```bash
+spatialmedia -i --stereo=left-right video.mp4 video.mp4
+```
 
-    python3 -m spatialmedia -I --vr180 <file>
+## In-place inject
 
-##### --stereo
+Rewrite metadata **without a full second copy** of the media. Prefer `-I` for a single file:
 
-Selects the left/right eye frame layout; see the `StereoMode` element in the
-[Spherical Video RFC](../docs/spherical-video-rfc.md) for more information.
+```bash
+spatialmedia -I --stereo=left-right video.mp4
+```
 
-Options:
+**Requirements:** the file layout must allow updating `moov` without shifting `mdat` offsets. This is typical when **`moov` comes after `mdat`** (common for files optimized for streaming). If `moov` is before `mdat`, in-place inject is refused — use separate input and output paths.
 
-- `none`: Mono frame layout.
+## VR180 helper
 
-- `top-bottom`: Top half contains the left eye and bottom half contains the
-right eye.
+For side-by-side equirectangular VR180, `--vr180` reads the video track dimensions and sets left-right stereo, v1 crop, and v2 180° bounds automatically:
 
-- `left-right`: Left half contains the left eye and right half contains the
-right eye.
+```bash
+spatialmedia -I --vr180 video.mp4
+```
 
-##### --spatial-audio
+Example: an 8192×4096 SBS frame gets half-width eye crop and `0x40000000` (90°) bounds on left and right.
 
-Enables injection of spatial audio metadata. If enabled, the file must contain a
-4-channel first-order ambisonics audio track with ACN channel ordering and SN3D
-normalization; see the [Spatial Audio RFC](../docs/spatial-audio-rfc.md) for
-more information.
+## CLI reference
 
-## GUI
+### Modes
 
-    python3 -m spatialmedia.gui
+| Flag | Description |
+|------|-------------|
+| *(default)* | Print metadata for each file |
+| `-i`, `--inject` | Write metadata to `<input>` → `<output>` |
+| `-I`, `--in-place` | Inject into a single file in place |
 
-Supports spherical + stereoscopic (left-right or top-bottom) and spatial audio.
-For large files or headless use, prefer the [Docker web UI](../docker/).
+### Spherical video
 
-## Building standalone GUI application
+| Flag | Values | Default | Description |
+|------|--------|---------|-------------|
+| `-2`, `--v2` | flag | off | Use v2 box metadata instead of v1 XML |
+| `-s`, `--stereo` | `none`, `top-bottom`, `left-right` | `none` | Stereoscopic layout ([RFC](../docs/spherical-video-rfc.md)) |
+| `-p`, `--projection` | `none`, `equirectangular` | `equirectangular` | Projection type |
+| `-c`, `--crop` | `w:h:f_w:f_h:x:y` | — | v1 crop region (six integers) |
+| `-b`, `--bounds` | `top:bottom:left:right` | — | v2 equirect bounds (four 0.32 fixed-point values) |
+| `--vr180` | flag | off | Derive VR180 stereo + crop/bounds from video size (implies v2 fields) |
 
-Install [PyInstaller](https://pyinstaller.org/), then run:
+### Spatial audio
 
-    pyinstaller spatialmedia/spatial_media_metadata_injector.spec
+| Flag | Description |
+|------|-------------|
+| `-a`, `--spatial-audio` | Inject spatial audio metadata. Input must contain a supported first-order ambisonics track (ACN channel order, SN3D normalization). See the [Spatial Audio RFC](../docs/spatial-audio-rfc.md). |
+
+## Desktop GUI
+
+Requires the `gui` extra:
+
+```bash
+python3 -m pip install -e ".[gui]"
+python3 -m spatialmedia.gui
+```
+
+The GUI supports spherical video, stereoscopic modes (none / left-right / top-bottom), and spatial audio when the file has a compatible ambisonics track.
+
+For large files or headless servers, use the [Docker web UI](../docker/) or the CLI with `-I`.
+
+## Standalone executable
+
+Install build dependencies and run PyInstaller:
+
+```bash
+python3 -m pip install -e ".[build]"
+pyinstaller spatialmedia/spatial_media_metadata_injector.spec
+```
+
+The bundled app is built from `gui.py` (Tkinter). On Linux you may need `python3-tk` installed separately.
+
+## Programmatic use
+
+The injector is importable as a library:
+
+```python
+from spatialmedia import metadata_utils
+
+metadata_utils.parse_metadata("video.mp4", print)
+metadata = metadata_utils.Metadata("equirectangular", "left-right", None)
+metadata.video = metadata_utils.generate_spherical_xml("equirectangular", "left-right")
+metadata_utils.inject_metadata("input.mp4", "output.mp4", metadata, print)
+```
+
+Lower-level MP4 box helpers live under `spatialmedia.mpeg`.
