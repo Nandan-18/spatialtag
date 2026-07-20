@@ -40,11 +40,6 @@ def _top_level_boxes(path):
     return boxes
 
 
-def append_contents(contents):
-    def append(x):
-        contents = contents + x
-    return append
-
 class TestAdd(unittest.TestCase):
 
     def inject_metadata(self, args):
