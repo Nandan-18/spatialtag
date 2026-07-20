@@ -76,10 +76,14 @@ def build_executable():
         print(f"Output: ./dist/{exe_name}")
 
         # Set executable permissions for Unix-like systems
-        if platform_name in ("linux", "macos"):
+        if platform_name == "linux":
             output_path = os.path.join("dist", exe_name)
             if os.path.exists(output_path):
                 os.chmod(output_path, 0o755)
+        elif platform_name == "macos":
+            binary_path = os.path.join("dist", "SpatialTag.app", "Contents", "MacOS", "SpatialTag")
+            if os.path.exists(binary_path):
+                os.chmod(binary_path, 0o755)
 
     except subprocess.CalledProcessError as error:
         print(f"Error building executable: {error}")

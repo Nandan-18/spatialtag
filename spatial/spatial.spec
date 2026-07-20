@@ -1,7 +1,6 @@
 # -*- mode: python -*-
 # PyInstaller spec for the spatialtag console binary.
 
-import sys
 from pathlib import Path
 
 from PyInstaller.utils.hooks import collect_submodules
@@ -11,7 +10,7 @@ root = Path(SPECPATH).resolve().parent
 
 a = Analysis(
     [str(root / "spatial" / "__main__.py")],
-    pathex=[str(root.parent)],
+    pathex=[str(root)],
     binaries=[],
     datas=[],
     hiddenimports=collect_submodules("spatial"),
