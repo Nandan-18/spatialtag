@@ -1,9 +1,11 @@
-# Spatial Media
+# SpatialTag
 
 Inspect and inject spherical video and spatial audio metadata in MP4/MOV files.
 
+SpatialTag CLI command: `spatial-media`
+
 **Full guide:**
-[nandan-18.github.io/spatial-media/guide/cli.html](https://nandan-18.github.io/spatial-media/guide/cli.html)
+[nandan-18.github.io/spatial-media/docs/cli.html](https://nandan-18.github.io/spatial-media/docs/cli.html)
 
 ```bash
 python3 -m pip install -e .

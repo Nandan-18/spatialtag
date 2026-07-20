@@ -1,8 +1,7 @@
-# Spatial Media
+# SpatialTag
 
-One toolkit for **immersive MP4/MOV metadata**: 360° and VR180 spherical video
-tags, plus first-order ambisonic spatial audio. Inspect and inject metadata
-without re-encoding media.
+SpatialTag inspects and injects the MP4/MOV metadata that platforms need for
+360°, VR180, and spatial audio — without re-encoding media.
 
 ## Choose your interface
 

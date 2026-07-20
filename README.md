@@ -1,7 +1,9 @@
-# Spatial Media
+# SpatialTag
 
-A toolkit for working with **immersive MP4/MOV metadata**: 360° and VR180
-spherical video tags, plus first-order ambisonic spatial audio.
+inspect and inject immersive metadata
+
+SpatialTag inspects and injects the MP4/MOV metadata that platforms need for
+360°, VR180, and spatial audio.
 
 Platforms like YouTube, Facebook, and VR headsets rely on special metadata
 boxes inside MP4/MOV files to know that a video is spherical and how its audio
@@ -15,14 +17,16 @@ everywhere.
   spatial-audio metadata from any MP4/MOV file.
 - **Writes** the correct MPEG-4 boxes so players recognise a file as 360°
   equirectangular, VR180 side-by-side, or ambisonics-enabled.
-- Works as a **CLI** (`spatial-media`), a **desktop GUI** (Tkinter), a
-  **browser demo** (WebAssembly), or a **Docker web UI** (Flask).
+- Works as a **SpatialTag CLI** (`spatial-media`), a **desktop GUI**
+  (Tkinter), a **browser demo**, or a **Docker web UI** (Flask).
 
 **Site:**
 [nandan-18.github.io/spatial-media](https://nandan-18.github.io/spatial-media/)
 (browser demo, docs)
 
 ## Quick start
+
+SpatialTag CLI command: `spatial-media`
 
 ```bash
 git clone https://github.com/Nandan-18/spatial-media.git
