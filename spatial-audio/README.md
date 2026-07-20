@@ -1,84 +1,101 @@
 # Spatial Audio Resources
-Google VR Audio enables Ambisonic spatial audio playback in [Google VR SDK](https://developers.google.com/vr/), [YouTube 360/VR](http://yt.be/spatialaudiovrhelp), and [Omnitone](https://googlechrome.github.io/omnitone/#home). It provides ambisonic binaural decoding via Head Related Transfer Functions (HRTFs). This repository contains information and resources that can be used in order to build binaural preview software or to directly monitor the binaural output when creating content in Digital Audio Workstations (DAWs).
 
-# Contents of the directories
-## raw symmetric cube hrirs 
-This is a set of binaural measurements (Head Related Impulse Responses or HRIRs) taken from a cube loudspeaker configuration. This configuration is used in the Google VR Audio first-order ambisonic binaural decoder.
+Reference assets for **ambisonic binaural monitoring** — the same class of HRIR filters used in Google VR Audio, YouTube 360/VR, and related decoders. Use these when building preview tools or monitoring ambisonic mixes in a DAW.
 
-This set has been derived from the [SADIE binaural measurements](https://www.york.ac.uk/sadie-project/binaural.html) and  is provided as individual time-domain FIR filters.
+For injecting spatial audio **metadata** into MP4/MOV files, see the [Spatial Media Metadata Injector](../spatialmedia/README.md) and the [Spatial Audio RFC](../docs/spatial-audio-rfc.md).
 
-### Specification & modifications:
-subject: 002 (KU100 binaural head)  
-sampling rate: 48kHz  
-bit depth: 16 bit  
-length: 256 samples  
-fade-in: none  
-fade-out: half-hann (16 samples)  
-symmetric: yes (left hemisphere only)  
-applied gain: 0dB (none)
+## Directory overview
 
-Also provided is a preset configuration file for the [ambiX](https://github.com/kronihias/ambix) binaural decoder plugin.
+| Directory | Contents |
+|-----------|----------|
+| [raw-symmetric-cube-hrirs/](raw-symmetric-cube-hrirs/) | Cube-layout HRIR measurements (SADIE KU100–derived); includes an [ambiX](https://github.com/kronihias/ambix) preset |
+| [symmetric-ambisonic-binaural-decoder/](symmetric-ambisonic-binaural-decoder/) | Spherical-harmonic HRIR filters for first-order ambisonic binaural decode (Google VR Audio style) |
+| [ambisonic-correction-filters/](ambisonic-correction-filters/) | EQ compensation when migrating mixes from THRIVE HRTFs to SADIE KU100 |
+| [third_party/](third_party/) | Third-party license notices |
 
-**Note**: Using these filters directly (or via the [ambiX](https://github.com/kronihias/ambix) preset) with your ambisonic mix will **not** result in an output equivalent to Google VR Audio unless you use phase-matched shelf-filters, as recommended by A. J. Heller, R. Lee and  E. M. Benjamin in their paper "[Is My Decoder Ambisonic?](http://www.ai.sri.com/ajh/ambisonics/BLaH3.pdf)". To solve that problem, we also provide a set called *symmetric ambisonic binaural decoder* which contains shelf-filtered, symmetric spherical harmonic HRIRs which can be directly applied to an ambisonic mix via a simple filter operation (please see below).
+## Raw symmetric cube HRIRs
 
-## symmetric ambisonic binaural decoder
-This set represents spherical harmonic HRIR filters used for first-order ambisonic binaural decode in Google VR Audio. To produce the binaural output, these filters should be applied to an ambisonic mix directly and the output routed to the stereo L & R channels as shown in the following diagram:
+Binaural measurements (Head Related Impulse Responses) from a **cube loudspeaker** configuration, used in the Google VR Audio first-order ambisonic binaural decoder. Derived from the [SADIE binaural measurements](https://www.york.ac.uk/sadie-project/binaural.html) as individual time-domain FIR filters.
+
+### Specification
+
+| Property | Value |
+|----------|-------|
+| Subject | 002 (KU100 binaural head) |
+| Sample rate | 48 kHz |
+| Bit depth | 16 bit |
+| Length | 256 samples |
+| Fade-in | none |
+| Fade-out | half-Hann (16 samples) |
+| Symmetry | yes (left hemisphere only) |
+| Applied gain | 0 dB |
+
+An ambiX binaural decoder preset (`cube.config`) is included.
+
+**Note:** Using these filters directly (or via the ambiX preset) will **not** match Google VR Audio output unless you also apply phase-matched shelf filters, as described in [Is My Decoder Ambisonic?](http://www.ai.sri.com/ajh/ambisonics/BLaH3.pdf) (Heller, Lee, Benjamin). For a closer match without custom shelf design, use the **symmetric ambisonic binaural decoder** set below.
+
+## Symmetric ambisonic binaural decoder
+
+Spherical harmonic HRIR filters for **first-order ambisonic binaural decode** in Google VR Audio. Apply them to an ambisonic mix and route the convolver outputs to stereo L/R:
 
 ![symmetric binaural ambisonic decoder - signal flow diagram](https://cloud.githubusercontent.com/assets/26985965/24811254/2143fb12-1b7a-11e7-99a0-cef55c3f8365.png)
 
-The filtering operation (* symbol) can be done using freely available tools, for example, free multichannel convolver plugins like  [LAConvolver](http://audio.lernvall.com/) (mac) or  [Freeverb3](http://www.nongnu.org/freeverb3/) (win). The dotted red line with the Ø symbol denotes 180° phase inversion.
+Convolution (`*`) can be done with multichannel convolver plugins such as [LAConvolver](http://audio.lernvall.com/) (macOS) or [Freeverb3](http://www.nongnu.org/freeverb3/) (Windows). The dotted red line with Ø denotes 180° phase inversion.
 
-## ambisonic correction filters
-This is a set of filters which compensate for the change of HRTFs in the binaural ambisonic decoder. If the ambisonic audio has been mixed against our previous THRIVE HRTFs, applying these filters to the ambiX tracks will minimize the timbral changes after the switch to SADIE KU100 HRTFs. For example, the below diagram shows a frequency response of a decoded sound fields containing a single, broadband sound source in front of the listener. If no compensation is used, switching the binaural decoder from THRIVE to SADIE KU100 will result in spectral changes:
+## Ambisonic correction filters
+
+Filters that compensate for HRTF changes when switching the binaural decoder from **THRIVE** to **SADIE KU100**. Apply them to ambiX tracks so existing mixes retain similar timbre after the decoder change.
+
+**Before correction** — spectral shift when switching decoders:
 
 ![decoder output before correction](https://cloud.githubusercontent.com/assets/26985965/24811252/21399d66-1b7a-11e7-953c-2357d6be8f3a.png)
 
-After applying the compensation filters, frequency response differences will be minimized:
+**After correction** — minimized difference:
 
 ![decoder output after correction](https://cloud.githubusercontent.com/assets/26985965/24811250/2137f42a-1b7a-11e7-9ff5-e09718293401.png)
 
-The filtering operation (* symbol) can be done using freely available tools, for example, free multichannel convolver plugins like  [LAConvolver](http://audio.lernvall.com/) (mac) or  [Freeverb3](http://www.nongnu.org/freeverb3/) (win).
+Signal flow when applying correction in the DAW:
 
 ![ambiX correction filters - signal flow diagram](https://cloud.githubusercontent.com/assets/26985965/24811249/21269c84-1b7a-11e7-8139-91e4fd0d0a20.png)
 
-# FAQs
-### Why did you change HRTFs?
-Binaural decoding of ambisonic spatial audio relies on Head Related Transfer Functions (or their time-domain equivalents - HRIRs) which are unique to each individual. However, our studies showed that some datasets perform better on average than other datasets, in the case when an individualized set is not available.
+## FAQs
 
-We tested a large number of available HRTF datasets in a mobile VR application and using a variety of different sound samples. A panel of 53 experienced listeners (20 of whom were expert assessors) compared the overall subjective audio quality of the interactive binaural renders. We found that SADIE KU100 set performed best for majority of the participants:
+### Why did you change HRTFs?
+
+Binaural decoding depends on HRTFs, which vary by listener. In listening tests (53 participants, mobile VR, varied content), the **SADIE KU100** set ranked highest on average when individualized HRTFs were unavailable:
 
 ![perceived decoder quality](https://cloud.githubusercontent.com/assets/26985965/24811253/213b6628-1b7a-11e7-9079-f7a906e963a0.png)
 
-### Should I use HRTF monitoring when creating ambisonic content for binaural reproduction (e.g. YouTube 360/VR)?
-When creating content for YouTube 360/VR it is recommended that you monitor your ambisonic audio using the provided *symmetric ambisonic binaural decoder* and/or preview the final mix directly on YouTube to control the timbre (coloration) and loudness of your mix (please see below).
+### Should I monitor with HRTFs when mixing for YouTube 360/VR?
 
-### What is timbral coloration of HRTFs?
-HRTFs add specific coloration to the decoded binaural output signal. However, this coloration is dependent on the HRTF set used (due to individual nature of HRTFs). For example, here is an example HRTF frequency response of the THRIVE set and a similar response of the SADIE KU100 set:
+Yes — use the **symmetric ambisonic binaural decoder** filters and/or preview on YouTube to judge timbre and loudness. Decoder choice affects both coloration and level.
+
+### What is timbral coloration?
+
+HRTFs impose listener-specific spectral coloration. Example frequency responses for THRIVE vs SADIE KU100:
 
 ![HRTF coloration](https://cloud.githubusercontent.com/assets/26985965/24811251/2139476c-1b7a-11e7-865b-f37ac10b197f.png)
 
-### Can I adjust my existing ambisonic mix to make it sound the same with the new binaural decoder? 
-If you already have produced an ambisonic soundtrack using our THRIVE HRTF set for monitoring, you can simply correct the frequency response of your ambiX tracks to match the frequency response of the new SADIE KU100 HRTF set. This can be done by applying the filters we share in the [ambisonic correction filters](#ambisonic-correction-filters) directory.
+### Can I retune an existing THRIVE-monitored mix?
 
-### What is expected loudness of the Google VR Audio binaural decoder?
-Due to HRTF processing, the output amplitude of your Ambisonic track may differ depending which HRTF set you use. That is why it is important to monitor the binaural output when working on an ambisonic soundtrack using the binaural decoder which is going to be used to render your ambisonic content. Our binaural decoder's loudness should be the same as the loudness of a standard M-S stereo decoder.
+Apply the [ambisonic correction filters](#ambisonic-correction-filters) to your ambiX tracks to align timbre with the SADIE KU100 decoder.
 
-For example, the table below shows loudness measured in compliance with the [ITU-R BS.1770-4 recommendation](https://www.itu.int/dms_pubrec/itu-r/rec/bs/R-REC-BS.1770-4-201510-I!!PDF-E.pdf) and absolute amplitude peak values when a 0.5 normalized pink noise bursts signal is played at 8 different spatial locations around the listener:
+### Expected loudness
 
-|Decoder     | Loudness [dB LUFS] | Absolute Peak Amplitude |
-|------------|--------------------|-------------------------|
-|M-S Stereo  |-10.59              |0.5000                   |
-|THRIVE      |-10.99              |0.9478                   |
-|SADIE KU100 |-11.20              |0.9642                   |
+Binaural decode level depends on the HRTF set. Google VR Audio targets loudness comparable to a standard M/S stereo decoder. Example measurements (0.5 normalized pink noise, eight directions, [ITU-R BS.1770-4](https://www.itu.int/dms_pubrec/itu-r/rec/bs/R-REC-BS.1770-4-201510-I!!PDF-E.pdf)):
 
-Please note, although the loudness is matched between different decoders and the stereo decoder, the binaural output may result in the peak amplitude exceeding 0dB FS.
+| Decoder | Loudness (dB LUFS) | Absolute peak |
+|---------|-------------------|---------------|
+| M-S stereo | −10.59 | 0.5000 |
+| THRIVE | −10.99 | 0.9478 |
+| SADIE KU100 | −11.20 | 0.9642 |
 
-### Is there third party software for monitoring binaural output when working with ambisonic audio for YouTube?
-Some third party tools like [BlueRippleSound O3A View](http://www.blueripplesound.com/products/o3a-view-vst), [Noisemakers AmbiHead](http://www.noisemakers.fr/ambi-head/) and [SoundParticles](http://soundparticles.com/) (coming soon) implement their own binaural preview tools using the HRTFs from this repository which match those used by YouTube 360/VR.
+Peaks may exceed 0 dBFS even when integrated loudness matches.
+
+### Third-party monitoring tools
+
+Plugins such as [BlueRippleSound O3A View](http://www.blueripplesound.com/products/o3a-view-vst), [Noisemakers AmbiHead](http://www.noisemakers.fr/ambi-head/), and [SoundParticles](http://soundparticles.com/) implement binaural preview using HRTFs from this repository, aligned with YouTube 360/VR playback.
 
 ## Repository note on binary assets
 
-The HRIR / filter assets in this tree are currently small enough to live in
-regular git. If you add large binary measurement sets later, prefer
-[Git LFS](https://git-lfs.com/) (or ship them as release artifacts) instead of
-committing multi‑hundred‑MB files to the main history.
+HRIR and filter assets in this tree are small enough for regular git. If you add large measurement sets later, prefer [Git LFS](https://git-lfs.com/) or release artifacts instead of committing multi‑hundred‑MB blobs to main history.
