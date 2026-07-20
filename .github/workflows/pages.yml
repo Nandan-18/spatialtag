@@ -12,6 +12,7 @@ on:
     paths:
       - "docs/**"
       - "scripts/build_pages_site.py"
+      - "scripts/test-demo-inject.mjs"
       - "spatialmedia/**"
       - "docker/README.md"
       - "spatial-audio/README.md"
@@ -150,6 +151,14 @@ jobs:
           Path("site-manifest.json").write_text(json.dumps({"downloads": downloads}, indent=2) + "\n")
           print(f"Manifest: {len(downloads)} binary(ies)")
           PY
+
+      - name: Generate test fixtures and run browser inject smoke test
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg
+          ffmpeg -y -f lavfi -i testsrc=size=320x240:rate=1 -f lavfi -i anoisesrc=channel_layout=4.0:sample_rate=48000 \
+            -t 0.05 -c:v libx264 -c:a aac -shortest data/testsrc_320x240_h264_4ch.mp4
+          node scripts/test-demo-inject.mjs
 
       - name: Build static site
         run: |

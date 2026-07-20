@@ -126,3 +126,116 @@ export function stereoLabel(mode) {
   if (mode === 2) return "left-right";
   return "mono";
 }
+
+// --- Spatial audio (SA3D) --- mirrors spatialmedia/metadata_utils.py ---
+
+const MAX_SUPPORTED_AMBIX_ORDER = 1;
+
+const AMBISONIC_TYPE_NAMES = { 0: "periphonic" };
+const AMBISONIC_ORDERING_NAMES = { 0: "ACN" };
+const AMBISONIC_NORMALIZATION_NAMES = { 0: "SN3D" };
+
+function readU32Local(bytes, offset) {
+  return (
+    (bytes[offset] << 24) |
+    (bytes[offset + 1] << 16) |
+    (bytes[offset + 2] << 8) |
+    bytes[offset + 3]
+  ) >>> 0;
+}
+
+function writeU32Local(bytes, offset, value) {
+  bytes[offset] = (value >>> 24) & 0xff;
+  bytes[offset + 1] = (value >>> 16) & 0xff;
+  bytes[offset + 2] = (value >>> 8) & 0xff;
+  bytes[offset + 3] = value & 0xff;
+}
+
+export function getExpectedNumAudioChannels(ambisonicType, order, headLockedStereo) {
+  const headLocked = headLockedStereo ? 2 : 0;
+  if (ambisonicType === "periphonic") {
+    return (order + 1) ** 2 + headLocked;
+  }
+  return -1;
+}
+
+export function getSpatialAudioDescription(numChannels) {
+  for (let order = 1; order <= MAX_SUPPORTED_AMBIX_ORDER; order++) {
+    if ((order + 1) ** 2 === numChannels) {
+      return { order, isSupported: true, hasHeadLockedStereo: false };
+    }
+    if ((order + 1) ** 2 + 2 === numChannels) {
+      return { order, isSupported: true, hasHeadLockedStereo: true };
+    }
+  }
+  return { order: -1, isSupported: false, hasHeadLockedStereo: false };
+}
+
+export function getSpatialAudioMetadata(order, headLockedStereo) {
+  const numChannels = getExpectedNumAudioChannels("periphonic", order, headLockedStereo);
+  return {
+    ambisonic_type: "periphonic",
+    ambisonic_order: order,
+    head_locked_stereo: headLockedStereo,
+    ambisonic_channel_ordering: "ACN",
+    ambisonic_normalization: "SN3D",
+    channel_map: Array.from({ length: numChannels }, (_, i) => i),
+  };
+}
+
+export function parseSa3d(contents, source, contentStart = 0) {
+  const bytes = contents ?? source.slice(contentStart, contentStart + 256);
+  if (!bytes || bytes.length < 12) return null;
+
+  const version = bytes[0];
+  const typeByte = bytes[1];
+  const headLockedStereo = (typeByte & 0x80) !== 0;
+  const ambisonicType = typeByte & 0x7f;
+  const ambisonicOrder = readU32Local(bytes, 2);
+  const channelOrdering = bytes[6];
+  const normalization = bytes[7];
+  const numChannels = readU32Local(bytes, 8);
+  const channelMap = [];
+  for (let i = 0; i < numChannels; i++) {
+    channelMap.push(readU32Local(bytes, 12 + i * 4));
+  }
+
+  return {
+    version,
+    ambisonicType,
+    typeName: AMBISONIC_TYPE_NAMES[ambisonicType] ?? String(ambisonicType),
+    headLockedStereo,
+    ambisonicOrder,
+    channelOrdering,
+    orderingName: AMBISONIC_ORDERING_NAMES[channelOrdering] ?? String(channelOrdering),
+    normalization,
+    normalizationName: AMBISONIC_NORMALIZATION_NAMES[normalization] ?? String(normalization),
+    numChannels,
+    channelMap,
+  };
+}
+
+export function formatSa3dSummary(sa3d) {
+  if (!sa3d) return "none";
+  return (
+    `${sa3d.normalizationName}, ${sa3d.orderingName}, ${sa3d.typeName}, ` +
+    `Order ${sa3d.ambisonicOrder}, ${sa3d.numChannels} channel(s), ` +
+    `Map: [${sa3d.channelMap.join(", ")}]`
+  );
+}
+
+export function buildSa3dContents(metadata, numChannels) {
+  const body = new Uint8Array(12 + numChannels * 4);
+  body[0] = 0; // version
+  let typeByte = 0; // periphonic
+  if (metadata.head_locked_stereo) typeByte |= 0x80;
+  body[1] = typeByte;
+  writeU32Local(body, 2, metadata.ambisonic_order);
+  body[6] = 0; // ACN
+  body[7] = 0; // SN3D
+  writeU32Local(body, 8, numChannels);
+  for (let i = 0; i < numChannels; i++) {
+    writeU32Local(body, 12 + i * 4, metadata.channel_map[i] ?? i);
+  }
+  return body;
+}

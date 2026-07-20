@@ -5,9 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta
       name="description"
-      content="Tag MP4 and MOV files with 360° and VR180 spatial metadata. Inspect, inject, and export, entirely in your browser."
+      content="Inspect and inject 360°, VR180, and spatial audio metadata in MP4/MOV files. Browser demo, CLI, GUI, and Docker, all from one toolkit."
     />
-    <title>Spatial Media | 360° &amp; VR180 Metadata</title>
+    <title>Spatial Media | Immersive Video and Audio Metadata</title>
     <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="assets/favicon.svg" />
     <link rel="stylesheet" href="assets/css/style.css" />
@@ -18,24 +18,47 @@
       <div class="nav-inner">
         <a class="nav-logo" href="index.html">Spatial Media</a>
         <div class="nav-links">
-          <a href="#what">Overview</a>
-          <a href="#how">How it works</a>
-          <a href="#demo">Try it</a>
-          <a href="download.html">Download</a>
-          <a href="guide/cli.html">CLI</a>
+          <div class="nav-group nav-group-primary">
+            <a href="#demo">Demo</a>
+            <a href="download.html">Download</a>
+          </div>
+          <div class="nav-group">
+            <span class="nav-group-label">Guides</span>
+            <div class="nav-sublinks">
+              <a href="guide/overview.html">Overview</a>
+              <a href="guide/cli.html">CLI</a>
+              <a href="guide/docker.html">Docker</a>
+              <a href="guide/cli.html#desktop-gui">GUI</a>
+            </div>
+          </div>
+          <div class="nav-group">
+            <span class="nav-group-label">Specs</span>
+            <div class="nav-sublinks">
+              <a href="spec/spherical-video-v1.html">Spherical v1</a>
+              <a href="spec/spherical-video-v2.html">Spherical v2</a>
+              <a href="spec/vr180.html">VR180</a>
+              <a href="spec/spatial-audio.html">Spatial audio</a>
+            </div>
+          </div>
+          <div class="nav-group">
+            <span class="nav-group-label">Resources</span>
+            <div class="nav-sublinks">
+              <a href="guide/spatial-audio-resources.html">HRIR assets</a>
+            </div>
+          </div>
         </div>
       </div>
     </nav>
 
     <header class="hero">
       <div class="hero-content">
-        <p class="hero-eyebrow">Spatial video metadata</p>
+        <p class="hero-eyebrow">Immersive MP4 metadata</p>
         <h1 class="hero-title">
-          Make players see<br />your video in 360°.
+          Tag video and audio<br />for immersive playback.
         </h1>
         <p class="hero-subtitle">
-          VR headsets and immersive apps don’t guess. They read metadata inside your MP4.
-          Spatial Media inspects and injects the tags that tell them how to project each frame.
+          VR headsets and immersive apps read metadata inside your MP4, not the pixels or PCM samples.
+          Spatial Media inspects and injects the tags for spherical video projection and ambisonic audio.
         </p>
         <div class="hero-cta">
           <a class="button button-primary" href="#demo">Try in browser</a>
@@ -48,7 +71,8 @@
           <div class="sphere-ring ring-1"></div>
           <div class="sphere-ring ring-2"></div>
           <div class="sphere-core"></div>
-          <div class="sphere-tag">SV3D</div>
+          <div class="sphere-tag sphere-tag-v">SV3D</div>
+          <div class="sphere-tag sphere-tag-a">SA3D</div>
         </div>
       </div>
     </header>
@@ -57,27 +81,36 @@
       <div class="section-inner">
         <h2 class="section-headline">Without tags, immersive playback breaks.</h2>
         <p class="section-lead">
-          A flat MP4 looks fine in QuickTime, but in a VR headset it may stretch, show the wrong
-          field of view, or play as a flat rectangle. Spherical metadata tells the player:
-          <strong>equirectangular projection</strong>, <strong>stereo layout</strong>, and for VR180,
-          <strong>which half of the frame is which eye</strong>.
+          A flat MP4 looks fine in QuickTime, but immersive players need explicit metadata.
+          Spherical tags describe <strong>projection and stereo layout</strong>; spatial audio tags
+          describe <strong>ambisonic channel order and normalization</strong>.
         </p>
-        <div class="compare-grid">
+        <div class="compare-grid compare-grid-3">
           <article class="compare-card">
             <div class="compare-visual compare-bad">
               <span class="compare-label">No metadata</span>
               <div class="rect flat"></div>
             </div>
-            <h3>Flat playback</h3>
-            <p>Player treats video as a standard 16:9 rectangle. 360° content looks wrong.</p>
+            <h3>Flat video</h3>
+            <p>360° content plays as a stretched rectangle instead of a sphere.</p>
           </article>
           <article class="compare-card">
             <div class="compare-visual compare-good">
-              <span class="compare-label">With SV3D / XML</span>
+              <span class="compare-label">SV3D / XML</span>
               <div class="rect sphere"></div>
             </div>
-            <h3>Immersive playback</h3>
-            <p>Player wraps the frame on a sphere. Stereo tags map left and right eyes correctly.</p>
+            <h3>Immersive video</h3>
+            <p>Player wraps frames on a sphere with correct stereo eye mapping.</p>
+          </article>
+          <article class="compare-card">
+            <div class="compare-visual compare-audio">
+              <span class="compare-label">SA3D</span>
+              <div class="audio-waves">
+                <span></span><span></span><span></span><span></span>
+              </div>
+            </div>
+            <h3>Spatial audio</h3>
+            <p>Ambisonic tracks decode correctly instead of playing as flat stereo.</p>
           </article>
         </div>
       </div>
@@ -85,14 +118,14 @@
 
     <section class="section section-gray">
       <div class="section-inner">
-        <h2 class="section-headline">360° and VR180. Clearly different.</h2>
-        <div class="format-grid">
+        <h2 class="section-headline">Video, VR180, and spatial audio.</h2>
+        <div class="format-grid format-grid-3">
           <article class="format-card">
             <div class="format-diagram format-360">
               <div class="panorama"></div>
             </div>
             <h3>360° equirectangular</h3>
-            <p>Full sphere. Mono or stereo (side-by-side / over-under). Used for immersive 360 video.</p>
+            <p>Full sphere. Mono or stereo (side-by-side / over-under). v1 XML or v2 atoms.</p>
           </article>
           <article class="format-card">
             <div class="format-diagram format-vr180">
@@ -100,7 +133,16 @@
               <div class="eye eye-r"></div>
             </div>
             <h3>VR180</h3>
-            <p>Side-by-side frame, 180° forward view. We auto-set crop and bounds from your resolution.</p>
+            <p>Side-by-side frame, 180° forward view. Auto crop and bounds from resolution.</p>
+          </article>
+          <article class="format-card">
+            <div class="format-diagram format-audio">
+              <div class="ambix-channels">
+                <span>W</span><span>Y</span><span>Z</span><span>X</span>
+              </div>
+            </div>
+            <h3>Spatial audio</h3>
+            <p>First-order ambiX (ACN/SN3D). Writes the <code>SA3D</code> atom on compatible tracks.</p>
           </article>
         </div>
       </div>
@@ -108,11 +150,12 @@
 
     <section id="how" class="section section-light">
       <div class="section-inner">
-        <h2 class="section-headline">Three atoms. One moov box.</h2>
+        <h2 class="section-headline">One moov box. Video and audio atoms.</h2>
         <p class="section-lead">
-          Metadata lives in the <code>moov</code> atom, not in the video pixels. Spatial Media reads
-          your file structure, shows what’s already tagged, and writes v1 XML or v2 box metadata without
-          re-encoding video.
+          Metadata lives in the <code>moov</code> atom, not in encoded media. Spatial Media reads
+          your file structure, shows existing tags, and writes spherical video
+          (<code>SV3D</code>, <code>ST3D</code>, v1 XML) and spatial audio (<code>SA3D</code>)
+          without re-encoding.
         </p>
         <ol class="steps">
           <li>
@@ -126,17 +169,48 @@
             <span class="step-icon">2</span>
             <div>
               <h3>Inspect</h3>
-              <p>Read existing spherical XML and <code>ST3D</code> / <code>SV3D</code> atoms.</p>
+              <p>Read spherical XML, <code>ST3D</code> / <code>SV3D</code>, and <code>SA3D</code> tags.</p>
             </div>
           </li>
           <li>
             <span class="step-icon">3</span>
             <div>
               <h3>Inject</h3>
-              <p>Export a new file with 360° or VR180 tags. No upload, no server.</p>
+              <p>Export a tagged file for 360°, VR180, and/or ambisonic audio. No upload, no server.</p>
             </div>
           </li>
         </ol>
+      </div>
+    </section>
+
+    <section id="tools" class="section section-gray">
+      <div class="section-inner">
+        <h2 class="section-headline">One library. Four ways to work.</h2>
+        <p class="section-lead">
+          Every interface uses the same <code>spatialmedia</code> core. Pick the surface that fits your file size and workflow.
+        </p>
+        <div class="tools-grid">
+          <a class="tool-card" href="#demo">
+            <span class="tool-icon">Web</span>
+            <h3>Browser demo</h3>
+            <p>Inspect and inject video + spatial audio metadata locally. Best under ~2 GB.</p>
+          </a>
+          <a class="tool-card" href="download.html">
+            <span class="tool-icon">CLI</span>
+            <h3>Command line</h3>
+            <p>Scriptable inject, in-place rewrite (<code>-I</code>), and VR180 helper for large files.</p>
+          </a>
+          <a class="tool-card" href="guide/cli.html#desktop-gui">
+            <span class="tool-icon">GUI</span>
+            <h3>Desktop app</h3>
+            <p>Interactive file pickers for spherical video and spatial audio on macOS, Linux, or Windows.</p>
+          </a>
+          <a class="tool-card" href="guide/docker.html">
+            <span class="tool-icon">Docker</span>
+            <h3>Web UI</h3>
+            <p>Drag-and-drop in the browser with mounted volumes for multi-GB in-place inject.</p>
+          </a>
+        </div>
       </div>
     </section>
 
@@ -144,8 +218,9 @@
       <div class="section-inner">
         <h2 class="section-headline light">Try it now.</h2>
         <p class="section-lead light">
-          Drop an MP4 or MOV below. Best for files under ~2 GB. For multi‑gigabyte in-place inject,
-          use the <a href="download.html" class="link-light">CLI</a> with <code>-I --vr180</code>.
+          Drop an MP4 or MOV below. Tag spherical video and spatial audio in one pass.
+          Best for files under ~2 GB. For multi‑gigabyte in-place inject, use the
+          <a href="download.html" class="link-light">CLI</a> with <code>-I</code>.
         </p>
 
         <div class="demo-workbench" id="demo-workbench">
@@ -221,7 +296,7 @@
 
             <section class="demo-panel demo-panel-meta">
               <header class="demo-panel-head">
-                <h3 class="demo-panel-title">Spherical metadata</h3>
+                <h3 class="demo-panel-title">Metadata</h3>
                 <span id="meta-status" class="meta-status meta-status-empty">Waiting for file</span>
               </header>
 
@@ -231,8 +306,13 @@
                     <circle cx="16" cy="16" r="10" stroke="currentColor" stroke-width="1.25" stroke-dasharray="3 3"/>
                     <path d="M16 10v6l4 2" stroke="currentColor" stroke-width="1.25" stroke-linecap="round"/>
                   </svg>
-                  <p>Load a file to inspect <code>SV3D</code>, <code>ST3D</code>, and v1 XML tags.</p>
+                  <p>Load a file to inspect <code>SV3D</code>, <code>ST3D</code>, <code>SA3D</code>, and v1 XML tags.</p>
                 </div>
+                <p class="metadata-help">
+                  <a href="spec/spatial-audio.html">Spatial audio RFC</a>
+                  <span aria-hidden="true">·</span>
+                  <a href="guide/spatial-audio-resources.html">HRIR monitoring assets</a>
+                </p>
                 <div id="metadata-tags" class="metadata-list"></div>
               </div>
             </section>
@@ -256,6 +336,17 @@
                     </div>
 
                     <div class="toggle-cards">
+                      <label class="toggle-card" id="spatial-audio-card">
+                        <input type="checkbox" id="spatial-audio" disabled />
+                        <span class="toggle-card-inner">
+                          <span class="toggle-card-icon toggle-card-icon-audio" aria-hidden="true">SA3D</span>
+                          <span class="toggle-card-text">
+                            <strong>Spatial audio</strong>
+                            <small id="spatial-audio-hint">Requires compatible ambiX ACN/SN3D track</small>
+                          </span>
+                          <span class="toggle-card-check" aria-hidden="true"></span>
+                        </span>
+                      </label>
                       <label class="toggle-card">
                         <input type="checkbox" id="vr180" />
                         <span class="toggle-card-inner">

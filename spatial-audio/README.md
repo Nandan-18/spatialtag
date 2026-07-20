@@ -2,7 +2,7 @@
 
 Reference assets for **ambisonic binaural monitoring**: the same class of HRIR filters used in Google VR Audio, YouTube 360/VR, and related decoders. Use these when building preview tools or monitoring ambisonic mixes in a DAW.
 
-For injecting spatial audio **metadata** into MP4/MOV files, see the [Spatial Media Metadata Injector](../spatialmedia/README.md) and the [Spatial Audio RFC](../docs/spatial-audio-rfc.md).
+These are **listening/monitoring assets**, not metadata injection code. To tag MP4/MOV files with spatial audio metadata (`SA3D` atoms), use the [browser demo](https://nandan-18.github.io/spatial-media/), the [CLI/GUI](../spatialmedia/README.md) (`-a`), or the [Docker web UI](../docker/README.md). See the [Spatial Audio RFC](../docs/spatial-audio-rfc.md) for the box format.
 
 ## Directory overview
 
