@@ -28,7 +28,7 @@ function runBuild() {
 
 function startServer() {
   const bin = path.join(webDir, "node_modules", ".bin", "serve");
-  const child = spawn(bin, ["dist", "-l", port, "--no-port-switching"], {
+  const child = spawn(bin, ["dist", "-l", port, "--no-port-switching", "--no-clean-urls"], {
     cwd: webDir,
     stdio: "inherit",
   });

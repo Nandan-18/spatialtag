@@ -271,6 +271,9 @@ def build_site(output_dir: Path) -> None:
 
     shutil.copytree(WEB / "assets", output_dir / "assets")
     shutil.copy2(WEB / "index.html", output_dir / "index.html")
+    serve_json = WEB / "serve.json"
+    if serve_json.is_file():
+        shutil.copy2(serve_json, output_dir / "serve.json")
     if (WEB / "img").is_dir():
         shutil.copytree(WEB / "img", output_dir / "img")
 
