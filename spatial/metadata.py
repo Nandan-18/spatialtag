@@ -330,6 +330,7 @@ def inject_spatial_audio_atom(in_fh, audio_media_atom, audio_metadata, console):
                             console(err_msg)
                             return False
                         sa3d_atom = mpeg.SA3DBox.create(num_channels, audio_metadata)
+                        sample_description.remove(mpeg.constants.TAG_SA3D)
                         sample_description.contents.append(sa3d_atom)
     return True
 
