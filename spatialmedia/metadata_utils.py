@@ -510,7 +510,7 @@ def inject_mpeg4(input_file, output_file, metadata, console):
 def inject_mpeg4_inplace(input_file, metadata, console):
     try:
         fh = open(input_file, "r+b")
-    except Exception:
+    except OSError:
         console("Error file: \"" + input_file + "\" does not exist or do not have "
                 "permission.")
         return
