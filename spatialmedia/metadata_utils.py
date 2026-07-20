@@ -540,9 +540,10 @@ def parse_metadata(src, console):
     try:
         in_fh = open(infile, "rb")
         in_fh.close()
-    except:
+    except OSError:
         console("Error: " + infile +
                 " does not exist or we do not have permission")
+        return None
 
     console("Processing: " + infile)
     extension = os.path.splitext(infile)[1].lower()
@@ -561,7 +562,7 @@ def inject_metadata(src, dest, metadata, console):
     try:
         in_fh = open(infile, "rb")
         in_fh.close()
-    except Exception:
+    except OSError:
         console("Error: " + infile +
                 " does not exist or we do not have permission")
         return
