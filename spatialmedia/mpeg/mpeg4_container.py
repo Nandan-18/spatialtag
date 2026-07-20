@@ -1,5 +1,4 @@
 #! /usr/bin/env python
-# -*- coding: utf-8 -*-
 
 # Copyright 2016 Google Inc. All rights reserved.
 #
@@ -25,11 +24,10 @@ from __future__ import annotations
 import io
 from typing import BinaryIO, Optional
 
-from spatialmedia.mpeg import constants
-from spatialmedia.mpeg import container
+from spatialmedia.mpeg import constants, container
 
 
-def load(fh: BinaryIO) -> Optional["Mpeg4Container"]:
+def load(fh: BinaryIO) -> Optional[Mpeg4Container]:
     """Load the mpeg4 file structure of a file.
 
     Args:
@@ -54,14 +52,13 @@ def load(fh: BinaryIO) -> Optional["Mpeg4Container"]:
     loaded_mpeg4.contents = contents
 
     for element in loaded_mpeg4.contents:
-        if (element.name == constants.TAG_MOOV):
+        if element.name == constants.TAG_MOOV:
             loaded_mpeg4.moov_box = element
-        if (element.name == constants.TAG_FREE):
+        if element.name == constants.TAG_FREE:
             loaded_mpeg4.free_box = element
-        if (element.name == constants.TAG_MDAT
-                and not loaded_mpeg4.first_mdat_box):
+        if element.name == constants.TAG_MDAT and not loaded_mpeg4.first_mdat_box:
             loaded_mpeg4.first_mdat_box = element
-        if (element.name == constants.TAG_FTYP):
+        if element.name == constants.TAG_FTYP:
             loaded_mpeg4.ftyp_box = element
 
     if not loaded_mpeg4.moov_box:
@@ -72,10 +69,8 @@ def load(fh: BinaryIO) -> Optional["Mpeg4Container"]:
         print("Error, file does not contain mdat box.")
         return None
 
-    loaded_mpeg4.first_mdat_position = \
-        loaded_mpeg4.first_mdat_box.position
-    loaded_mpeg4.first_mdat_position += \
-        loaded_mpeg4.first_mdat_box.header_size
+    loaded_mpeg4.first_mdat_position = loaded_mpeg4.first_mdat_box.position
+    loaded_mpeg4.first_mdat_position += loaded_mpeg4.first_mdat_box.header_size
 
     loaded_mpeg4.content_size = 0
     for element in loaded_mpeg4.contents:
@@ -105,7 +100,7 @@ class Mpeg4Container(container.Container):
 
     def print_structure(self) -> None:
         """Print mpeg4 file structure recursively."""
-        print("mpeg4 [{}]".format(self.content_size))
+        print(f"mpeg4 [{self.content_size}]")
 
         size = len(self.contents)
         for i in range(size):
@@ -149,13 +144,13 @@ class Mpeg4Container(container.Container):
           ValueError: if mdat would move, or moov is not the last top-level box.
         """
         if not self.contents or self.contents[-1] is not self.moov_box:
-            raise ValueError(
-                "In-place inject requires moov to be the last top-level box.")
+            raise ValueError("In-place inject requires moov to be the last top-level box.")
         delta = self.mdat_delta()
         if delta != 0:
             raise ValueError(
                 "In-place inject requires mdat offsets to stay unchanged "
-                "(typically moov after mdat). Use a separate output path.")
+                "(typically moov after mdat). Use a separate output path."
+            )
 
         moov_pos = self.moov_box.position
         buf = io.BytesIO()

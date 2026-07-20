@@ -29,9 +29,16 @@ line-length = 100
 src = ["spatialmedia", "docker"]
 
 [tool.ruff.lint]
-# Keep linting practical on this legacy codebase; expand gradually.
-select = ["E9", "F63", "F7", "F82"]
+select = ["E", "F", "I"]
 ignore = ["E501"]
+
+[tool.ruff.lint.per-file-ignores]
+"spatialmedia/__main__.py" = ["E402"]
+"spatialmedia/gui.py" = ["E402", "I001"]
+"docker/app.py" = ["E402", "I001"]
+
+[tool.ruff.format]
+quote-style = "double"
 
 [tool.mypy]
 python_version = "3.9"

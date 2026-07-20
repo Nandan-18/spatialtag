@@ -1,5 +1,4 @@
 #! /usr/bin/env python
-# -*- coding: utf-8 -*-
 
 # Copyright 2016 Google Inc. All rights reserved.
 #
@@ -29,7 +28,7 @@ from typing import BinaryIO, Optional, Union
 from spatialmedia.mpeg import constants
 
 
-def load(fh: BinaryIO, position: Optional[int], end: int) -> Optional["Box"]:
+def load(fh: BinaryIO, position: Optional[int], end: int) -> Optional[Box]:
     """Loads the box located at a position in a mp4 file.
 
     Args:
@@ -52,7 +51,7 @@ def load(fh: BinaryIO, position: Optional[int], end: int) -> Optional["Box"]:
         header_size = 16
 
     if size < 8:
-        print("Error, invalid size {} in {} at {}".format(size, name, position))
+        print(f"Error, invalid size {size} in {name} at {position}")
         return None
 
     if (position + size) > end:
@@ -69,7 +68,7 @@ def load(fh: BinaryIO, position: Optional[int], end: int) -> Optional["Box"]:
     return new_box
 
 
-class Box(object):
+class Box:
     """MPEG4 box contents and behaviour true for all boxes."""
 
     def __init__(self) -> None:
@@ -127,7 +126,7 @@ class Box(object):
         """Prints the box structure."""
         size1 = self.header_size
         size2 = self.content_size
-        print("{0} {1} [{2}, {3}]".format(indent, self.name, size1, size2))
+        print(f"{indent} {self.name} [{size1}, {size2}]")
 
 
 def tag_copy(in_fh: BinaryIO, out_fh: BinaryIO, size: int) -> None:
@@ -142,7 +141,7 @@ def tag_copy(in_fh: BinaryIO, out_fh: BinaryIO, size: int) -> None:
     # On 32-bit systems reading / writing is limited to 2GB chunks.
     # To prevent overflow, read/write 64 MB chunks.
     block_size = 64 * 1024 * 1024
-    while (size > block_size):
+    while size > block_size:
         contents = in_fh.read(block_size)
         out_fh.write(contents)
         size = size - block_size

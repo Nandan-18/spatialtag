@@ -1,5 +1,4 @@
 #! /usr/bin/env python
-# -*- coding: utf-8 -*-
 
 # Copyright 2016 Google Inc. All rights reserved.
 #
@@ -31,11 +30,9 @@ try:
     # python 3
     import tkinter as tk
     from tkinter import filedialog, messagebox, ttk
-    import configparser
 except ImportError:
     # python 2
     import Tkinter as tk
-    from tkFont import Font, nametofont
     import tkMessageBox as messagebox
     import tkFileDialog as filedialog
     import ttk
@@ -59,10 +56,12 @@ def make_dpi_aware():
             ctypes.windll.shcore.SetProcessDpiAwareness(True)
         except AttributeError:
             print("Could not set DPI awareness.")
+
+
 make_dpi_aware()
 
 
-class Console():
+class Console:
     def __init__(self):
         self.log = []
 
@@ -77,13 +76,15 @@ class Application(tk.Frame):
         tmp_in_files = filedialog.askopenfilenames(**self.open_options)
         if not tmp_in_files:
             return
-        
+
         # Process first file to show in the UI
         self.in_file = tmp_in_files[0]
         self.all_files = tmp_in_files  # Store all selected files
-        
-        self.set_message(f"Selected {len(tmp_in_files)} files. Current file: {ntpath.basename(self.in_file)}")
-        
+
+        self.set_message(
+            f"Selected {len(tmp_in_files)} files. Current file: {ntpath.basename(self.in_file)}"
+        )
+
         console = Console()
         parsed_metadata = metadata_utils.parse_metadata(self.in_file, console.append)
 
@@ -104,9 +105,6 @@ class Application(tk.Frame):
 
         self.enable_state()
         self.checkbox_spherical.configure(state="normal")
-
-        infile = os.path.abspath(self.in_file)
-        file_extension = os.path.splitext(infile)[1].lower()
 
         self.var_spherical.set(1)
         self.spatial_audio_description = metadata_utils.get_spatial_audio_description(
@@ -157,28 +155,26 @@ class Application(tk.Frame):
 
         console = Console()
         success_count = 0
-        
+
         for input_file in self.all_files:
             split_filename = os.path.splitext(ntpath.basename(input_file))
             base_filename = split_filename[0]
             extension = split_filename[1]
-            
+
             # Create output filename for each file
             # Fix: Use self.save_file directly as it's already the correct directory path
             output_file = os.path.join(
-                #os.path.dirname(self.save_file), # Remove os.path.dirname() call to fix directory path issue
+                # os.path.dirname(self.save_file), # Remove os.path.dirname() call to fix directory path issue
                 self.save_file,  # Remove os.path.dirname() call
-                f"{base_filename}_injected{extension}"
+                f"{base_filename}_injected{extension}",
             )
-            
+
             try:
-                metadata_utils.inject_metadata(
-                    input_file, output_file, metadata, console.append
-                )
+                metadata_utils.inject_metadata(input_file, output_file, metadata, console.append)
                 success_count += 1
             except Exception as e:
                 console.append(f"Error processing {ntpath.basename(input_file)}: {str(e)}")
-        
+
         self.set_message(
             f"Successfully processed {success_count} out of {len(self.all_files)} files"
         )
@@ -222,8 +218,7 @@ class Application(tk.Frame):
         if self.var_spherical.get():
             self.combo_stereo.configure(state="readonly")
             self.button_inject.configure(state="normal")
-            if (self.spatial_audio_description
-                    and self.spatial_audio_description.is_supported):
+            if self.spatial_audio_description and self.spatial_audio_description.is_supported:
                 self.checkbox_spatial_audio.configure(state="normal")
             else:
                 self.checkbox_spatial_audio.configure(state="disabled")
@@ -231,10 +226,9 @@ class Application(tk.Frame):
             self.combo_stereo.configure(state="disabled")
             self.button_inject.configure(state="disabled")
             self.checkbox_spatial_audio.configure(state="disabled")
-        if (self.spatial_audio_description
-                and self.spatial_audio_description.has_head_locked_stereo):
+        if self.spatial_audio_description and self.spatial_audio_description.has_head_locked_stereo:
             self.label_spatial_audio.configure(
-                text="{}\n{}".format(SPATIAL_AUDIO_LABEL, HEAD_LOCKED_STEREO_LABEL)
+                text=f"{SPATIAL_AUDIO_LABEL}\n{HEAD_LOCKED_STEREO_LABEL}"
             )
         else:
             self.label_spatial_audio.configure(text=SPATIAL_AUDIO_LABEL)
@@ -277,9 +271,7 @@ class Application(tk.Frame):
         row += 1
         self.label_spherical = tk.Label(self, anchor="w")
         self.label_spherical["text"] = "My video is spherical (360)"
-        self.label_spherical.grid(
-            row=row, column=column, padx=PAD_X, pady=7, sticky="w"
-        )
+        self.label_spherical.grid(row=row, column=column, padx=PAD_X, pady=7, sticky="w")
         column += 1
 
         self.var_spherical = tk.IntVar()
@@ -311,23 +303,17 @@ class Application(tk.Frame):
         column = 0
         self.label_spatial_audio = tk.Label(self, anchor="w", justify=tk.LEFT)
         self.label_spatial_audio["text"] = SPATIAL_AUDIO_LABEL
-        self.label_spatial_audio.grid(
-            row=row, column=column, padx=PAD_X, pady=7, sticky="w"
-        )
+        self.label_spatial_audio.grid(row=row, column=column, padx=PAD_X, pady=7, sticky="w")
 
         column += 1
         self.var_spatial_audio = tk.IntVar()
-        self.checkbox_spatial_audio = tk.Checkbutton(
-            self, variable=self.var_spatial_audio
-        )
+        self.checkbox_spatial_audio = tk.Checkbutton(self, variable=self.var_spatial_audio)
         self.checkbox_spatial_audio["command"] = self.action_set_spatial_audio
         self.checkbox_spatial_audio.grid(row=row, column=column, padx=0, pady=0)
 
         row = row + 1
         separator = tk.Frame(self, relief=tk.GROOVE, bd=1, height=2, bg="white")
-        separator.grid(
-            columnspan=row, padx=PAD_X, pady=10, sticky="n" + "e" + "s" + "w"
-        )
+        separator.grid(columnspan=row, padx=PAD_X, pady=10, sticky="n" + "e" + "s" + "w")
 
         # Button Frame
         column = 0
@@ -379,7 +365,7 @@ def report_callback_exception(self, *args):
 
 def main():
     root = tk.Tk()
-    root.tk.call('tk', 'scaling', 2.0)
+    root.tk.call("tk", "scaling", 2.0)
     root.withdraw()
     app_window = tk.Toplevel(root, class_="Spatial Media Metadata Injector")
     app_window.resizable(False, False)

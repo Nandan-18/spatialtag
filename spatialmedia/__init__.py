@@ -1,5 +1,4 @@
 #! /usr/bin/env python
-# -*- coding: utf-8 -*-
 
 # Copyright 2016 Google Inc. All rights reserved.
 #
@@ -18,9 +17,9 @@
 # Ensure the package is available on the current path or is installed.
 import os
 import sys
+
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-__all__ = ["metadata_utils", "mpeg"]
+from spatialmedia import metadata_utils, mpeg
 
-import spatialmedia.metadata_utils
-import spatialmedia.mpeg
+__all__ = ["metadata_utils", "mpeg"]

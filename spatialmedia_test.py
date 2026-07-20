@@ -7,6 +7,7 @@ ffmpeg -y -f lavfi -i testsrc -vf scale=320:240 -vcodec libvpx-vp9 -t 0.05 data/
 ffmpeg -y -f lavfi -i testsrc -vf scale=32:24 -vcodec prores -t 0.05 data/testsrc_32x24_prores.mov
 
 """
+
 import io
 import os
 import shutil
@@ -14,12 +15,12 @@ import struct
 import unittest
 from contextlib import redirect_stdout
 
-from spatialmedia.__main__ import main
 from spatialmedia import metadata_utils
+from spatialmedia.__main__ import main
 from spatialmedia.mpeg import mpeg4_container
 
-_OUTPUT_DIR = 'test_output'
-_FIXTURE_H264 = 'data/testsrc_320x240_h264.mp4'
+_OUTPUT_DIR = "test_output"
+_FIXTURE_H264 = "data/testsrc_320x240_h264.mp4"
 
 
 def _ensure_output_dir():
@@ -65,138 +66,179 @@ def _run_main(args):
 
 
 class TestAdd(unittest.TestCase):
-
     def inject_metadata(self, args):
         self.assertIsNone(main(args))
 
         contents = []
-        metadata_utils.parse_metadata(args[-1],
-                                      lambda x: contents.append(x))
+        metadata_utils.parse_metadata(args[-1], lambda x: contents.append(x))
         try:
             os.remove(args[-1])
         except OSError:
-            return ''
-        return '\n'.join(contents[2:])
+            return ""
+        return "\n".join(contents[2:])
 
     def test_inject_v1_equirect_mono(self):
-        contents = self.inject_metadata(['-i',
-                                         '--projection', 'equirectangular',
-                                         'data/testsrc_320x240_h264.mp4',
-                                         f'{_OUTPUT_DIR}/equirect_mono_v1.mp4'])
+        contents = self.inject_metadata(
+            [
+                "-i",
+                "--projection",
+                "equirectangular",
+                "data/testsrc_320x240_h264.mp4",
+                f"{_OUTPUT_DIR}/equirect_mono_v1.mp4",
+            ]
+        )
 
-        self.assertFalse(contents.find('SV3D') >= 0)
-        self.assertFalse(contents.find('PRHD') >= 0)
-        self.assertFalse(contents.find('EQUI') >= 0)
-        self.assertFalse(contents.find('ST3D') >= 0)
+        self.assertFalse(contents.find("SV3D") >= 0)
+        self.assertFalse(contents.find("PRHD") >= 0)
+        self.assertFalse(contents.find("EQUI") >= 0)
+        self.assertFalse(contents.find("ST3D") >= 0)
         self.assertTrue(contents.find("ProjectionType = equirectangular") > 0)
 
     def test_inject_v1_rectangular_left_right(self):
-        contents = self.inject_metadata(['-i',
-                                         '--stereo', 'left-right',
-                                         '--projection', 'none',
-                                         'data/testsrc_320x240_h264.mp4',
-                                         f'{_OUTPUT_DIR}/rectangular_left_right_v1.mp4'])
+        contents = self.inject_metadata(
+            [
+                "-i",
+                "--stereo",
+                "left-right",
+                "--projection",
+                "none",
+                "data/testsrc_320x240_h264.mp4",
+                f"{_OUTPUT_DIR}/rectangular_left_right_v1.mp4",
+            ]
+        )
 
-        self.assertFalse(contents.find('SV3D') >= 0)
-        self.assertFalse(contents.find('PRHD') >= 0)
-        self.assertFalse(contents.find('EQUI') >= 0)
-        self.assertFalse(contents.find('ST3D') >= 0)
+        self.assertFalse(contents.find("SV3D") >= 0)
+        self.assertFalse(contents.find("PRHD") >= 0)
+        self.assertFalse(contents.find("EQUI") >= 0)
+        self.assertFalse(contents.find("ST3D") >= 0)
         self.assertFalse(contents.find("ProjectionType = equirectangular") > 0)
         self.assertTrue(contents.find("ProjectionType = rectangular") > 0)
         self.assertTrue(contents.find("Spherical = false") > 0)
 
     def test_inject_v2_equirect_mono(self):
-        contents = self.inject_metadata(['-i',
-                                         '--v2', '--projection', 'equirectangular',
-                                         'data/testsrc_320x240_h264.mp4',
-                                         f'{_OUTPUT_DIR}/equirect_mono.mp4'])
-        self.assertTrue(contents.find('SV3D') >= 0)
-        self.assertTrue(contents.find('SVHD') >= 0)
-        self.assertTrue(
-            contents.find('Spherical Metadata Tool') >= 0)
-        self.assertTrue(contents.find('PRHD') >= 0)
-        self.assertTrue(contents.find('EQUI') >= 0)
-        self.assertFalse(contents.find('ST3D') >= 0)
-        self.assertTrue(contents.find('Bounds Top: 0') >= 0)
-        self.assertTrue(contents.find('Bounds Bottom: 0') >= 0)
-        self.assertTrue(contents.find('Bounds Left: 0') >= 0)
-        self.assertTrue(contents.find('Bounds Right: 0') >= 0)
+        contents = self.inject_metadata(
+            [
+                "-i",
+                "--v2",
+                "--projection",
+                "equirectangular",
+                "data/testsrc_320x240_h264.mp4",
+                f"{_OUTPUT_DIR}/equirect_mono.mp4",
+            ]
+        )
+        self.assertTrue(contents.find("SV3D") >= 0)
+        self.assertTrue(contents.find("SVHD") >= 0)
+        self.assertTrue(contents.find("Spherical Metadata Tool") >= 0)
+        self.assertTrue(contents.find("PRHD") >= 0)
+        self.assertTrue(contents.find("EQUI") >= 0)
+        self.assertFalse(contents.find("ST3D") >= 0)
+        self.assertTrue(contents.find("Bounds Top: 0") >= 0)
+        self.assertTrue(contents.find("Bounds Bottom: 0") >= 0)
+        self.assertTrue(contents.find("Bounds Left: 0") >= 0)
+        self.assertTrue(contents.find("Bounds Right: 0") >= 0)
 
     def test_inject_v2_equirect_mono_with_bounds(self):
-        contents = self.inject_metadata(['-i',
-                                         '--v2',
-                                         '--bounds', '0x1:-2:0x7FFFFFFF:32',
-                                         '--projection', 'equirectangular',
-                                         'data/testsrc_320x240_h264.mp4',
-                                         f'{_OUTPUT_DIR}/equirect_mono.mp4'])
-        self.assertTrue(contents.find('SV3D') >= 0)
-        self.assertTrue(contents.find('SVHD') >= 0)
-        self.assertTrue(
-            contents.find('Spherical Metadata Tool') >= 0)
-        self.assertTrue(contents.find('PRHD') >= 0)
-        self.assertTrue(contents.find('EQUI') >= 0)
-        self.assertFalse(contents.find('ST3D') >= 0)
-        self.assertTrue(contents.find('Bounds Top: 1') >= 0)
-        self.assertTrue(contents.find('Bounds Bottom: 0') >= 0)
-        self.assertTrue(contents.find('Bounds Left: 2147483647') >= 0)
-        self.assertTrue(contents.find('Bounds Right: 32') >= 0)
+        contents = self.inject_metadata(
+            [
+                "-i",
+                "--v2",
+                "--bounds",
+                "0x1:-2:0x7FFFFFFF:32",
+                "--projection",
+                "equirectangular",
+                "data/testsrc_320x240_h264.mp4",
+                f"{_OUTPUT_DIR}/equirect_mono.mp4",
+            ]
+        )
+        self.assertTrue(contents.find("SV3D") >= 0)
+        self.assertTrue(contents.find("SVHD") >= 0)
+        self.assertTrue(contents.find("Spherical Metadata Tool") >= 0)
+        self.assertTrue(contents.find("PRHD") >= 0)
+        self.assertTrue(contents.find("EQUI") >= 0)
+        self.assertFalse(contents.find("ST3D") >= 0)
+        self.assertTrue(contents.find("Bounds Top: 1") >= 0)
+        self.assertTrue(contents.find("Bounds Bottom: 0") >= 0)
+        self.assertTrue(contents.find("Bounds Left: 2147483647") >= 0)
+        self.assertTrue(contents.find("Bounds Right: 32") >= 0)
 
     def test_inject_v2_equirect_mono_vp9(self):
-        contents = self.inject_metadata(['-i',
-                                         '--v2', '--projection', 'equirectangular',
-                                         'data/testsrc_320x240_vp9.mp4',
-                                         f'{_OUTPUT_DIR}/equirect_mono_vp9.mp4'])
+        contents = self.inject_metadata(
+            [
+                "-i",
+                "--v2",
+                "--projection",
+                "equirectangular",
+                "data/testsrc_320x240_vp9.mp4",
+                f"{_OUTPUT_DIR}/equirect_mono_vp9.mp4",
+            ]
+        )
 
-        self.assertTrue(contents.find('SV3D') >= 0)
-        self.assertTrue(contents.find('SVHD') >= 0)
-        self.assertTrue(
-            contents.find('Spherical Metadata Tool') >= 0)
-        self.assertTrue(contents.find('PRHD') >= 0)
-        self.assertTrue(contents.find('EQUI') >= 0)
-        self.assertFalse(contents.find('ST3D') >= 0)
+        self.assertTrue(contents.find("SV3D") >= 0)
+        self.assertTrue(contents.find("SVHD") >= 0)
+        self.assertTrue(contents.find("Spherical Metadata Tool") >= 0)
+        self.assertTrue(contents.find("PRHD") >= 0)
+        self.assertTrue(contents.find("EQUI") >= 0)
+        self.assertFalse(contents.find("ST3D") >= 0)
 
     def test_inject_v2_equirect_mono_prores(self):
-        contents = self.inject_metadata(['-i',
-                                         '--v2', '--projection', 'equirectangular',
-                                         'data/testsrc_32x24_prores.mov',
-                                         f'{_OUTPUT_DIR}/equirect_mono_prores.mov'])
-        self.assertTrue(contents.find('SV3D') >= 0)
-        self.assertTrue(contents.find('SVHD') >= 0)
-        self.assertTrue(
-            contents.find('Spherical Metadata Tool') >= 0)
-        self.assertTrue(contents.find('PRHD') >= 0)
-        self.assertTrue(contents.find('EQUI') >= 0)
-        self.assertFalse(contents.find('ST3D') >= 0)
-
+        contents = self.inject_metadata(
+            [
+                "-i",
+                "--v2",
+                "--projection",
+                "equirectangular",
+                "data/testsrc_32x24_prores.mov",
+                f"{_OUTPUT_DIR}/equirect_mono_prores.mov",
+            ]
+        )
+        self.assertTrue(contents.find("SV3D") >= 0)
+        self.assertTrue(contents.find("SVHD") >= 0)
+        self.assertTrue(contents.find("Spherical Metadata Tool") >= 0)
+        self.assertTrue(contents.find("PRHD") >= 0)
+        self.assertTrue(contents.find("EQUI") >= 0)
+        self.assertFalse(contents.find("ST3D") >= 0)
 
     def test_inject_v2_rectangular_left_right(self):
-        contents = self.inject_metadata(['-i',
-                                         '--v2', '--stereo', 'left-right',
-                                         '--projection', 'none',
-                                         'data/testsrc_320x240_h264.mp4',
-                                         f'{_OUTPUT_DIR}/rectangular_left_right.mp4'])
-        self.assertFalse(contents.find('SV3D') >= 0)
-        self.assertFalse(contents.find('PRHD') >= 0)
-        self.assertFalse(contents.find('EQUI') >= 0)
-        self.assertTrue(contents.find('ST3D') >= 0)
-        self.assertTrue(contents.find('Stereo Mode: 2') >= 0)
+        contents = self.inject_metadata(
+            [
+                "-i",
+                "--v2",
+                "--stereo",
+                "left-right",
+                "--projection",
+                "none",
+                "data/testsrc_320x240_h264.mp4",
+                f"{_OUTPUT_DIR}/rectangular_left_right.mp4",
+            ]
+        )
+        self.assertFalse(contents.find("SV3D") >= 0)
+        self.assertFalse(contents.find("PRHD") >= 0)
+        self.assertFalse(contents.find("EQUI") >= 0)
+        self.assertTrue(contents.find("ST3D") >= 0)
+        self.assertTrue(contents.find("Stereo Mode: 2") >= 0)
 
     def test_inject_v2_rectangular_top_bottom(self):
-        contents = self.inject_metadata(['-i',
-                                         '--v2', '--stereo', 'top-bottom',
-                                         '--projection', 'none',
-                                         'data/testsrc_320x240_h264.mp4',
-                                         f'{_OUTPUT_DIR}/rectangular_top_bottom.mp4'])
+        contents = self.inject_metadata(
+            [
+                "-i",
+                "--v2",
+                "--stereo",
+                "top-bottom",
+                "--projection",
+                "none",
+                "data/testsrc_320x240_h264.mp4",
+                f"{_OUTPUT_DIR}/rectangular_top_bottom.mp4",
+            ]
+        )
 
-        self.assertFalse(contents.find('SV3D') >= 0)
-        self.assertFalse(contents.find('PRHD') >= 0)
-        self.assertFalse(contents.find('EQUI') >= 0)
-        self.assertTrue(contents.find('ST3D') >= 0)
-        self.assertTrue(contents.find('Stereo Mode: 1') >= 0)
+        self.assertFalse(contents.find("SV3D") >= 0)
+        self.assertFalse(contents.find("PRHD") >= 0)
+        self.assertFalse(contents.find("EQUI") >= 0)
+        self.assertTrue(contents.find("ST3D") >= 0)
+        self.assertTrue(contents.find("Stereo Mode: 1") >= 0)
 
 
 class TestInPlace(unittest.TestCase):
-
     def setUp(self):
         _ensure_output_dir()
 
@@ -207,10 +249,17 @@ class TestInPlace(unittest.TestCase):
         names_before = [n for _, n, _, _ in _top_level_boxes(target)]
         self.assertEqual(names_before[-1], b"moov")
 
-        self.assertIsNone(main([
-            "-i", "--stereo", "left-right",
-            target, target,
-        ]))
+        self.assertIsNone(
+            main(
+                [
+                    "-i",
+                    "--stereo",
+                    "left-right",
+                    target,
+                    target,
+                ]
+            )
+        )
 
         after = os.path.getsize(target)
         # Grew by metadata only — far less than a full remux copy.
@@ -231,7 +280,8 @@ class TestInPlace(unittest.TestCase):
         logs = []
         metadata = metadata_utils.Metadata()
         metadata.video = metadata_utils.generate_spherical_xml(
-            "equirectangular", "left-right", None)
+            "equirectangular", "left-right", None
+        )
 
         def console(msg):
             logs.append(msg)
@@ -241,9 +291,7 @@ class TestInPlace(unittest.TestCase):
             after = f.read()
         self.assertEqual(original, after)
         joined = "\n".join(logs) + (result or "")
-        self.assertTrue(
-            "in-place" in joined.lower() or "mdat" in joined.lower(),
-            msg=joined)
+        self.assertTrue("in-place" in joined.lower() or "mdat" in joined.lower(), msg=joined)
 
     def test_in_place_flag_and_vr180(self):
         target = f"{_OUTPUT_DIR}/cli_vr180.mp4"
@@ -258,39 +306,46 @@ class TestInPlace(unittest.TestCase):
 
 
 class TestHelpers(unittest.TestCase):
-
     def test_get_video_dimensions(self):
-        self.assertEqual(
-            metadata_utils.get_video_dimensions(_FIXTURE_H264), (320, 240))
+        self.assertEqual(metadata_utils.get_video_dimensions(_FIXTURE_H264), (320, 240))
 
     def test_get_video_dimensions_missing_file(self):
-        self.assertIsNone(
-            metadata_utils.get_video_dimensions("data/does_not_exist.mp4"))
+        self.assertIsNone(metadata_utils.get_video_dimensions("data/does_not_exist.mp4"))
 
     def test_generate_spherical_xml_with_crop(self):
         xml = metadata_utils.generate_spherical_xml(
-            "equirectangular", "left-right", "160:240:320:240:80:0")
+            "equirectangular", "left-right", "160:240:320:240:80:0"
+        )
         self.assertIn("CroppedAreaImageWidthPixels>160", xml)
         self.assertIn("FullPanoWidthPixels>320", xml)
         self.assertIn("StereoMode>left-right", xml)
 
 
 class TestCliValidation(unittest.TestCase):
-
     def setUp(self):
         _ensure_output_dir()
 
     def test_in_place_requires_single_file(self):
-        out = _run_main([
-            "-I", "--stereo", "left-right",
-            _FIXTURE_H264, f"{_OUTPUT_DIR}/extra.mp4",
-        ])
+        out = _run_main(
+            [
+                "-I",
+                "--stereo",
+                "left-right",
+                _FIXTURE_H264,
+                f"{_OUTPUT_DIR}/extra.mp4",
+            ]
+        )
         self.assertIn("exactly one file", out)
 
     def test_inject_and_in_place_mutually_exclusive(self):
-        out = _run_main([
-            "-i", "-I", _FIXTURE_H264, f"{_OUTPUT_DIR}/both.mp4",
-        ])
+        out = _run_main(
+            [
+                "-i",
+                "-I",
+                _FIXTURE_H264,
+                f"{_OUTPUT_DIR}/both.mp4",
+            ]
+        )
         self.assertIn("not both", out)
 
     def test_vr180_on_missing_file(self):
@@ -299,23 +354,37 @@ class TestCliValidation(unittest.TestCase):
 
 
 class TestMetadataConflictClearing(unittest.TestCase):
-
     def setUp(self):
         _ensure_output_dir()
 
     def test_v2_inject_clears_v1_tags(self):
         target = f"{_OUTPUT_DIR}/v2_clears_v1.mp4"
         shutil.copyfile(_FIXTURE_H264, target)
-        self.assertIsNone(main([
-            "-i", "--projection", "equirectangular",
-            target, f"{_OUTPUT_DIR}/v1_step.mp4",
-        ]))
+        self.assertIsNone(
+            main(
+                [
+                    "-i",
+                    "--projection",
+                    "equirectangular",
+                    target,
+                    f"{_OUTPUT_DIR}/v1_step.mp4",
+                ]
+            )
+        )
         shutil.copyfile(f"{_OUTPUT_DIR}/v1_step.mp4", target)
 
-        self.assertIsNone(main([
-            "-i", "-2", "--stereo", "left-right",
-            target, target,
-        ]))
+        self.assertIsNone(
+            main(
+                [
+                    "-i",
+                    "-2",
+                    "--stereo",
+                    "left-right",
+                    target,
+                    target,
+                ]
+            )
+        )
         text = _parse_text(target)
         self.assertIn("ST3D", text)
         self.assertIn("SV3D", text)
@@ -324,16 +393,31 @@ class TestMetadataConflictClearing(unittest.TestCase):
     def test_v1_inject_clears_v2_tags(self):
         target = f"{_OUTPUT_DIR}/v1_clears_v2.mp4"
         shutil.copyfile(_FIXTURE_H264, target)
-        self.assertIsNone(main([
-            "-i", "-2", "--stereo", "left-right",
-            target, f"{_OUTPUT_DIR}/v2_step.mp4",
-        ]))
+        self.assertIsNone(
+            main(
+                [
+                    "-i",
+                    "-2",
+                    "--stereo",
+                    "left-right",
+                    target,
+                    f"{_OUTPUT_DIR}/v2_step.mp4",
+                ]
+            )
+        )
         shutil.copyfile(f"{_OUTPUT_DIR}/v2_step.mp4", target)
 
-        self.assertIsNone(main([
-            "-i", "--stereo", "left-right",
-            target, target,
-        ]))
+        self.assertIsNone(
+            main(
+                [
+                    "-i",
+                    "--stereo",
+                    "left-right",
+                    target,
+                    target,
+                ]
+            )
+        )
         text = _parse_text(target)
         self.assertIn("StereoMode = left-right", text)
         self.assertNotIn("ST3D", text)
@@ -341,7 +425,6 @@ class TestMetadataConflictClearing(unittest.TestCase):
 
 
 class TestMpeg4Container(unittest.TestCase):
-
     def test_mdat_delta_zero_for_moov_last_fixture(self):
         with open(_FIXTURE_H264, "rb") as fh:
             mpeg4 = mpeg4_container.load(fh)
@@ -349,8 +432,7 @@ class TestMpeg4Container(unittest.TestCase):
         self.assertEqual(_top_level_boxes(_FIXTURE_H264)[-1][1], b"moov")
 
     def test_moov_first_fixture_is_unsupported_for_inplace(self):
-        names = [n for _, n, _, _ in _top_level_boxes(
-            "data/testsrc_320x240_h264_moov_first.mp4")]
+        names = [n for _, n, _, _ in _top_level_boxes("data/testsrc_320x240_h264_moov_first.mp4")]
         self.assertEqual(names[:2], [b"ftyp", b"moov"])
         self.assertNotEqual(names[-1], b"moov")
 
@@ -361,7 +443,8 @@ class TestMpeg4Container(unittest.TestCase):
 
         metadata = metadata_utils.Metadata("equirectangular", "left-right", None)
         metadata.video = metadata_utils.generate_spherical_xml(
-            "equirectangular", "left-right", None)
+            "equirectangular", "left-right", None
+        )
 
         logs = []
         metadata_utils.inject_metadata(target, target, metadata, logs.append)
@@ -377,13 +460,10 @@ class TestMpeg4Container(unittest.TestCase):
             with self.assertRaises(ValueError) as ctx:
                 mpeg4.save_moov_inplace(fh)
         msg = str(ctx.exception).lower()
-        self.assertTrue(
-            "last top-level box" in msg or "mdat" in msg,
-            msg=msg)
+        self.assertTrue("last top-level box" in msg or "mdat" in msg, msg=msg)
 
 
 class TestTwoPathInject(unittest.TestCase):
-
     def setUp(self):
         _ensure_output_dir()
 
@@ -393,9 +473,17 @@ class TestTwoPathInject(unittest.TestCase):
         shutil.copyfile(_FIXTURE_H264, source)
         original = os.path.getsize(source)
 
-        self.assertIsNone(main([
-            "-i", "--stereo", "left-right", source, output,
-        ]))
+        self.assertIsNone(
+            main(
+                [
+                    "-i",
+                    "--stereo",
+                    "left-right",
+                    source,
+                    output,
+                ]
+            )
+        )
 
         self.assertEqual(os.path.getsize(source), original)
         self.assertTrue(os.path.exists(output))
@@ -403,6 +491,6 @@ class TestTwoPathInject(unittest.TestCase):
         self.assertIn("StereoMode = left-right", _parse_text(output))
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     _ensure_output_dir()
     unittest.main()
