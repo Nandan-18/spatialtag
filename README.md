@@ -50,6 +50,6 @@ User-facing docs live in [web/guide/](web/guide/) and are published to the site 
 Tag a version to build CLI binaries and `audio.zip`:
 
 ```bash
-git tag v2.2.0
-git push origin v2.2.0
+git tag v1.0.0
+git push origin v1.0.0
 ```
