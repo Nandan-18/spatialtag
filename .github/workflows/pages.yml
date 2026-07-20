@@ -5,6 +5,13 @@ on:
     branches: [main]
     paths:
       - "web/**"
+      - "tests/fixtures/**"
+      - ".github/workflows/pages.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "web/**"
+      - "tests/fixtures/**"
       - ".github/workflows/pages.yml"
   workflow_dispatch:
 
@@ -14,15 +21,12 @@ permissions:
   id-token: write
 
 concurrency:
-  group: pages
+  group: pages-${{ github.event_name }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  deploy:
+  build:
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v7
 
@@ -45,8 +49,20 @@ jobs:
           python web/build.py --output web/dist
 
       - uses: actions/configure-pages@v6
+        if: github.event_name != 'pull_request'
+
       - uses: actions/upload-pages-artifact@v5
+        if: github.event_name != 'pull_request'
         with:
           path: web/dist
+
+  deploy:
+    if: github.event_name != 'pull_request'
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
       - id: deployment
         uses: actions/deploy-pages@v5
