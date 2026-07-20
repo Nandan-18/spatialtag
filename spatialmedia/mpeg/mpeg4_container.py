@@ -20,20 +20,20 @@
 Functions for loading MP4/MOV files and manipulating boxes.
 """
 
-import io
+from __future__ import annotations
 
-from spatialmedia.mpeg import box
+import io
+from typing import BinaryIO, Optional
+
 from spatialmedia.mpeg import constants
 from spatialmedia.mpeg import container
 
 
-def load(fh):
+def load(fh: BinaryIO) -> Optional["Mpeg4Container"]:
     """Load the mpeg4 file structure of a file.
 
     Args:
       fh: file handle, input file handle.
-      position: int, current file position.
-      size: int, maximum size. This is used to ensure correct box sizes.
 
     return:
       mpeg4, the loaded mpeg4 structure.
@@ -87,7 +87,7 @@ def load(fh):
 class Mpeg4Container(container.Container):
     """Specialized behaviour for the root mpeg4 container."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.contents = list()
         self.content_size = 0
         self.header_size = 0
@@ -95,7 +95,7 @@ class Mpeg4Container(container.Container):
         self.free_box = None
         self.first_mdat_box = None
         self.ftyp_box = None
-        self.first_mdat_position = None
+        self.first_mdat_position: Optional[int] = None
         self.padding = 0
 
     def merge(self, element):
@@ -103,7 +103,7 @@ class Mpeg4Container(container.Container):
         print("Cannot merge mpeg4 files")
         exit(0)
 
-    def print_structure(self):
+    def print_structure(self) -> None:
         """Print mpeg4 file structure recursively."""
         print("mpeg4 [{}]".format(self.content_size))
 
@@ -115,7 +115,7 @@ class Mpeg4Container(container.Container):
 
             self.contents[i].print_structure(next_indent)
 
-    def mdat_delta(self):
+    def mdat_delta(self) -> int:
         """Return how much the first mdat content offset would move after resize."""
         self.resize()
         new_position = 0
@@ -126,7 +126,7 @@ class Mpeg4Container(container.Container):
             new_position += element.size()
         return new_position - self.first_mdat_position
 
-    def save(self, in_fh, out_fh):
+    def save(self, in_fh: BinaryIO, out_fh: BinaryIO) -> None:
         """Save mpeg4 filecontent to file.
 
         Args:
@@ -138,7 +138,7 @@ class Mpeg4Container(container.Container):
         for element in self.contents:
             element.save(in_fh, out_fh, delta)
 
-    def save_moov_inplace(self, fh):
+    def save_moov_inplace(self, fh: BinaryIO) -> None:
         """Overwrite the on-disk moov box in place.
 
         Args:
