@@ -9,11 +9,57 @@ ffmpeg -y -f lavfi -i testsrc -vf scale=32:24 -vcodec prores -t 0.05 data/testsr
 """
 import unittest
 import os
+import shutil
+import struct
 
 from spatialmedia.__main__ import main
 from spatialmedia import metadata_utils
 
 _OUTPUT_DIR = 'test_output'
+
+
+def _top_level_boxes(path):
+    size = os.path.getsize(path)
+    boxes = []
+    with open(path, "rb") as f:
+        pos = 0
+        while pos < size:
+            f.seek(pos)
+            header = f.read(8)
+            if len(header) < 8:
+                break
+            box_size, name = struct.unpack(">I4s", header)
+            header_size = 8
+            if box_size == 1:
+                box_size = struct.unpack(">Q", f.read(8))[0]
+                header_size = 16
+            elif box_size == 0:
+                box_size = size - pos
+            boxes.append((pos, name, box_size, header_size))
+            pos += box_size
+    return boxes
+
+
+def _reorder_moov_before_mdat(src, dst):
+    """Write ftyp, then moov, then remaining boxes (e.g. free/mdat).
+
+    Produces a layout where growing moov would shift mdat. Playback
+    offsets may be wrong; used only to assert in-place inject refuses.
+    """
+    boxes = _top_level_boxes(src)
+    by_name = {name: (pos, size, hs) for pos, name, size, hs in boxes}
+    order = []
+    for name in (b"ftyp", b"moov"):
+        if name in by_name:
+            order.append(name)
+    for pos, name, size, hs in boxes:
+        if name not in (b"ftyp", b"moov"):
+            order.append(name)
+    with open(src, "rb") as in_fh, open(dst, "wb") as out_fh:
+        for name in order:
+            pos, size, hs = by_name[name]
+            in_fh.seek(pos)
+            out_fh.write(in_fh.read(size))
 
 def append_contents(contents):
     def append(x):
@@ -149,6 +195,60 @@ class TestAdd(unittest.TestCase):
         self.assertFalse(contents.find('EQUI') >= 0)
         self.assertTrue(contents.find('ST3D') >= 0)
         self.assertTrue(contents.find('Stereo Mode: 1') >= 0)
+
+
+class TestInPlace(unittest.TestCase):
+
+    def setUp(self):
+        try:
+            os.mkdir(_OUTPUT_DIR)
+        except FileExistsError:
+            pass
+
+    def test_inject_inplace_left_right(self):
+        target = f"{_OUTPUT_DIR}/inplace_left_right.mp4"
+        shutil.copyfile("data/testsrc_320x240_h264.mp4", target)
+        before = os.path.getsize(target)
+        names_before = [n for _, n, _, _ in _top_level_boxes(target)]
+        self.assertEqual(names_before[-1], b"moov")
+
+        self.assertIsNone(main([
+            "-i", "--stereo", "left-right",
+            target, target,
+        ]))
+
+        after = os.path.getsize(target)
+        # Grew by metadata only — far less than a full remux copy.
+        self.assertGreater(after, before)
+        self.assertLess(after - before, 256 * 1024)
+
+        contents = []
+        metadata_utils.parse_metadata(target, contents.append)
+        text = "\n".join(contents)
+        self.assertIn("StereoMode = left-right", text)
+
+    def test_inject_inplace_refuses_moov_before_mdat(self):
+        target = f"{_OUTPUT_DIR}/moov_before_mdat.mp4"
+        _reorder_moov_before_mdat("data/testsrc_320x240_h264.mp4", target)
+        with open(target, "rb") as f:
+            original = f.read()
+
+        logs = []
+        metadata = metadata_utils.Metadata()
+        metadata.video = metadata_utils.generate_spherical_xml(
+            "equirectangular", "left-right", None)
+
+        def console(msg):
+            logs.append(msg)
+
+        result = metadata_utils.inject_metadata(target, target, metadata, console)
+        with open(target, "rb") as f:
+            after = f.read()
+        self.assertEqual(original, after)
+        joined = "\n".join(logs) + (result or "")
+        self.assertTrue(
+            "in-place" in joined.lower() or "mdat" in joined.lower(),
+            msg=joined)
 
 
 if __name__ == '__main__':
