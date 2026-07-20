@@ -79,8 +79,7 @@ class Mpeg4Container(container.Container):
 
     def merge(self, element):
         """Mpeg4 containers do not support merging."""
-        print("Cannot merge mpeg4 files")
-        exit(0)
+        raise NotImplementedError("Cannot merge mpeg4 files")
 
     def print_structure(self) -> None:
         """Print mpeg4 file structure recursively."""

@@ -649,7 +649,7 @@ def inject_metadata(src, dest, metadata, console):
     inject_mpeg4(infile, outfile, metadata, console)
 
 
-def generate_spherical_xml(projection="equiretangular", stereo=None, crop=None):
+def generate_spherical_xml(projection="equirectangular", stereo=None, crop=None):
     # Configure inject xml.
     additional_xml = ""
     if stereo == "top-bottom":

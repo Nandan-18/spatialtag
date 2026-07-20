@@ -142,7 +142,7 @@ class PRHDBox(box.Box):
 
     def load_content(self, in_fh):
         in_fh.read(4)  # Version and flags
-        self.pose_yaw_degress = struct.unpack(">I", in_fh.read(4))[0]
+        self.pose_yaw_degrees = struct.unpack(">I", in_fh.read(4))[0]
         self.pose_pitch_degrees = struct.unpack(">I", in_fh.read(4))[0]
         self.pose_roll_degrees = struct.unpack(">I", in_fh.read(4))[0]
 

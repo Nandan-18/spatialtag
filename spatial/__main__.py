@@ -15,11 +15,11 @@ def console(contents):
 
 def main_entry():
     """Console-script entry point."""
-    main(sys.argv[1:])
+    raise SystemExit(main(sys.argv[1:]))
 
 
 def main(main_args):
-    """Main function for printing and injecting spatial media metadata."""
+    """Main function for printing and injecting immersive media metadata."""
 
     parser = argparse.ArgumentParser(
         prog="spatialtag",
@@ -30,7 +30,7 @@ def main(main_args):
         "-i",
         "--inject",
         action="store_true",
-        help="injects spatial media metadata into the first file specified (.mp4 or "
+        help="injects immersive metadata into the first file specified (.mp4 or "
         ".mov) and saves the result to the second file specified",
     )
     parser.add_argument(
@@ -103,20 +103,20 @@ def main(main_args):
 
     if args.in_place and args.inject:
         console("Use either -i/--inject or -I/--in-place, not both.")
-        return
+        return 1
 
     do_inject = args.inject or args.in_place
     if do_inject:
         if args.in_place:
             if len(args.file) != 1:
                 console("In-place inject requires exactly one file.")
-                return
+                return 1
             input_file = args.file[0]
             output_file = args.file[0]
         else:
             if len(args.file) != 2:
                 console("Injecting metadata requires both an input file and output file.")
-                return
+                return 1
             input_file = args.file[0]
             output_file = args.file[1]
 
@@ -130,11 +130,11 @@ def main(main_args):
             dims = meta.get_video_dimensions(input_file)
             if not dims:
                 console("Could not read video dimensions for --vr180.")
-                return
+                return 1
             width, height = dims
             if width < 2 or height < 1:
                 console("Invalid video dimensions for --vr180: %dx%d" % (width, height))
-                return
+                return 1
             eye_w = width // 2
             eye_h = height
             stereo_mode = "left-right"
@@ -154,43 +154,59 @@ def main(main_args):
             metadata.projection = None
             metadata.stereo_mode = None
             metadata.video = meta.generate_spherical_xml(projection, stereo_mode, crop)
+            if metadata.video is False:
+                return 1
 
         if args.spatial_audio:
             parsed_metadata = meta.parse_metadata(input_file, console)
-            if not metadata.audio:
-                spatial_audio_description = meta.get_spatial_audio_description(
-                    parsed_metadata.num_audio_channels
+            if parsed_metadata is None:
+                console("Failed to parse input for spatial audio.")
+                return 1
+            spatial_audio_description = meta.get_spatial_audio_description(
+                parsed_metadata.num_audio_channels
+            )
+            if spatial_audio_description.is_supported:
+                metadata.audio = meta.get_spatial_audio_metadata(
+                    spatial_audio_description.order,
+                    spatial_audio_description.has_head_locked_stereo,
                 )
-                if spatial_audio_description.is_supported:
-                    metadata.audio = meta.get_spatial_audio_metadata(
-                        spatial_audio_description.order,
-                        spatial_audio_description.has_head_locked_stereo,
-                    )
-                else:
-                    console(
-                        "Audio has %d channel(s) and is not a supported "
-                        "spatial audio format." % (parsed_metadata.num_audio_channels)
-                    )
-                    return
+            else:
+                console(
+                    "Audio has %d channel(s) and is not a supported "
+                    "spatial audio format." % (parsed_metadata.num_audio_channels)
+                )
+                return 1
 
-        if metadata.video or metadata.projection or metadata.stereo_mode:
+        if metadata.video or metadata.projection or metadata.stereo_mode or metadata.audio:
             meta.inject_metadata(input_file, output_file, metadata, console)
-        else:
-            console("Failed to generate metadata.")
-        return
+            return 0
 
-    if len(args.file) > 0:
+        console("Failed to generate metadata.")
+        return 1
+
+    if args.file:
         for input_file in args.file:
+            parsed_metadata = meta.parse_metadata(input_file, console)
             if args.spatial_audio:
-                parsed_metadata = meta.parse_metadata(input_file, console)
-                metadata.audio = meta.get_spatial_audio_description(parsed_metadata.num_channels)
-
-            meta.parse_metadata(input_file, console)
-        return
+                if parsed_metadata is None:
+                    console("Failed to parse %s" % input_file)
+                    return 1
+                description = meta.get_spatial_audio_description(parsed_metadata.num_audio_channels)
+                console(
+                    "Spatial audio check: %s (%d channel(s), order=%s, "
+                    "head-locked stereo=%s)"
+                    % (
+                        "supported" if description.is_supported else "not supported",
+                        parsed_metadata.num_audio_channels,
+                        description.order,
+                        description.has_head_locked_stereo,
+                    )
+                )
+        return 0
 
     parser.print_help()
-    return
+    return 0
 
 
 if __name__ == "__main__":
-    main(sys.argv[1:])
+    raise SystemExit(main(sys.argv[1:]))

@@ -63,13 +63,13 @@ def _parse_text(path):
 def _run_main(args):
     buf = io.StringIO()
     with redirect_stdout(buf):
-        main(args)
-    return buf.getvalue()
+        code = main(args)
+    return code, buf.getvalue()
 
 
 class TestAdd(unittest.TestCase):
     def inject_metadata(self, args):
-        self.assertIsNone(main(args))
+        self.assertEqual(main(args), 0)
 
         contents = []
         meta.parse_metadata(args[-1], lambda x: contents.append(x))
@@ -251,7 +251,7 @@ class TestInPlace(unittest.TestCase):
         names_before = [n for _, n, _, _ in _top_level_boxes(target)]
         self.assertEqual(names_before[-1], b"moov")
 
-        self.assertIsNone(
+        self.assertEqual(
             main(
                 [
                     "-i",
@@ -260,7 +260,8 @@ class TestInPlace(unittest.TestCase):
                     target,
                     target,
                 ]
-            )
+            ),
+            0,
         )
 
         after = os.path.getsize(target)
@@ -296,7 +297,7 @@ class TestInPlace(unittest.TestCase):
     def test_in_place_flag_and_vr180(self):
         target = f"{_OUTPUT_DIR}/cli_vr180.mp4"
         shutil.copyfile("tests/fixtures/h264.mp4", target)
-        self.assertIsNone(main(["-I", "--vr180", target]))
+        self.assertEqual(main(["-I", "--vr180", target]), 0)
         contents = []
         meta.parse_metadata(target, contents.append)
         text = "\n".join(contents)
@@ -324,7 +325,7 @@ class TestCliValidation(unittest.TestCase):
         _ensure_output_dir()
 
     def test_in_place_requires_single_file(self):
-        out = _run_main(
+        code, out = _run_main(
             [
                 "-I",
                 "--stereo",
@@ -333,10 +334,11 @@ class TestCliValidation(unittest.TestCase):
                 f"{_OUTPUT_DIR}/extra.mp4",
             ]
         )
+        self.assertEqual(code, 1)
         self.assertIn("exactly one file", out)
 
     def test_inject_and_in_place_mutually_exclusive(self):
-        out = _run_main(
+        code, out = _run_main(
             [
                 "-i",
                 "-I",
@@ -344,10 +346,12 @@ class TestCliValidation(unittest.TestCase):
                 f"{_OUTPUT_DIR}/both.mp4",
             ]
         )
+        self.assertEqual(code, 1)
         self.assertIn("not both", out)
 
     def test_vr180_on_missing_file(self):
-        out = _run_main(["-I", "--vr180", "tests/fixtures/no_such_file.mp4"])
+        code, out = _run_main(["-I", "--vr180", "tests/fixtures/no_such_file.mp4"])
+        self.assertEqual(code, 1)
         self.assertIn("Could not read video dimensions", out)
 
 
@@ -358,7 +362,7 @@ class TestMetadataConflictClearing(unittest.TestCase):
     def test_v2_inject_clears_v1_tags(self):
         target = f"{_OUTPUT_DIR}/v2_clears_v1.mp4"
         shutil.copyfile(_FIXTURE_H264, target)
-        self.assertIsNone(
+        self.assertEqual(
             main(
                 [
                     "-i",
@@ -367,11 +371,12 @@ class TestMetadataConflictClearing(unittest.TestCase):
                     target,
                     f"{_OUTPUT_DIR}/v1_step.mp4",
                 ]
-            )
+            ),
+            0,
         )
         shutil.copyfile(f"{_OUTPUT_DIR}/v1_step.mp4", target)
 
-        self.assertIsNone(
+        self.assertEqual(
             main(
                 [
                     "-i",
@@ -381,7 +386,8 @@ class TestMetadataConflictClearing(unittest.TestCase):
                     target,
                     target,
                 ]
-            )
+            ),
+            0,
         )
         text = _parse_text(target)
         self.assertIn("ST3D", text)
@@ -391,7 +397,7 @@ class TestMetadataConflictClearing(unittest.TestCase):
     def test_v1_inject_clears_v2_tags(self):
         target = f"{_OUTPUT_DIR}/v1_clears_v2.mp4"
         shutil.copyfile(_FIXTURE_H264, target)
-        self.assertIsNone(
+        self.assertEqual(
             main(
                 [
                     "-i",
@@ -401,11 +407,12 @@ class TestMetadataConflictClearing(unittest.TestCase):
                     target,
                     f"{_OUTPUT_DIR}/v2_step.mp4",
                 ]
-            )
+            ),
+            0,
         )
         shutil.copyfile(f"{_OUTPUT_DIR}/v2_step.mp4", target)
 
-        self.assertIsNone(
+        self.assertEqual(
             main(
                 [
                     "-i",
@@ -414,7 +421,8 @@ class TestMetadataConflictClearing(unittest.TestCase):
                     target,
                     target,
                 ]
-            )
+            ),
+            0,
         )
         text = _parse_text(target)
         self.assertIn("StereoMode = left-right", text)
@@ -469,7 +477,7 @@ class TestTwoPathInject(unittest.TestCase):
         shutil.copyfile(_FIXTURE_H264, source)
         original = os.path.getsize(source)
 
-        self.assertIsNone(
+        self.assertEqual(
             main(
                 [
                     "-i",
@@ -478,7 +486,8 @@ class TestTwoPathInject(unittest.TestCase):
                     source,
                     output,
                 ]
-            )
+            ),
+            0,
         )
 
         self.assertEqual(os.path.getsize(source), original)
