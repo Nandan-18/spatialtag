@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "node dev.mjs",
     "build": "python3 build.py --output dist",
-    "preview": "serve dist -l 8888 --no-port-switching --no-clean-urls",
+    "preview": "serve dist -l 8888 --no-port-switching",
     "test:demo": "node test-inject.mjs"
   },
   "devDependencies": {

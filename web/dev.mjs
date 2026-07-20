@@ -28,7 +28,8 @@ function runBuild() {
 
 function startServer() {
   const bin = path.join(webDir, "node_modules", ".bin", "serve");
-  const child = spawn(bin, ["dist", "-l", port, "--no-port-switching", "--no-clean-urls"], {
+  // cleanUrls is disabled via dist/serve.json (copied by build.py).
+  const child = spawn(bin, ["dist", "-l", port, "--no-port-switching"], {
     cwd: webDir,
     stdio: "inherit",
   });
