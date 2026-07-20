@@ -495,8 +495,12 @@ function initControls() {
   $$(".seg-btn").forEach((btn) => {
     btn.addEventListener("click", () => {
       if ($("#vr180")?.checked) return;
-      $$(".seg-btn").forEach((b) => b.classList.remove("is-selected"));
+      $$(".seg-btn").forEach((b) => {
+        b.classList.remove("is-selected");
+        b.setAttribute("aria-pressed", "false");
+      });
       btn.classList.add("is-selected");
+      btn.setAttribute("aria-pressed", "true");
       const hidden = $("#stereo-mode");
       if (hidden) hidden.value = btn.dataset.stereo ?? "none";
       updateInjectPreview();
