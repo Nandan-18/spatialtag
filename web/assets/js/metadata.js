@@ -1,6 +1,6 @@
 /**
  * Spherical video v1 XML metadata generation and parsing.
- * Mirrors cli/metadata.py constants.
+ * Mirrors spatial/metadata.py constants.
  */
 
 export const SPHERICAL_UUID_BYTES = new Uint8Array([
@@ -195,6 +195,7 @@ export function parseSa3d(contents, source, contentStart = 0) {
   const channelOrdering = bytes[6];
   const normalization = bytes[7];
   const numChannels = readU32Local(bytes, 8);
+  if (numChannels > 256) return null;
   const channelMap = [];
   for (let i = 0; i < numChannels; i++) {
     channelMap.push(readU32Local(bytes, 12 + i * 4));

@@ -386,7 +386,7 @@ function downloadBlob(blob, filename) {
   a.href = url;
   a.download = filename;
   a.click();
-  URL.revokeObjectURL(url);
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
 async function inject() {
@@ -436,6 +436,7 @@ async function inject() {
     const updated = parseMetadata(output);
     state.metadata = updated;
     renderMetadata(updated);
+    renderLayout(updated.layout);
     updateMoovBadge(updated.moovLast);
 
     setStatus(`Exported ${outName}`, "success");

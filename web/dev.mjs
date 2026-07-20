@@ -51,11 +51,15 @@ const watchGlobs = [
 
 let rebuildTimer;
 let rebuilding = false;
+let pendingRebuildLabel = null;
 
 function scheduleRebuild(label) {
   clearTimeout(rebuildTimer);
   rebuildTimer = setTimeout(async () => {
-    if (rebuilding) return;
+    if (rebuilding) {
+      pendingRebuildLabel = label;
+      return;
+    }
     rebuilding = true;
     console.log(`\nRebuilding (${label})…`);
     try {
@@ -65,6 +69,11 @@ function scheduleRebuild(label) {
       console.error(err.message);
     } finally {
       rebuilding = false;
+      if (pendingRebuildLabel) {
+        const next = pendingRebuildLabel;
+        pendingRebuildLabel = null;
+        scheduleRebuild(next);
+      }
     }
   }, 400);
 }

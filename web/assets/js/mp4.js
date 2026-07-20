@@ -1,6 +1,6 @@
 /**
  * Minimal MP4/MOV box loader and metadata injector for browser use.
- * Ported from cli/mpeg for GitHub Pages demo scope.
+ * Ported from spatial/mpeg for GitHub Pages demo scope.
  */
 
 import {
@@ -211,9 +211,14 @@ function copyIndex(source, box, delta, entryBytes, readFn, writeFn) {
   writeU32(chunks[0], 0, versionFlags);
   writeU32(chunks[0], 4, count);
   let pos = start + 8;
+  const bigDelta = BigInt(delta);
   for (let i = 0; i < count; i++) {
     const entry = new Uint8Array(entryBytes);
-    const value = Number(readFn(source, pos)) + delta;
+    const raw = readFn(source, pos);
+    const value = typeof raw === "bigint" ? raw + bigDelta : raw + delta;
+    if (typeof value === "number" && !Number.isSafeInteger(value)) {
+      throw new Error("Chunk offset exceeds JavaScript safe integer range");
+    }
     writeFn(entry, 0, value);
     chunks.push(entry);
     pos += entryBytes;
@@ -343,12 +348,11 @@ function readDescriptorLength(source, offset) {
   let length = 0;
   let pos = offset;
   for (let i = 0; i < 4; i++) {
-    const sizeByte = source[pos];
-    pos += 1;
+    const sizeByte = source[pos++];
     length = (length << 7) | (sizeByte & 0x7f);
-    if (sizeByte !== 0x80) break;
+    if ((sizeByte & 0x80) === 0) break;
   }
-  return length;
+  return { length, pos };
 }
 
 function getAacNumChannels(sampleBox, source) {
@@ -357,21 +361,15 @@ function getAacNumChannels(sampleBox, source) {
       const start = box.contentStart() + 4;
       if (source[start] !== 0x03) return -1;
       let pos = start + 1;
-      readDescriptorLength(source, pos);
-      while (source[pos] === 0x80) pos++;
-      pos += 1;
+      pos = readDescriptorLength(source, pos).pos;
       pos += 3;
       if (source[pos] !== 0x04) return -1;
       pos += 1;
-      readDescriptorLength(source, pos);
-      while (source[pos] === 0x80) pos++;
-      pos += 1;
+      pos = readDescriptorLength(source, pos).pos;
       pos += 13;
       if (source[pos] !== 0x05) return -1;
       pos += 1;
-      readDescriptorLength(source, pos);
-      while (source[pos] === 0x80) pos++;
-      pos += 1;
+      pos = readDescriptorLength(source, pos).pos;
       const descriptor = (source[pos] << 8) | source[pos + 1];
       return (descriptor & 0x78) >> 3;
     }
@@ -527,13 +525,14 @@ function createSv3dBox(bounds) {
 }
 
 function injectV1(moov, source, xmlText) {
+  let added = false;
   for (const trak of moov.contents) {
     if (trak.name !== "trak" || !isVideoTrack(source, trak)) continue;
     trak.remove("uuid");
     trak.add(createUuidBox(xmlText));
-    return true;
+    added = true;
   }
-  return false;
+  return added;
 }
 
 function injectSpatialAudio(moov, source, audioMetadata) {
