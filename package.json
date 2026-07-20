@@ -1,0 +1,18 @@
+{
+  "name": "spatial-media",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node scripts/dev.mjs",
+    "build": "python3 scripts/build_pages_site.py --output site",
+    "preview": "serve site -l 8888 --no-port-switching",
+    "test:demo": "node scripts/test-demo-inject.mjs"
+  },
+  "devDependencies": {
+    "chokidar": "^4.0.3",
+    "serve": "^14.2.4"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

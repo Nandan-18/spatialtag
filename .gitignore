@@ -18,3 +18,5 @@ test_output/
 *.app
 site/
 site-manifest.json
+node_modules/
+.pnpm-store/

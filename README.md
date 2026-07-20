@@ -109,6 +109,25 @@ python3 -m ruff check spatialmedia spatialmedia_test.py docker
 python3 -m ruff format --check spatialmedia spatialmedia_test.py docker
 ```
 
+### Local site preview
+
+Preview the GitHub Pages site (landing page, docs, browser demo) with one command:
+
+```bash
+pnpm install   # or: npm install
+pnpm dev       # builds site/, serves http://localhost:8888, rebuilds on save
+```
+
+Other scripts:
+
+```bash
+pnpm build       # build static site to site/ only
+pnpm preview     # serve site/ (run build first)
+pnpm test:demo   # browser inject smoke test
+```
+
+Requires **Node.js 18+** and **Python 3.9+** (for the site builder). Change the port with `PORT=3000 pnpm dev`.
+
 CI runs on Python 3.12 (see [.github/workflows/ci.yml](.github/workflows/ci.yml)).
 
 ## License
