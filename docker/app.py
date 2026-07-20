@@ -1,23 +1,24 @@
 import os
 import sys
-from werkzeug.utils import secure_filename
-from flask import Flask, render_template, request, send_file, jsonify
+import uuid
+from pathlib import Path
 
-# Ensure we can import spatial from the repository root.
+from flask import Flask, jsonify, render_template, request, send_file
+from werkzeug.utils import secure_filename
+
 try:
     import spatial.metadata as meta
 except ImportError:
-    # Fallback for local dev if running from docker folder
     sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
     import spatial.metadata as meta
 
-app = Flask(__name__)
-# Use a static path so all workers access the same directory
-# Also allows mounting a volume to /app/uploads
-app.config["UPLOAD_FOLDER"] = os.getenv("UPLOAD_FOLDER", "/app/uploads")
-app.config["MAX_CONTENT_LENGTH"] = 16 * 1024 * 1024 * 1024  # 16GB max upload
+ALLOWED_EXTENSIONS = {".mp4", ".mov"}
 
-# Ensure upload folder exists
+app = Flask(__name__)
+app.config["UPLOAD_FOLDER"] = os.getenv("UPLOAD_FOLDER", "/app/uploads")
+# Soft cap for the Docker UI; use the CLI for larger files.
+app.config["MAX_CONTENT_LENGTH"] = int(os.getenv("MAX_UPLOAD_BYTES", 4 * 1024 * 1024 * 1024))
+
 os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
 
 
@@ -32,6 +33,21 @@ class Console:
         self.append(text)
 
 
+def _allowed_file(filename: str) -> bool:
+    return Path(filename).suffix.lower() in ALLOWED_EXTENSIONS
+
+
+def _safe_join(folder: str, filename: str) -> str | None:
+    secure_name = secure_filename(filename)
+    if not secure_name or not _allowed_file(secure_name):
+        return None
+    path = os.path.abspath(os.path.join(folder, secure_name))
+    root = os.path.abspath(folder)
+    if not path.startswith(root + os.sep) and path != root:
+        return None
+    return path
+
+
 @app.route("/")
 def index():
     return render_template("index.html")
@@ -44,38 +60,41 @@ def upload_files():
 
     files = request.files.getlist("files[]")
     uploaded_files = []
+    batch_id = uuid.uuid4().hex
+    batch_dir = os.path.join(app.config["UPLOAD_FOLDER"], batch_id)
+    os.makedirs(batch_dir, mode=0o750, exist_ok=True)
 
     for file in files:
-        if file.filename == "":
+        if not file.filename:
             continue
 
-        # Reject files that contain directory separators or '..'
         normalized_filename = file.filename.replace("\\", "/")
         if "/" in normalized_filename or ".." in normalized_filename:
             return jsonify({"error": f"Invalid filename detected: {file.filename}"}), 400
 
+        if not _allowed_file(file.filename):
+            return jsonify({"error": f"Unsupported file type: {file.filename}"}), 400
+
         filename = secure_filename(file.filename)
-        filepath = os.path.join(app.config["UPLOAD_FOLDER"], filename)
+        filepath = os.path.join(batch_dir, filename)
         file.save(filepath)
 
-        # Analyze file skipped as per user request
-
-        metadata_info = {
-            "filename": filename,
-            "spherical": False,
-            "stereo": "none",
-            "audio": False,
-            "audio_desc": "Unknown",
-        }
-
-        uploaded_files.append(metadata_info)
+        uploaded_files.append(
+            {
+                "filename": f"{batch_id}/{filename}",
+                "spherical": False,
+                "stereo": "none",
+                "audio": False,
+                "audio_desc": "Unknown",
+            }
+        )
 
     return jsonify({"files": uploaded_files})
 
 
 @app.route("/inject", methods=["POST"])
 def inject_metadata():
-    data = request.json
+    data = request.json or {}
     files_to_process = data.get("files", [])
     options = data.get("options", {})
 
@@ -88,21 +107,13 @@ def inject_metadata():
     if stereo_mode == "none":
         stereo_mode = None
 
-    metadata = meta.Metadata()
-    if options.get("spherical"):
-        metadata.video = meta.generate_spherical_xml(stereo=stereo_mode)
-
-    # Audio handling logic copied from gui.py
-    # Note: In the GUI 'spatial_audio' checkbox is only enabled if supported.
-    # We will assume backend logic needs to re-verify or trust frontend.
-    # For now, simplistic approach:
-
     results = []
     use_inplace = bool(options.get("inplace", True))
 
     for raw_filename in files_to_process:
         normalized_filename = raw_filename.replace("\\", "/")
-        if "/" in normalized_filename or ".." in normalized_filename:
+        parts = Path(normalized_filename).parts
+        if ".." in parts or len(parts) != 2:
             results.append(
                 {
                     "filename": raw_filename,
@@ -113,20 +124,36 @@ def inject_metadata():
             )
             continue
 
-        filename = secure_filename(raw_filename)
-        input_path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
+        batch_id, filename = parts
+        batch_dir = os.path.join(app.config["UPLOAD_FOLDER"], secure_filename(batch_id))
+        input_path = _safe_join(batch_dir, filename)
+        if not input_path or not os.path.isfile(input_path):
+            results.append(
+                {
+                    "filename": raw_filename,
+                    "error": "File not found",
+                    "logs": ["Upload missing or rejected."],
+                    "success": False,
+                }
+            )
+            continue
+
         if use_inplace:
             output_filename = filename
             output_path = input_path
         else:
             output_filename = f"injected_{filename}"
-            output_path = os.path.join(app.config["UPLOAD_FOLDER"], output_filename)
+            output_path = os.path.join(batch_dir, output_filename)
+
+        # Fresh metadata per file so audio flags do not leak across the batch.
+        metadata = meta.Metadata()
+        if options.get("spherical"):
+            metadata.video = meta.generate_spherical_xml(stereo=stereo_mode)
 
         console = Console()
         try:
-            # Re-parse to get specific audio audio capabilities for this file if needed
             if options.get("spatial_audio"):
-                parsed = meta.parse_metadata(input_path, lambda x: None)
+                parsed = meta.parse_metadata(input_path, lambda _x: None)
                 if parsed and parsed.num_audio_channels:
                     desc = meta.get_spatial_audio_description(parsed.num_audio_channels)
                     if desc.is_supported:
@@ -137,29 +164,34 @@ def inject_metadata():
             meta.inject_metadata(input_path, output_path, metadata, console.append)
             results.append(
                 {
-                    "filename": filename,
-                    "output_url": f"/download/{output_filename}",
+                    "filename": raw_filename,
+                    "output_url": f"/download/{batch_id}/{output_filename}",
                     "logs": console.log,
                     "success": True,
                 }
             )
         except Exception as e:
             results.append(
-                {"filename": filename, "error": str(e), "logs": console.log, "success": False}
+                {
+                    "filename": raw_filename,
+                    "error": str(e),
+                    "logs": console.log,
+                    "success": False,
+                }
             )
 
     return jsonify({"results": results})
 
 
-@app.route("/download/<path:filename>")
-def download_file(filename):
-    normalized_filename = filename.replace("\\", "/")
-    if "/" in normalized_filename or ".." in normalized_filename:
+@app.route("/download/<batch_id>/<path:filename>")
+def download_file(batch_id, filename):
+    batch_dir = os.path.join(app.config["UPLOAD_FOLDER"], secure_filename(batch_id))
+    path = _safe_join(batch_dir, filename)
+    if not path or not os.path.isfile(path):
         return "Invalid file path", 400
-
-    secure_name = secure_filename(filename)
-    return send_file(os.path.join(app.config["UPLOAD_FOLDER"], secure_name), as_attachment=True)
+    return send_file(path, as_attachment=True)
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    # Local development only — production uses gunicorn via startup.sh.
+    app.run(host="127.0.0.1", port=5000, debug=False)
