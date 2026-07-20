@@ -1,6 +1,6 @@
 # Spatial Audio Resources
 
-Reference assets for **ambisonic binaural monitoring** — the same class of HRIR filters used in Google VR Audio, YouTube 360/VR, and related decoders. Use these when building preview tools or monitoring ambisonic mixes in a DAW.
+Reference assets for **ambisonic binaural monitoring**: the same class of HRIR filters used in Google VR Audio, YouTube 360/VR, and related decoders. Use these when building preview tools or monitoring ambisonic mixes in a DAW.
 
 For injecting spatial audio **metadata** into MP4/MOV files, see the [Spatial Media Metadata Injector](../spatialmedia/README.md) and the [Spatial Audio RFC](../docs/spatial-audio-rfc.md).
 
@@ -46,11 +46,11 @@ Convolution (`*`) can be done with multichannel convolver plugins such as [LACon
 
 Filters that compensate for HRTF changes when switching the binaural decoder from **THRIVE** to **SADIE KU100**. Apply them to ambiX tracks so existing mixes retain similar timbre after the decoder change.
 
-**Before correction** — spectral shift when switching decoders:
+**Before correction:** spectral shift when switching decoders:
 
 ![decoder output before correction](https://cloud.githubusercontent.com/assets/26985965/24811252/21399d66-1b7a-11e7-953c-2357d6be8f3a.png)
 
-**After correction** — minimized difference:
+**After correction:** minimized difference:
 
 ![decoder output after correction](https://cloud.githubusercontent.com/assets/26985965/24811250/2137f42a-1b7a-11e7-9ff5-e09718293401.png)
 
@@ -68,7 +68,7 @@ Binaural decoding depends on HRTFs, which vary by listener. In listening tests (
 
 ### Should I monitor with HRTFs when mixing for YouTube 360/VR?
 
-Yes — use the **symmetric ambisonic binaural decoder** filters and/or preview on YouTube to judge timbre and loudness. Decoder choice affects both coloration and level.
+Yes. Use the **symmetric ambisonic binaural decoder** filters and/or preview on YouTube to judge timbre and loudness. Decoder choice affects both coloration and level.
 
 ### What is timbral coloration?
 

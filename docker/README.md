@@ -1,15 +1,15 @@
-# Spatial Media Metadata Injector — Web UI
+# Spatial Media Metadata Injector: Web UI
 
 Browser-based metadata injection for MP4/MOV files, running in Docker. Uses the same `spatialmedia` library as the CLI and desktop GUI, wrapped in a small Flask app.
 
 ## Features
 
-- **Web interface** — drag-and-drop upload, progress indicator, download links
-- **Stereoscopic modes** — none, left-right, or top-bottom
-- **In-place inject** — rewrite metadata in the uploaded file when the layout supports it (default on; avoids a second full copy on disk)
-- **Spatial audio** — inject ambisonics metadata when the source track is compatible
-- **Large files** — up to 16 GB per upload; mount a host directory to process files without uploading through the browser
-- **Headless** — no X11 or Tkinter in the container
+- **Web interface:** drag-and-drop upload, progress indicator, download links
+- **Stereoscopic modes:** none, left-right, or top-bottom
+- **In-place inject:** rewrite metadata in the uploaded file when the layout supports it (default on; avoids a second full copy on disk)
+- **Spatial audio:** inject ambisonics metadata when the source track is compatible
+- **Large files:** up to 16 GB per upload; mount a host directory to process files without uploading through the browser
+- **Headless:** no X11 or Tkinter in the container
 
 ## Prerequisites
 
@@ -69,10 +69,10 @@ spatialmedia -I --vr180 /path/to/your/videos/file.mp4
 
 1. Drag and drop `.mp4` or `.mov` files (or click to browse).
 2. Choose options:
-   - **Spherical (360)** — equirectangular video metadata
-   - **Stereo mode** — none, left-right, or top-bottom
-   - **Inject in place** — overwrite the uploaded file when supported (recommended for large files on a mounted volume)
-   - **Spatial audio** — ambisonics metadata (requires a compatible track)
+   - **Spherical (360):** equirectangular video metadata
+   - **Stereo mode:** none, left-right, or top-bottom
+   - **Inject in place:** overwrite the uploaded file when supported (recommended for large files on a mounted volume)
+   - **Spatial audio:** ambisonics metadata (requires a compatible track)
 3. Click **Inject Metadata**.
 4. Download results from the page, or read them from your mounted `data/` (or custom) folder.
 

@@ -69,7 +69,7 @@ Rewrite metadata **without a full second copy** of the media. Prefer `-I` for a 
 spatialmedia -I --stereo=left-right video.mp4
 ```
 
-**Requirements:** the file layout must allow updating `moov` without shifting `mdat` offsets. This is typical when **`moov` comes after `mdat`** (common for files optimized for streaming). If `moov` is before `mdat`, in-place inject is refused — use separate input and output paths.
+**Requirements:** the file layout must allow updating `moov` without shifting `mdat` offsets. This is typical when **`moov` comes after `mdat`** (common for files optimized for streaming). If `moov` is before `mdat`, in-place inject is refused; use separate input and output paths.
 
 ## VR180 helper
 
@@ -98,8 +98,8 @@ Example: an 8192×4096 SBS frame gets half-width eye crop and `0x40000000` (90°
 | `-2`, `--v2` | flag | off | Use v2 box metadata instead of v1 XML |
 | `-s`, `--stereo` | `none`, `top-bottom`, `left-right` | `none` | Stereoscopic layout ([RFC](../docs/spherical-video-rfc.md)) |
 | `-p`, `--projection` | `none`, `equirectangular` | `equirectangular` | Projection type |
-| `-c`, `--crop` | `w:h:f_w:f_h:x:y` | — | v1 crop region (six integers) |
-| `-b`, `--bounds` | `top:bottom:left:right` | — | v2 equirect bounds (four 0.32 fixed-point values) |
+| `-c`, `--crop` | `w:h:f_w:f_h:x:y` | (none) | v1 crop region (six integers) |
+| `-b`, `--bounds` | `top:bottom:left:right` | (none) | v2 equirect bounds (four 0.32 fixed-point values) |
 | `--vr180` | flag | off | Derive VR180 stereo + crop/bounds from video size (implies v2 fields) |
 
 ### Spatial audio

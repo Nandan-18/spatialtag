@@ -64,7 +64,7 @@ See [spatialmedia/README.md](spatialmedia/README.md) for all CLI flags, GUI usag
 
 ## Browser demo (GitHub Pages)
 
-**[Live demo →](https://nandan-18.github.io/spatial-media/)** — inspect and inject 360° / VR180 metadata in your browser, read the full specifications, and **download CLI binaries** (Linux + macOS). Best for browser use under ~2 GB; for multi‑GB sources use the CLI with `-I`.
+**[Live demo →](https://nandan-18.github.io/spatial-media/)**: inspect and inject 360° / VR180 metadata in your browser, read the full specifications, and **download CLI binaries** (Linux + macOS). Best for browser use under ~2 GB; for multi‑GB sources use the CLI with `-I`.
 
 Pages deploys from `docs/` via [.github/workflows/pages.yml](.github/workflows/pages.yml) (builds binaries + static docs on each push to `main`).
 
@@ -76,7 +76,7 @@ Pages deploys from `docs/` via [.github/workflows/pages.yml](.github/workflows/p
 python3 -m spatialmedia.gui
 ```
 
-**Docker web UI** — drag-and-drop in the browser; supports in-place inject for large files when you mount a host directory:
+**Docker web UI**: drag-and-drop in the browser; supports in-place inject for large files when you mount a host directory:
 
 ```bash
 docker build -t spatial-media-web -f docker/Dockerfile .

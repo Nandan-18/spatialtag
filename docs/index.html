@@ -5,114 +5,338 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta
       name="description"
-      content="Inject 360° and VR180 spatial metadata into MP4/MOV files — entirely in your browser."
+      content="Tag MP4 and MOV files with 360° and VR180 spatial metadata. Inspect, inject, and export, entirely in your browser."
     />
-    <title>Spatial Media — Browser Demo</title>
+    <title>Spatial Media | 360° &amp; VR180 Metadata</title>
     <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="assets/favicon.svg" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
-      rel="stylesheet"
-    />
     <link rel="stylesheet" href="assets/css/style.css" />
     <link rel="stylesheet" href="assets/css/site.css" />
   </head>
   <body>
-    <canvas id="starfield" aria-hidden="true"></canvas>
-    <div class="aurora" aria-hidden="true"></div>
-
-    <div class="page">
-      <header class="hero">
-        <div class="badge">100% client-side · no upload</div>
-        <h1>
-          Spatial Media
-          <span class="gradient">Metadata Injector</span>
-        </h1>
-        <p class="lede">
-          Drop an MP4 or MOV, inspect spherical metadata, and inject 360° or VR180 tags —
-          processed locally in your browser. Nothing leaves your device.
-        </p>
-        <div class="hero-links">
-          <a href="download.html">Download CLI</a>
-          <a href="guide/cli.html">CLI docs</a>
-          <a href="spec/spherical-video-v2.html">Spherical v2 RFC</a>
+    <nav class="global-nav" aria-label="Global">
+      <div class="nav-inner">
+        <a class="nav-logo" href="index.html">Spatial Media</a>
+        <div class="nav-links">
+          <a href="#what">Overview</a>
+          <a href="#how">How it works</a>
+          <a href="#demo">Try it</a>
+          <a href="download.html">Download</a>
+          <a href="guide/cli.html">CLI</a>
         </div>
-      </header>
+      </div>
+    </nav>
 
-      <main class="grid">
-        <section class="panel glass">
-          <h2>1 · Load video</h2>
-          <div id="drop-zone" class="drop-zone" tabindex="0" role="button" aria-label="Upload video">
-            <div class="drop-icon">◎</div>
-            <p class="drop-title">Drop MP4 / MOV here</p>
-            <p class="drop-sub">or click to browse · best under ~2 GB</p>
-            <input id="file-input" type="file" accept=".mp4,.mov,video/mp4,video/quicktime" hidden />
-          </div>
-          <div id="workspace" class="workspace hidden">
-            <div class="file-card">
-              <span id="file-name">—</span>
-              <span id="file-size" class="mono">—</span>
-            </div>
-            <div class="layout-wrap">
-              <p class="label">File layout</p>
-              <div id="layout-bar" class="layout-bar"></div>
-              <div id="layout-legend" class="layout-legend"></div>
-            </div>
-          </div>
-        </section>
-
-        <section class="panel glass">
-          <h2>2 · Metadata</h2>
-          <div id="metadata-panel" class="metadata-panel empty">
-            <p id="meta-empty">Load a file to see spherical v1/v2 metadata and track layout.</p>
-            <div id="metadata-tags" class="metadata-tags"></div>
-          </div>
-        </section>
-
-        <section class="panel glass span-2">
-          <h2>3 · Inject</h2>
-          <div id="controls" class="controls disabled">
-            <div class="options">
-              <label class="field">
-                <span>Stereo mode</span>
-                <select id="stereo-mode">
-                  <option value="none">Mono</option>
-                  <option value="left-right" selected>Left-right (SBS)</option>
-                  <option value="top-bottom">Top-bottom</option>
-                </select>
-              </label>
-
-              <label class="check">
-                <input type="checkbox" id="vr180" />
-                <span><strong>VR180 helper</strong> — auto crop + 180° bounds from frame size</span>
-              </label>
-
-              <label class="check">
-                <input type="checkbox" id="use-v2" checked />
-                <span>Write v2 box metadata (<code>SV3D</code> / <code>ST3D</code>)</span>
-              </label>
-            </div>
-
-            <button id="inject-btn" class="btn-primary" disabled>Inject &amp; download</button>
-            <p id="status" class="status" data-tone="neutral">Waiting for a file…</p>
-
-            <div id="results" class="results hidden">
-              <p id="results-text"></p>
-            </div>
-          </div>
-        </section>
-      </main>
-
-      <footer class="footer">
-        <p>
-          For multi‑GB in-place inject without browser memory limits, use the
-          <a href="download.html">CLI binary</a> or <a href="guide/cli.html">CLI guide</a>
-          with <code>-I --vr180</code>.
+    <header class="hero">
+      <div class="hero-content">
+        <p class="hero-eyebrow">Spatial video metadata</p>
+        <h1 class="hero-title">
+          Make players see<br />your video in 360°.
+        </h1>
+        <p class="hero-subtitle">
+          VR headsets and immersive apps don’t guess. They read metadata inside your MP4.
+          Spatial Media inspects and injects the tags that tell them how to project each frame.
         </p>
-      </footer>
-    </div>
+        <div class="hero-cta">
+          <a class="button button-primary" href="#demo">Try in browser</a>
+          <a class="button button-secondary" href="download.html">Download CLI</a>
+        </div>
+        <p class="hero-note">Runs locally. Your files never leave your device.</p>
+      </div>
+      <div class="hero-visual" aria-hidden="true">
+        <div class="sphere-demo">
+          <div class="sphere-ring ring-1"></div>
+          <div class="sphere-ring ring-2"></div>
+          <div class="sphere-core"></div>
+          <div class="sphere-tag">SV3D</div>
+        </div>
+      </div>
+    </header>
+
+    <section id="what" class="section section-light">
+      <div class="section-inner">
+        <h2 class="section-headline">Without tags, immersive playback breaks.</h2>
+        <p class="section-lead">
+          A flat MP4 looks fine in QuickTime, but in a VR headset it may stretch, show the wrong
+          field of view, or play as a flat rectangle. Spherical metadata tells the player:
+          <strong>equirectangular projection</strong>, <strong>stereo layout</strong>, and for VR180,
+          <strong>which half of the frame is which eye</strong>.
+        </p>
+        <div class="compare-grid">
+          <article class="compare-card">
+            <div class="compare-visual compare-bad">
+              <span class="compare-label">No metadata</span>
+              <div class="rect flat"></div>
+            </div>
+            <h3>Flat playback</h3>
+            <p>Player treats video as a standard 16:9 rectangle. 360° content looks wrong.</p>
+          </article>
+          <article class="compare-card">
+            <div class="compare-visual compare-good">
+              <span class="compare-label">With SV3D / XML</span>
+              <div class="rect sphere"></div>
+            </div>
+            <h3>Immersive playback</h3>
+            <p>Player wraps the frame on a sphere. Stereo tags map left and right eyes correctly.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section-gray">
+      <div class="section-inner">
+        <h2 class="section-headline">360° and VR180. Clearly different.</h2>
+        <div class="format-grid">
+          <article class="format-card">
+            <div class="format-diagram format-360">
+              <div class="panorama"></div>
+            </div>
+            <h3>360° equirectangular</h3>
+            <p>Full sphere. Mono or stereo (side-by-side / over-under). Used for immersive 360 video.</p>
+          </article>
+          <article class="format-card">
+            <div class="format-diagram format-vr180">
+              <div class="eye eye-l"></div>
+              <div class="eye eye-r"></div>
+            </div>
+            <h3>VR180</h3>
+            <p>Side-by-side frame, 180° forward view. We auto-set crop and bounds from your resolution.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="how" class="section section-light">
+      <div class="section-inner">
+        <h2 class="section-headline">Three atoms. One moov box.</h2>
+        <p class="section-lead">
+          Metadata lives in the <code>moov</code> atom, not in the video pixels. Spatial Media reads
+          your file structure, shows what’s already tagged, and writes v1 XML or v2 box metadata without
+          re-encoding video.
+        </p>
+        <ol class="steps">
+          <li>
+            <span class="step-icon">1</span>
+            <div>
+              <h3>Load</h3>
+              <p>See <code>ftyp</code>, <code>mdat</code>, and <code>moov</code> layout at a glance.</p>
+            </div>
+          </li>
+          <li>
+            <span class="step-icon">2</span>
+            <div>
+              <h3>Inspect</h3>
+              <p>Read existing spherical XML and <code>ST3D</code> / <code>SV3D</code> atoms.</p>
+            </div>
+          </li>
+          <li>
+            <span class="step-icon">3</span>
+            <div>
+              <h3>Inject</h3>
+              <p>Export a new file with 360° or VR180 tags. No upload, no server.</p>
+            </div>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <section id="demo" class="section section-dark">
+      <div class="section-inner">
+        <h2 class="section-headline light">Try it now.</h2>
+        <p class="section-lead light">
+          Drop an MP4 or MOV below. Best for files under ~2 GB. For multi‑gigabyte in-place inject,
+          use the <a href="download.html" class="link-light">CLI</a> with <code>-I --vr180</code>.
+        </p>
+
+        <div class="demo-workbench" id="demo-workbench">
+          <div class="demo-rail" aria-label="Workflow">
+            <div class="demo-rail-step is-active" data-step="load">
+              <span class="demo-rail-num">1</span>
+              <span class="demo-rail-label">Load file</span>
+            </div>
+            <div class="demo-rail-line" aria-hidden="true"></div>
+            <div class="demo-rail-step" data-step="inspect">
+              <span class="demo-rail-num">2</span>
+              <span class="demo-rail-label">Inspect tags</span>
+            </div>
+            <div class="demo-rail-line" aria-hidden="true"></div>
+            <div class="demo-rail-step" data-step="inject">
+              <span class="demo-rail-num">3</span>
+              <span class="demo-rail-label">Inject &amp; export</span>
+            </div>
+          </div>
+
+          <div class="demo-grid">
+            <section class="demo-panel demo-panel-source">
+              <header class="demo-panel-head">
+                <h3 class="demo-panel-title">Source file</h3>
+                <button type="button" id="replace-file" class="demo-text-btn hidden">Replace</button>
+              </header>
+
+              <div id="drop-zone" class="dropzone" tabindex="0" role="button" aria-label="Upload video">
+                <div class="dropzone-glow" aria-hidden="true"></div>
+                <div class="dropzone-icon" aria-hidden="true">
+                  <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+                    <rect x="8" y="12" width="32" height="24" rx="4" stroke="currentColor" stroke-width="1.5"/>
+                    <path d="M16 22l4 4 4-5 4 6 4-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    <circle cx="30" cy="18" r="2" fill="currentColor"/>
+                  </svg>
+                </div>
+                <span class="dropzone-title">Drop MP4 or MOV here</span>
+                <span class="dropzone-hint">or click to browse · processed entirely on your device</span>
+                <span class="dropzone-pill">No upload</span>
+                <input id="file-input" type="file" accept=".mp4,.mov,video/mp4,video/quicktime" hidden />
+              </div>
+
+              <div id="workspace" class="workspace hidden">
+                <div class="file-card">
+                  <div class="file-card-icon" aria-hidden="true">
+                    <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+                      <rect x="4" y="6" width="20" height="16" rx="2.5" stroke="currentColor" stroke-width="1.25"/>
+                      <path d="M8 14l3 3 3-4 3 5 3-4" stroke="currentColor" stroke-width="1.25" stroke-linecap="round"/>
+                    </svg>
+                  </div>
+                  <div class="file-card-body">
+                    <span id="file-name" class="file-name">-</span>
+                    <span id="file-size" class="file-size">-</span>
+                  </div>
+                  <div id="file-badge" class="file-badge">MP4</div>
+                </div>
+
+                <div class="viz-block">
+                  <div class="viz-head">
+                    <p class="field-label">Container layout</p>
+                    <span id="moov-badge" class="moov-badge">moov position</span>
+                  </div>
+                  <div id="layout-bar" class="layout-bar" role="img" aria-label="MP4 box layout"></div>
+                  <div id="layout-legend" class="layout-legend"></div>
+                </div>
+              </div>
+
+              <div id="load-progress" class="load-progress hidden" aria-live="polite">
+                <div class="load-progress-bar"><span class="load-progress-fill"></span></div>
+                <span id="load-progress-text" class="load-progress-text">Reading file…</span>
+              </div>
+            </section>
+
+            <section class="demo-panel demo-panel-meta">
+              <header class="demo-panel-head">
+                <h3 class="demo-panel-title">Spherical metadata</h3>
+                <span id="meta-status" class="meta-status meta-status-empty">Waiting for file</span>
+              </header>
+
+              <div id="metadata-panel" class="metadata-panel empty">
+                <div id="meta-empty" class="metadata-empty">
+                  <svg width="32" height="32" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+                    <circle cx="16" cy="16" r="10" stroke="currentColor" stroke-width="1.25" stroke-dasharray="3 3"/>
+                    <path d="M16 10v6l4 2" stroke="currentColor" stroke-width="1.25" stroke-linecap="round"/>
+                  </svg>
+                  <p>Load a file to inspect <code>SV3D</code>, <code>ST3D</code>, and v1 XML tags.</p>
+                </div>
+                <div id="metadata-tags" class="metadata-list"></div>
+              </div>
+            </section>
+
+            <section class="demo-panel demo-panel-actions demo-col-wide">
+              <header class="demo-panel-head">
+                <h3 class="demo-panel-title">Inject &amp; export</h3>
+              </header>
+
+              <div id="controls" class="controls is-disabled">
+                <div class="controls-grid">
+                  <div class="controls-options">
+                    <div class="option-row">
+                      <span class="option-label">Stereo layout</span>
+                      <div class="chip-group" role="group" aria-label="Stereo mode">
+                        <button type="button" class="seg-btn" data-stereo="none">Mono</button>
+                        <button type="button" class="seg-btn is-selected" data-stereo="left-right">Side-by-side</button>
+                        <button type="button" class="seg-btn" data-stereo="top-bottom">Over-under</button>
+                      </div>
+                      <input type="hidden" id="stereo-mode" value="left-right" />
+                    </div>
+
+                    <div class="toggle-cards">
+                      <label class="toggle-card">
+                        <input type="checkbox" id="vr180" />
+                        <span class="toggle-card-inner">
+                          <span class="toggle-card-icon" aria-hidden="true">180°</span>
+                          <span class="toggle-card-text">
+                            <strong>VR180</strong>
+                            <small>Auto crop and bounds from frame size</small>
+                          </span>
+                          <span class="toggle-card-check" aria-hidden="true"></span>
+                        </span>
+                      </label>
+                      <label class="toggle-card">
+                        <input type="checkbox" id="use-v2" checked />
+                        <span class="toggle-card-inner">
+                          <span class="toggle-card-icon toggle-card-icon-atom" aria-hidden="true">v2</span>
+                          <span class="toggle-card-text">
+                            <strong>Spherical v2</strong>
+                            <small>Write <code>SV3D</code> and <code>ST3D</code> atoms</small>
+                          </span>
+                          <span class="toggle-card-check" aria-hidden="true"></span>
+                        </span>
+                      </label>
+                    </div>
+                  </div>
+
+                  <div class="inject-preview" id="inject-preview">
+                    <p class="inject-preview-label">Will write</p>
+                    <ul id="inject-preview-list" class="inject-preview-list">
+                      <li>Equirectangular 360° projection</li>
+                      <li>Stereo: side-by-side</li>
+                      <li>v2 <code>SV3D</code> / <code>ST3D</code> atoms</li>
+                    </ul>
+                  </div>
+                </div>
+
+                <div class="inject-actions">
+                  <button id="inject-btn" class="button button-primary button-inject" disabled>
+                    <span class="inject-btn-label">Inject and download</span>
+                    <span class="inject-btn-spinner hidden" aria-hidden="true"></span>
+                  </button>
+                  <div class="status-wrap">
+                    <p id="status" class="status-line">Choose a file to begin.</p>
+                    <div id="results" class="result-card hidden">
+                      <div class="result-card-icon" aria-hidden="true">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                          <circle cx="10" cy="10" r="8" stroke="currentColor" stroke-width="1.5"/>
+                          <path d="M6 10l2.5 2.5L14 7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                        </svg>
+                      </div>
+                      <div class="result-card-body">
+                        <strong id="result-name">output.mp4</strong>
+                        <span id="result-size">0 MB</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section-light cta-section">
+      <div class="section-inner cta-inner">
+        <h2 class="section-headline">Need the command line?</h2>
+        <p class="section-lead">
+          In-place inject for huge files. No browser memory limits.
+        </p>
+        <a class="button button-primary" href="download.html">Download CLI</a>
+        <p class="cta-foot">
+          <a href="guide/cli.html">CLI guide</a>
+          <span aria-hidden="true">·</span>
+          <a href="spec/spherical-video-v2.html">Spherical v2 spec</a>
+        </p>
+      </div>
+    </section>
+
+    <footer class="site-footer">
+      <p>Apache License 2.0 · Spatial Media metadata tools</p>
+    </footer>
 
     <script type="module" src="assets/js/app.js"></script>
   </body>
