@@ -464,25 +464,37 @@ def parse_mpeg4(input_file, console):
             "permission.")
 
 
+def _apply_metadata_to_mpeg4(mpeg4_file, in_fh, metadata, console):
+    if metadata.video and not mpeg4_add_spherical_xml_v1(
+            mpeg4_file, in_fh, metadata.video):
+        console("Error failed to insert spherical data")
+        return False
+
+    if ((metadata.projection or metadata.stereo_mode)
+        and not mpeg4_add_spherical_v2(
+            mpeg4_file, in_fh, metadata.projection,
+            metadata.stereo_mode, metadata.bounds)):
+        console("Error failed to insert spherical data v2")
+        return False
+
+    if metadata.audio:
+        if not mpeg4_add_audio_metadata(
+                mpeg4_file, in_fh, metadata.audio, console):
+            console("Error failed to insert spatial audio data")
+            return False
+    return True
+
+
 def inject_mpeg4(input_file, output_file, metadata, console):
     with open(input_file, "rb") as in_fh:
 
         mpeg4_file = mpeg.load(in_fh)
         if mpeg4_file is None:
             console("Error file could not be opened.")
+            return
 
-        if metadata.video and not mpeg4_add_spherical_xml_v1(mpeg4_file, in_fh, metadata.video):
-            console("Error failed to insert spherical data")
-
-        if ((metadata.projection or metadata.stereo_mode)
-            and not mpeg4_add_spherical_v2(mpeg4_file, in_fh, metadata.projection,
-                                           metadata.stereo_mode, metadata.bounds)):
-            console("Error failed to insert spherical data v2")
-
-        if metadata.audio:
-            if not mpeg4_add_audio_metadata(
-                mpeg4_file, in_fh, metadata.audio, console):
-                    console("Error failed to insert spatial audio data")
+        if not _apply_metadata_to_mpeg4(mpeg4_file, in_fh, metadata, console):
+            return
 
         console("Saved file settings")
         parse_spherical_mpeg4(mpeg4_file, in_fh, console)
@@ -493,6 +505,34 @@ def inject_mpeg4(input_file, output_file, metadata, console):
 
     console("Error file: \"" + input_file + "\" does not exist or do not have "
             "permission.")
+
+
+def inject_mpeg4_inplace(input_file, metadata, console):
+    try:
+        fh = open(input_file, "r+b")
+    except Exception:
+        console("Error file: \"" + input_file + "\" does not exist or do not have "
+                "permission.")
+        return
+
+    with fh:
+        mpeg4_file = mpeg.load(fh)
+        if mpeg4_file is None:
+            console("Error file could not be opened.")
+            return
+
+        if not _apply_metadata_to_mpeg4(mpeg4_file, fh, metadata, console):
+            return
+
+        console("Saved file settings")
+        parse_spherical_mpeg4(mpeg4_file, fh, console)
+
+        try:
+            mpeg4_file.save_moov_inplace(fh)
+        except ValueError as exc:
+            console(str(exc))
+            return
+
 
 def parse_metadata(src, console):
     infile = os.path.abspath(src)
@@ -518,13 +558,10 @@ def inject_metadata(src, dest, metadata, console):
     infile = os.path.abspath(src)
     outfile = os.path.abspath(dest)
 
-    if infile == outfile:
-        return "Input and output cannot be the same"
-
     try:
         in_fh = open(infile, "rb")
         in_fh.close()
-    except:
+    except Exception:
         console("Error: " + infile +
                 " does not exist or we do not have permission")
         return
@@ -533,11 +570,15 @@ def inject_metadata(src, dest, metadata, console):
 
     extension = os.path.splitext(infile)[1].lower()
 
-    if (extension in MPEG_FILE_EXTENSIONS):
-        inject_mpeg4(infile, outfile, metadata, console)
+    if extension not in MPEG_FILE_EXTENSIONS:
+        console("Unknown file type")
         return
 
-    console("Unknown file type")
+    if infile == outfile:
+        inject_mpeg4_inplace(infile, metadata, console)
+        return
+
+    inject_mpeg4(infile, outfile, metadata, console)
 
 
 def generate_spherical_xml(projection="equiretangular", stereo=None, crop=None):
