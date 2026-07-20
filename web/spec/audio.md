@@ -1,5 +1,5 @@
 # Spatial Audio RFC (draft)
-*This document describes an open metadata scheme by which MP4 multimedia containers may accommodate spatial and head-locked stereo audio. Comments are welcome on the [spatial-media-discuss](https://groups.google.com/forum/#!forum/spatial-media-discuss) mailing list or by [filing an issue](https://github.com/google/spatial-media/issues) on GitHub.*
+*Open specification for spatial and head-locked stereo audio metadata in MP4 containers.*
 
 ------------------------------------------------------
 

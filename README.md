@@ -1,6 +1,6 @@
 # Spatial Media
 
-One toolkit for **immersive MP4/MOV metadata**: 360° and VR180 spherical video tags, plus first-order ambisonic spatial audio. Inspect and inject metadata without re-encoding media. This repository includes the original Google VR specifications, Python tools, a browser demo, and HRIR reference assets for ambisonic monitoring.
+One toolkit for **immersive MP4/MOV metadata**: 360° and VR180 spherical video tags, plus first-order ambisonic spatial audio. Inspect and inject metadata without re-encoding media. Specifications, Python tools, a browser demo, and HRIR reference assets for ambisonic monitoring.
 
 ## What's in this repo
 

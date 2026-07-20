@@ -11,7 +11,7 @@
 }
 
 body {
-    font-family: 'Inter', sans-serif;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
     background-color: var(--bg-color);
     color: var(--text-primary);
     margin: 0;
