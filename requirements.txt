@@ -1,4 +1,7 @@
-PyInstaller
-tk
-pillow
-packaging
+# Runtime: the core CLI has no third-party dependencies (stdlib only).
+# Install the package itself with: python3 -m pip install -e .
+#
+# Optional extras:
+#   pip install -e ".[gui]"
+#   pip install -e ".[build]"
+#   pip install -e ".[dev]"

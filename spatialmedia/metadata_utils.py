@@ -1,5 +1,4 @@
 #! /usr/bin/env python
-# -*- coding: utf-8 -*-
 
 # Copyright 2016 Google Inc. All rights reserved.
 #
@@ -29,49 +28,50 @@ from spatialmedia import mpeg
 
 MPEG_FILE_EXTENSIONS = [".mp4", ".mov"]
 
-SPHERICAL_UUID_ID = (
-    b"\xff\xcc\x82\x63\xf8\x55\x4a\x93\x88\x14\x58\x7a\x02\x52\x1f\xdd")
+SPHERICAL_UUID_ID = b"\xff\xcc\x82\x63\xf8\x55\x4a\x93\x88\x14\x58\x7a\x02\x52\x1f\xdd"
 
 # XML contents.
-RDF_PREFIX = " xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\" "
+RDF_PREFIX = ' xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" '
 
-SPHERICAL_XML_HEADER = \
-    "<?xml version=\"1.0\"?>"\
-    "<rdf:SphericalVideo\n"\
-    "xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"\n"\
-    "xmlns:GSpherical=\"http://ns.google.com/videos/1.0/spherical/\">"
+SPHERICAL_XML_HEADER = (
+    '<?xml version="1.0"?>'
+    "<rdf:SphericalVideo\n"
+    'xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"\n'
+    'xmlns:GSpherical="http://ns.google.com/videos/1.0/spherical/">'
+)
 
-SPHERICAL_XML_CONTENTS = \
-    "<GSpherical:Spherical>true</GSpherical:Spherical>"\
-    "<GSpherical:Stitched>true</GSpherical:Stitched>"\
-    "<GSpherical:StitchingSoftware>"\
-    "Spherical Metadata Tool"\
-    "</GSpherical:StitchingSoftware>"\
+SPHERICAL_XML_CONTENTS = (
+    "<GSpherical:Spherical>true</GSpherical:Spherical>"
+    "<GSpherical:Stitched>true</GSpherical:Stitched>"
+    "<GSpherical:StitchingSoftware>"
+    "Spherical Metadata Tool"
+    "</GSpherical:StitchingSoftware>"
     "<GSpherical:ProjectionType>equirectangular</GSpherical:ProjectionType>"
+)
 
-NOT_SPHERICAL_XML_CONTENTS = \
-    "<GSpherical:Spherical>false</GSpherical:Spherical>"\
-    "<GSpherical:Stitched>false</GSpherical:Stitched>"\
-    "<GSpherical:StitchingSoftware>"\
-    "Spherical Metadata Tool"\
-    "</GSpherical:StitchingSoftware>"\
+NOT_SPHERICAL_XML_CONTENTS = (
+    "<GSpherical:Spherical>false</GSpherical:Spherical>"
+    "<GSpherical:Stitched>false</GSpherical:Stitched>"
+    "<GSpherical:StitchingSoftware>"
+    "Spherical Metadata Tool"
+    "</GSpherical:StitchingSoftware>"
     "<GSpherical:ProjectionType>rectangular</GSpherical:ProjectionType>"
+)
 
-SPHERICAL_XML_CONTENTS_TOP_BOTTOM = \
-    "<GSpherical:StereoMode>top-bottom</GSpherical:StereoMode>"
-SPHERICAL_XML_CONTENTS_LEFT_RIGHT = \
-    "<GSpherical:StereoMode>left-right</GSpherical:StereoMode>"
+SPHERICAL_XML_CONTENTS_TOP_BOTTOM = "<GSpherical:StereoMode>top-bottom</GSpherical:StereoMode>"
+SPHERICAL_XML_CONTENTS_LEFT_RIGHT = "<GSpherical:StereoMode>left-right</GSpherical:StereoMode>"
 
 # Parameter order matches that of the crop option.
-SPHERICAL_XML_CONTENTS_CROP_FORMAT = \
-    "<GSpherical:CroppedAreaImageWidthPixels>{0}"\
-    "</GSpherical:CroppedAreaImageWidthPixels>"\
-    "<GSpherical:CroppedAreaImageHeightPixels>{1}"\
-    "</GSpherical:CroppedAreaImageHeightPixels>"\
-    "<GSpherical:FullPanoWidthPixels>{2}</GSpherical:FullPanoWidthPixels>"\
-    "<GSpherical:FullPanoHeightPixels>{3}</GSpherical:FullPanoHeightPixels>"\
-    "<GSpherical:CroppedAreaLeftPixels>{4}</GSpherical:CroppedAreaLeftPixels>"\
+SPHERICAL_XML_CONTENTS_CROP_FORMAT = (
+    "<GSpherical:CroppedAreaImageWidthPixels>{0}"
+    "</GSpherical:CroppedAreaImageWidthPixels>"
+    "<GSpherical:CroppedAreaImageHeightPixels>{1}"
+    "</GSpherical:CroppedAreaImageHeightPixels>"
+    "<GSpherical:FullPanoWidthPixels>{2}</GSpherical:FullPanoWidthPixels>"
+    "<GSpherical:FullPanoHeightPixels>{3}</GSpherical:FullPanoHeightPixels>"
+    "<GSpherical:CroppedAreaLeftPixels>{4}</GSpherical:CroppedAreaLeftPixels>"
     "<GSpherical:CroppedAreaTopPixels>{5}</GSpherical:CroppedAreaTopPixels>"
+)
 
 SPHERICAL_XML_FOOTER = "</rdf:SphericalVideo>"
 
@@ -94,7 +94,8 @@ SPHERICAL_TAGS_LIST = [
     "CroppedAreaTopPixels",
 ]
 
-class Metadata(object):
+
+class Metadata:
     def __init__(self, projection=None, stereo_mode=None, bounds=None):
         self.projection = None if (not projection or projection == "none") else projection
         self.stereo_mode = None if (not stereo_mode or stereo_mode == "none") else stereo_mode
@@ -106,11 +107,13 @@ class Metadata(object):
         self.video = None
         self.audio = None
 
-class ParsedMetadata(object):
+
+class ParsedMetadata:
     def __init__(self):
         self.video = dict()
         self.audio = None
         self.num_audio_channels = 0
+
 
 SPHERICAL_PREFIX = "{http://ns.google.com/videos/1.0/spherical/}"
 SPHERICAL_TAGS = dict()
@@ -123,20 +126,19 @@ crop_regex = "^{0}$".format(":".join([integer_regex_group] * 6))
 MAX_SUPPORTED_AMBIX_ORDER = 1
 
 SpatialAudioDescription = collections.namedtuple(
-    'SpatialAudioDescription',
-    'order is_supported has_head_locked_stereo')
+    "SpatialAudioDescription", "order is_supported has_head_locked_stereo"
+)
+
 
 def get_spatial_audio_description(num_channels):
-  for i in range(1, MAX_SUPPORTED_AMBIX_ORDER+1):
-    if (i + 1)*(i + 1) == num_channels:
-      return SpatialAudioDescription(
-          order=i, is_supported=True, has_head_locked_stereo=False)
-    elif ((i + 1)*(i + 1) + 2) == num_channels:
-      return SpatialAudioDescription(
-          order=i, is_supported=True, has_head_locked_stereo=True)
+    for i in range(1, MAX_SUPPORTED_AMBIX_ORDER + 1):
+        if (i + 1) * (i + 1) == num_channels:
+            return SpatialAudioDescription(order=i, is_supported=True, has_head_locked_stereo=False)
+        elif ((i + 1) * (i + 1) + 2) == num_channels:
+            return SpatialAudioDescription(order=i, is_supported=True, has_head_locked_stereo=True)
 
-  return SpatialAudioDescription(
-      order=-1, is_supported=False, has_head_locked_stereo=True)
+    return SpatialAudioDescription(order=-1, is_supported=False, has_head_locked_stereo=True)
+
 
 def spherical_uuid(metadata):
     """Constructs a uuid containing spherical metadata.
@@ -148,7 +150,7 @@ def spherical_uuid(metadata):
       uuid_leaf: a box containing spherical metadata.
     """
     uuid_leaf = mpeg.Box()
-    assert(len(SPHERICAL_UUID_ID) == 16)
+    assert len(SPHERICAL_UUID_ID) == 16
     uuid_leaf.name = mpeg.constants.TAG_UUID
     uuid_leaf.header_size = 8
     uuid_leaf.content_size = 0
@@ -191,6 +193,7 @@ def mpeg4_add_spherical_xml_v1(mpeg4_file, in_fh, metadata):
     mpeg4_file.resize()
     return True
 
+
 def mpeg4_add_spherical_v2(mpeg4_file, in_fh, projection, stereo_mode, bounds):
     for element in mpeg4_file.moov_box.contents:
         if element.name == mpeg.constants.TAG_TRAK:
@@ -204,7 +207,8 @@ def mpeg4_add_spherical_v2(mpeg4_file, in_fh, projection, stereo_mode, bounds):
                     in_fh.seek(position)
                     if in_fh.read(4) == mpeg.constants.TAG_VIDE:
                         ret = inject_spatial_video_v2_atoms(
-                            in_fh, sub_element, projection, stereo_mode, bounds)
+                            in_fh, sub_element, projection, stereo_mode, bounds
+                        )
                         mpeg4_file.resize()
                         return ret
 
@@ -229,10 +233,10 @@ def inject_spatial_video_v2_atoms(in_fh, video_media_atom, projection, stereo_mo
                 if sub_element.name != mpeg.constants.TAG_STSD:
                     continue
                 for sample_description in sub_element.contents:
-                    if sample_description.name in\
-                            mpeg.constants.VIDEO_SAMPLE_DESCRIPTIONS:
-                        in_fh.seek(sample_description.position +
-                                   sample_description.header_size + 16)
+                    if sample_description.name in mpeg.constants.VIDEO_SAMPLE_DESCRIPTIONS:
+                        in_fh.seek(
+                            sample_description.position + sample_description.header_size + 16
+                        )
                         # Should remove any existing boxes...
                         if stereo_mode:
                             st3d_atom = mpeg.sv3d.ST3DBox.create()
@@ -286,8 +290,10 @@ def mpeg4_add_spatial_audio(mpeg4_file, in_fh, audio_metadata, console):
                     in_fh.seek(position)
                     if in_fh.read(4) == mpeg.constants.TAG_SOUN:
                         return inject_spatial_audio_atom(
-                            in_fh, sub_element, audio_metadata, console)
+                            in_fh, sub_element, audio_metadata, console
+                        )
     return True
+
 
 def mpeg4_add_audio_metadata(mpeg4_file, in_fh, audio_metadata, console):
     num_audio_tracks = get_num_audio_tracks(mpeg4_file, in_fh)
@@ -297,8 +303,8 @@ def mpeg4_add_audio_metadata(mpeg4_file, in_fh, audio_metadata, console):
 
     return mpeg4_add_spatial_audio(mpeg4_file, in_fh, audio_metadata, console)
 
-def inject_spatial_audio_atom(
-    in_fh, audio_media_atom, audio_metadata, console):
+
+def inject_spatial_audio_atom(in_fh, audio_media_atom, audio_metadata, console):
     for atom in audio_media_atom.contents:
         if atom.name != mpeg.constants.TAG_MINF:
             continue
@@ -309,34 +315,40 @@ def inject_spatial_audio_atom(
                 if sub_element.name != mpeg.constants.TAG_STSD:
                     continue
                 for sample_description in sub_element.contents:
-                    if sample_description.name in\
-                            mpeg.constants.SOUND_SAMPLE_DESCRIPTIONS:
-                        in_fh.seek(sample_description.position +
-                                   sample_description.header_size + 16)
-                        num_channels = get_num_audio_channels(
-                            sub_element, in_fh)
-                        expected_num_channels = \
-                            get_expected_num_audio_channels(
-                                audio_metadata["ambisonic_type"],
-                                audio_metadata["ambisonic_order"],
-                                audio_metadata["head_locked_stereo"])
+                    if sample_description.name in mpeg.constants.SOUND_SAMPLE_DESCRIPTIONS:
+                        in_fh.seek(
+                            sample_description.position + sample_description.header_size + 16
+                        )
+                        num_channels = get_num_audio_channels(sub_element, in_fh)
+                        expected_num_channels = get_expected_num_audio_channels(
+                            audio_metadata["ambisonic_type"],
+                            audio_metadata["ambisonic_order"],
+                            audio_metadata["head_locked_stereo"],
+                        )
                         if num_channels != expected_num_channels:
-                            head_locked_stereo_msg = (" with head-locked stereo" if
-                                            audio_metadata["head_locked_stereo"] else "")
-                            err_msg = "Error: Found %d audio channel(s). "\
-                                  "Expected %d channel(s) for %s ambisonics "\
-                                  "of order %d%s."\
-                                % (num_channels,
-                                   expected_num_channels,
-                                   audio_metadata["ambisonic_type"],
-                                   audio_metadata["ambisonic_order"],
-                                   head_locked_stereo_msg)
+                            head_locked_stereo_msg = (
+                                " with head-locked stereo"
+                                if audio_metadata["head_locked_stereo"]
+                                else ""
+                            )
+                            err_msg = (
+                                "Error: Found %d audio channel(s). "
+                                "Expected %d channel(s) for %s ambisonics "
+                                "of order %d%s."
+                                % (
+                                    num_channels,
+                                    expected_num_channels,
+                                    audio_metadata["ambisonic_type"],
+                                    audio_metadata["ambisonic_order"],
+                                    head_locked_stereo_msg,
+                                )
+                            )
                             console(err_msg)
                             return False
-                        sa3d_atom = mpeg.SA3DBox.create(
-                            num_channels, audio_metadata)
+                        sa3d_atom = mpeg.SA3DBox.create(num_channels, audio_metadata)
                         sample_description.contents.append(sa3d_atom)
     return True
+
 
 def parse_spherical_xml(contents, console):
     """Returns spherical metadata for a set of xml data.
@@ -359,7 +371,7 @@ def parse_spherical_xml(contents, console):
                 contents = contents[:index] + RDF_PREFIX + contents[index:]
             parsed_xml = xml.etree.ElementTree.XML(contents)
             console("\t\tWarning missing rdf prefix:", RDF_PREFIX)
-        except xml.etree.ElementTree.ParseError as e:
+        except xml.etree.ElementTree.ParseError:
             console("\t\tParser Error on XML")
             console(traceback.format_exc())
             console(contents)
@@ -368,13 +380,12 @@ def parse_spherical_xml(contents, console):
     sphericalDictionary = dict()
     for child in list(parsed_xml):
         if child.tag in SPHERICAL_TAGS.keys():
-            console("\t\t" + SPHERICAL_TAGS[child.tag]
-                    + " = " + child.text)
+            console("\t\t" + SPHERICAL_TAGS[child.tag] + " = " + child.text)
             sphericalDictionary[SPHERICAL_TAGS[child.tag]] = child.text
         else:
             tag = child.tag
-            if child.tag[:len(spherical_prefix)] == spherical_prefix:
-                tag = child.tag[len(spherical_prefix):]
+            if child.tag[: len(SPHERICAL_PREFIX)] == SPHERICAL_PREFIX:
+                tag = child.tag[len(SPHERICAL_PREFIX) :]
             console("\t\tUnknown: " + tag + " = " + child.text)
 
     return sphericalDictionary
@@ -410,8 +421,9 @@ def parse_spherical_mpeg4(mpeg4_file, fh, console):
                             contents = sub_element.contents[16:]
                         else:
                             contents = fh.read(sub_element.content_size - 16)
-                        metadata.video[trackName] = \
-                            parse_spherical_xml(contents.decode("utf-8"), console)
+                        metadata.video[trackName] = parse_spherical_xml(
+                            contents.decode("utf-8"), console
+                        )
 
                 if sub_element.name == mpeg.constants.TAG_MDIA:
                     for mdia_sub_element in sub_element.contents:
@@ -424,19 +436,24 @@ def parse_spherical_mpeg4(mpeg4_file, fh, console):
                                 if stsd_elem.name != mpeg.constants.TAG_STSD:
                                     continue
                                 for sa3d_container_elem in stsd_elem.contents:
-                                    if sa3d_container_elem.name not in \
-                                            mpeg.constants.SOUND_SAMPLE_DESCRIPTIONS:
+                                    if (
+                                        sa3d_container_elem.name
+                                        not in mpeg.constants.SOUND_SAMPLE_DESCRIPTIONS
+                                    ):
                                         continue
-                                    metadata.num_audio_channels = \
-                                        get_num_audio_channels(stsd_elem, fh)
+                                    metadata.num_audio_channels = get_num_audio_channels(
+                                        stsd_elem, fh
+                                    )
                                     for sa3d_elem in sa3d_container_elem.contents:
                                         if sa3d_elem.name == mpeg.constants.TAG_SA3D:
                                             sa3d_elem.print_box(console)
                                             metadata.audio = sa3d_elem
 
                                 for sv3d_container_elem in stsd_elem.contents:
-                                    if sv3d_container_elem.name not in \
-                                            mpeg.constants.VIDEO_SAMPLE_DESCRIPTIONS:
+                                    if (
+                                        sv3d_container_elem.name
+                                        not in mpeg.constants.VIDEO_SAMPLE_DESCRIPTIONS
+                                    ):
                                         continue
                                     for sub_elem in sv3d_container_elem.contents:
                                         if sub_elem.name == mpeg.constants.TAG_SV3D:
@@ -450,6 +467,7 @@ def parse_spherical_mpeg4(mpeg4_file, fh, console):
 
     return metadata
 
+
 def parse_mpeg4(input_file, console):
     with open(input_file, "rb") as in_fh:
         mpeg4_file = mpeg.load(in_fh)
@@ -460,26 +478,96 @@ def parse_mpeg4(input_file, console):
         console("Loaded file...")
         return parse_spherical_mpeg4(mpeg4_file, in_fh, console)
 
-    console("Error \"" + input_file + "\" does not exist or do not have "
-            "permission.")
+    console('Error "' + input_file + '" does not exist or do not have permission.')
+
+
+def mpeg4_clear_spherical_v1(mpeg4_file):
+    """Remove spherical v1 UUID boxes from all tracks."""
+    for element in mpeg4_file.moov_box.contents:
+        if element.name == mpeg.constants.TAG_TRAK:
+            element.remove(mpeg.constants.TAG_UUID)
+
+
+def mpeg4_clear_spherical_v2(mpeg4_file):
+    """Remove spherical v2 st3d/sv3d boxes from video sample descriptions."""
+    for element in mpeg4_file.moov_box.contents:
+        if element.name != mpeg.constants.TAG_TRAK:
+            continue
+        for sub_element in element.contents:
+            if sub_element.name != mpeg.constants.TAG_MDIA:
+                continue
+            for mdia_sub in sub_element.contents:
+                if mdia_sub.name != mpeg.constants.TAG_MINF:
+                    continue
+                for minf_sub in mdia_sub.contents:
+                    if minf_sub.name != mpeg.constants.TAG_STBL:
+                        continue
+                    for stbl_sub in minf_sub.contents:
+                        if stbl_sub.name != mpeg.constants.TAG_STSD:
+                            continue
+                        for sample_description in stbl_sub.contents:
+                            if sample_description.name in mpeg.constants.VIDEO_SAMPLE_DESCRIPTIONS:
+                                sample_description.remove(mpeg.constants.TAG_ST3D)
+                                sample_description.remove(mpeg.constants.TAG_SV3D)
+    mpeg4_file.resize()
+
+
+def get_video_dimensions(src):
+    """Return (width, height) of the first video track, or None."""
+    infile = os.path.abspath(src)
+    try:
+        with open(infile, "rb") as in_fh:
+            mpeg4_file = mpeg.load(in_fh)
+            if mpeg4_file is None:
+                return None
+            for element in mpeg4_file.moov_box.contents:
+                if element.name != mpeg.constants.TAG_TRAK:
+                    continue
+                is_video = False
+                for sub_element in element.contents:
+                    if sub_element.name != mpeg.constants.TAG_MDIA:
+                        continue
+                    for mdia_sub in sub_element.contents:
+                        if mdia_sub.name != mpeg.constants.TAG_HDLR:
+                            continue
+                        in_fh.seek(mdia_sub.content_start() + 8)
+                        if in_fh.read(4) == mpeg.constants.TAG_VIDE:
+                            is_video = True
+                if not is_video:
+                    continue
+                for sub_element in element.contents:
+                    if sub_element.name != mpeg.constants.TAG_TKHD:
+                        continue
+                    in_fh.seek(sub_element.position + sub_element.size() - 8)
+                    width_fixed, height_fixed = struct.unpack(">II", in_fh.read(8))
+                    return (int(width_fixed / 65536), int(height_fixed / 65536))
+    except OSError:
+        return None
+    return None
 
 
 def _apply_metadata_to_mpeg4(mpeg4_file, in_fh, metadata, console):
-    if metadata.video and not mpeg4_add_spherical_xml_v1(
-            mpeg4_file, in_fh, metadata.video):
+    applying_v1 = bool(metadata.video)
+    applying_v2 = bool(metadata.projection or metadata.stereo_mode)
+
+    # Avoid leftover conflicting tags when switching metadata versions.
+    if applying_v2 and not applying_v1:
+        mpeg4_clear_spherical_v1(mpeg4_file)
+    if applying_v1 and not applying_v2:
+        mpeg4_clear_spherical_v2(mpeg4_file)
+
+    if metadata.video and not mpeg4_add_spherical_xml_v1(mpeg4_file, in_fh, metadata.video):
         console("Error failed to insert spherical data")
         return False
 
-    if ((metadata.projection or metadata.stereo_mode)
-        and not mpeg4_add_spherical_v2(
-            mpeg4_file, in_fh, metadata.projection,
-            metadata.stereo_mode, metadata.bounds)):
+    if (metadata.projection or metadata.stereo_mode) and not mpeg4_add_spherical_v2(
+        mpeg4_file, in_fh, metadata.projection, metadata.stereo_mode, metadata.bounds
+    ):
         console("Error failed to insert spherical data v2")
         return False
 
     if metadata.audio:
-        if not mpeg4_add_audio_metadata(
-                mpeg4_file, in_fh, metadata.audio, console):
+        if not mpeg4_add_audio_metadata(mpeg4_file, in_fh, metadata.audio, console):
             console("Error failed to insert spatial audio data")
             return False
     return True
@@ -487,7 +575,6 @@ def _apply_metadata_to_mpeg4(mpeg4_file, in_fh, metadata, console):
 
 def inject_mpeg4(input_file, output_file, metadata, console):
     with open(input_file, "rb") as in_fh:
-
         mpeg4_file = mpeg.load(in_fh)
         if mpeg4_file is None:
             console("Error file could not be opened.")
@@ -503,16 +590,14 @@ def inject_mpeg4(input_file, output_file, metadata, console):
             mpeg4_file.save(in_fh, out_fh)
         return
 
-    console("Error file: \"" + input_file + "\" does not exist or do not have "
-            "permission.")
+    console('Error file: "' + input_file + '" does not exist or do not have permission.')
 
 
 def inject_mpeg4_inplace(input_file, metadata, console):
     try:
         fh = open(input_file, "r+b")
-    except Exception:
-        console("Error file: \"" + input_file + "\" does not exist or do not have "
-                "permission.")
+    except OSError:
+        console('Error file: "' + input_file + '" does not exist or do not have permission.')
         return
 
     with fh:
@@ -540,9 +625,9 @@ def parse_metadata(src, console):
     try:
         in_fh = open(infile, "rb")
         in_fh.close()
-    except:
-        console("Error: " + infile +
-                " does not exist or we do not have permission")
+    except OSError:
+        console("Error: " + infile + " does not exist or we do not have permission")
+        return None
 
     console("Processing: " + infile)
     extension = os.path.splitext(infile)[1].lower()
@@ -561,9 +646,8 @@ def inject_metadata(src, dest, metadata, console):
     try:
         in_fh = open(infile, "rb")
         in_fh.close()
-    except Exception:
-        console("Error: " + infile +
-                " does not exist or we do not have permission")
+    except OSError:
+        console("Error: " + infile + " does not exist or we do not have permission")
         return
 
     console("Processing: " + infile)
@@ -593,7 +677,7 @@ def generate_spherical_xml(projection="equiretangular", stereo=None, crop=None):
     if crop:
         crop_match = re.match(crop_regex, crop)
         if not crop_match:
-            print("Error: Invalid crop params: {crop}".format(crop=crop))
+            print(f"Error: Invalid crop params: {crop}")
             return False
         else:
             cropped_width_pixels = int(crop_match.group(1))
@@ -605,20 +689,22 @@ def generate_spherical_xml(projection="equiretangular", stereo=None, crop=None):
 
             # This should never happen based on the crop regex.
             if full_width_pixels <= 0 or full_height_pixels <= 0:
-                print("Error with crop params: full pano dimensions are "\
-                        "invalid: width = {width} height = {height}".format(
-                            width=full_width_pixels,
-                            height=full_height_pixels))
+                print(
+                    "Error with crop params: full pano dimensions are "
+                    f"invalid: width = {full_width_pixels} height = {full_height_pixels}"
+                )
                 return False
 
-            if (cropped_width_pixels <= 0 or
-                    cropped_height_pixels <= 0 or
-                    cropped_width_pixels > full_width_pixels or
-                    cropped_height_pixels > full_height_pixels):
-                print("Error with crop params: cropped area dimensions are "\
-                        "invalid: width = {width} height = {height}".format(
-                            width=cropped_width_pixels,
-                            height=cropped_height_pixels))
+            if (
+                cropped_width_pixels <= 0
+                or cropped_height_pixels <= 0
+                or cropped_width_pixels > full_width_pixels
+                or cropped_height_pixels > full_height_pixels
+            ):
+                print(
+                    "Error with crop params: cropped area dimensions are "
+                    f"invalid: width = {cropped_width_pixels} height = {cropped_height_pixels}"
+                )
                 return False
 
             # We are pretty restrictive and don't allow anything strange. There
@@ -627,58 +713,65 @@ def generate_spherical_xml(projection="equiretangular", stereo=None, crop=None):
             # extra work has to be done on the client).
             total_width = cropped_offset_left_pixels + cropped_width_pixels
             total_height = cropped_offset_top_pixels + cropped_height_pixels
-            if (cropped_offset_left_pixels < 0 or
-                    cropped_offset_top_pixels < 0 or
-                    total_width > full_width_pixels or
-                    total_height > full_height_pixels):
-                    print("Error with crop params: cropped area offsets are "\
-                            "invalid: left = {left} top = {top} "\
-                            "left+cropped width: {total_width} "\
-                            "top+cropped height: {total_height}".format(
-                                left=cropped_offset_left_pixels,
-                                top=cropped_offset_top_pixels,
-                                total_width=total_width,
-                                total_height=total_height))
-                    return False
+            if (
+                cropped_offset_left_pixels < 0
+                or cropped_offset_top_pixels < 0
+                or total_width > full_width_pixels
+                or total_height > full_height_pixels
+            ):
+                print(
+                    "Error with crop params: cropped area offsets are "
+                    f"invalid: left = {cropped_offset_left_pixels} top = {cropped_offset_top_pixels} "
+                    f"left+cropped width: {total_width} "
+                    f"top+cropped height: {total_height}"
+                )
+                return False
 
             additional_xml += SPHERICAL_XML_CONTENTS_CROP_FORMAT.format(
-                cropped_width_pixels, cropped_height_pixels,
-                full_width_pixels, full_height_pixels,
-                cropped_offset_left_pixels, cropped_offset_top_pixels)
+                cropped_width_pixels,
+                cropped_height_pixels,
+                full_width_pixels,
+                full_height_pixels,
+                cropped_offset_left_pixels,
+                cropped_offset_top_pixels,
+            )
 
-    spherical_xml = (SPHERICAL_XML_HEADER +
-                     (SPHERICAL_XML_CONTENTS if projection == "equirectangular"
-                      else NOT_SPHERICAL_XML_CONTENTS) +
-                     additional_xml +
-                     SPHERICAL_XML_FOOTER)
+    spherical_xml = (
+        SPHERICAL_XML_HEADER
+        + (
+            SPHERICAL_XML_CONTENTS
+            if projection == "equirectangular"
+            else NOT_SPHERICAL_XML_CONTENTS
+        )
+        + additional_xml
+        + SPHERICAL_XML_FOOTER
+    )
     return spherical_xml
 
 
 def get_descriptor_length(in_fh):
     """Derives the length of the MP4 elementary stream descriptor at the
-       current position in the input file.
+    current position in the input file.
     """
     descriptor_length = 0
     for i in range(4):
         size_byte = struct.unpack(">c", in_fh.read(1))[0]
-        descriptor_length = (descriptor_length << 7 |
-                             ord(size_byte) & int("0x7f", 0))
-        if (ord(size_byte) != int("0x80", 0)):
+        descriptor_length = descriptor_length << 7 | ord(size_byte) & int("0x7f", 0)
+        if ord(size_byte) != int("0x80", 0):
             break
     return descriptor_length
 
 
-def get_expected_num_audio_channels(
-    ambisonics_type, ambisonics_order, head_locked_stereo):
-    """ Returns the expected number of ambisonic components for a given
-        ambisonic type and ambisonic order.
+def get_expected_num_audio_channels(ambisonics_type, ambisonics_order, head_locked_stereo):
+    """Returns the expected number of ambisonic components for a given
+    ambisonic type and ambisonic order.
     """
-    head_locked_stereo_channels = 2 if head_locked_stereo == True else 0
-    if (ambisonics_type == 'periphonic'):
-        return (((ambisonics_order + 1) * (ambisonics_order + 1)) +
-                head_locked_stereo_channels)
+    head_locked_stereo_channels = 2 if head_locked_stereo else 0
+    if ambisonics_type == "periphonic":
+        return ((ambisonics_order + 1) * (ambisonics_order + 1)) + head_locked_stereo_channels
     else:
         return -1
+
 
 def get_num_audio_channels(stsd, in_fh):
     if stsd.name != mpeg.constants.TAG_STSD:
@@ -691,33 +784,23 @@ def get_num_audio_channels(stsd, in_fh):
             return get_sample_description_num_channels(sample_description, in_fh)
     return -1
 
+
 def get_sample_description_num_channels(sample_description, in_fh):
-    """Reads the number of audio channels from a sound sample description.
-    """
+    """Reads the number of audio channels from a sound sample description."""
     p = in_fh.tell()
     in_fh.seek(sample_description.content_start() + 8)
 
     version = struct.unpack(">h", in_fh.read(2))[0]
-    revision_level = struct.unpack(">h", in_fh.read(2))[0]
-    vendor = struct.unpack(">i", in_fh.read(4))[0]
+    in_fh.read(2)  # revision_level
+    in_fh.read(4)  # vendor
     if version == 0:
         num_audio_channels = struct.unpack(">h", in_fh.read(2))[0]
-        sample_size_bytes = struct.unpack(">h", in_fh.read(2))[0]
+        in_fh.read(2)  # sample_size_bytes
     elif version == 1:
         num_audio_channels = struct.unpack(">h", in_fh.read(2))[0]
-        sample_size_bytes = struct.unpack(">h", in_fh.read(2))[0]
-        samples_per_packet = struct.unpack(">i", in_fh.read(4))[0]
-        bytes_per_packet = struct.unpack(">i", in_fh.read(4))[0]
-        bytes_per_frame = struct.unpack(">i", in_fh.read(4))[0]
-        bytes_per_sample = struct.unpack(">i", in_fh.read(4))[0]
+        in_fh.read(22)  # remaining SoundSampleDescription v1 fields
     elif version == 2:
-        always_3 = struct.unpack(">h", in_fh.read(2))[0]
-        always_16 = struct.unpack(">h", in_fh.read(2))[0]
-        always_minus_2 = struct.unpack(">h", in_fh.read(2))[0]
-        always_0 = struct.unpack(">h", in_fh.read(2))[0]
-        always_65536 = struct.unpack(">i", in_fh.read(4))[0]
-        size_of_struct_only = struct.unpack(">i", in_fh.read(4))[0]
-        audio_sample_rate = struct.unpack(">d", in_fh.read(8))[0]
+        in_fh.read(24)  # fixed SoundSampleDescription v2 header fields
         num_audio_channels = struct.unpack(">i", in_fh.read(4))[0]
     else:
         print("Unsupported version for " + sample_description.name + " box")
@@ -726,9 +809,10 @@ def get_sample_description_num_channels(sample_description, in_fh):
     in_fh.seek(p)
     return num_audio_channels
 
+
 def get_aac_num_channels(box, in_fh):
     """Reads the number of audio channels from AAC's AudioSpecificConfig
-       descriptor within the esds child box of the input mp4a or wave box.
+    descriptor within the esds child box of the input mp4a or wave box.
     """
     p = in_fh.tell()
     if box.name not in [mpeg.constants.TAG_MP4A, mpeg.constants.TAG_WAVE]:
@@ -742,7 +826,7 @@ def get_aac_num_channels(box, in_fh):
             break
 
         if element.name != mpeg.constants.TAG_ESDS:
-          continue
+            continue
         in_fh.seek(element.content_start() + 4)
         descriptor_tag = struct.unpack(">c", in_fh.read(1))[0]
 
@@ -759,7 +843,7 @@ def get_aac_num_channels(box, in_fh):
             print("Error: failed to read decoder config. descriptor.")
             return -1
         get_descriptor_length(in_fh)
-        in_fh.seek(13, 1) # offset to the decoder specific config descriptor.
+        in_fh.seek(13, 1)  # offset to the decoder specific config descriptor.
         decoder_specific_descriptor_tag = struct.unpack(">c", in_fh.read(1))[0]
 
         # Verify the read descriptor is a decoder specific info descriptor
@@ -769,7 +853,6 @@ def get_aac_num_channels(box, in_fh):
         audio_specific_descriptor_size = get_descriptor_length(in_fh)
         assert audio_specific_descriptor_size >= 2
         decoder_descriptor = struct.unpack(">h", in_fh.read(2))[0]
-        object_type = (int("F800", 16) & decoder_descriptor) >> 11
         sampling_frequency_index = (int("0780", 16) & decoder_descriptor) >> 7
         if sampling_frequency_index == 0:
             # TODO: If the sample rate is 96kHz an additional 24 bit offset
@@ -782,26 +865,27 @@ def get_aac_num_channels(box, in_fh):
 
 
 def get_num_audio_tracks(mpeg4_file, in_fh):
-    """ Returns the number of audio track in the input mpeg4 file. """
+    """Returns the number of audio track in the input mpeg4 file."""
     num_audio_tracks = 0
     for element in mpeg4_file.moov_box.contents:
-        if (element.name == mpeg.constants.TAG_TRAK):
+        if element.name == mpeg.constants.TAG_TRAK:
             for sub_element in element.contents:
-                if (sub_element.name != mpeg.constants.TAG_MDIA):
+                if sub_element.name != mpeg.constants.TAG_MDIA:
                     continue
                 for mdia_sub_element in sub_element.contents:
-                    if (mdia_sub_element.name != mpeg.constants.TAG_HDLR):
+                    if mdia_sub_element.name != mpeg.constants.TAG_HDLR:
                         continue
                     position = mdia_sub_element.content_start() + 8
                     in_fh.seek(position)
-                    if (in_fh.read(4) == mpeg.constants.TAG_SOUN):
+                    if in_fh.read(4) == mpeg.constants.TAG_SOUN:
                         num_audio_tracks += 1
     return num_audio_tracks
 
 
 def get_spatial_audio_metadata(ambisonic_order, head_locked_stereo):
     num_channels = get_expected_num_audio_channels(
-        "periphonic", ambisonic_order, head_locked_stereo)
+        "periphonic", ambisonic_order, head_locked_stereo
+    )
     metadata = {
         "ambisonic_order": 0,
         "head_locked_stereo": False,
@@ -810,7 +894,7 @@ def get_spatial_audio_metadata(ambisonic_order, head_locked_stereo):
         "ambisonic_normalization": "SN3D",
         "channel_map": [],
     }
-    metadata['ambisonic_order'] = ambisonic_order
-    metadata['head_locked_stereo'] = head_locked_stereo
-    metadata['channel_map'] = range(0, num_channels)
+    metadata["ambisonic_order"] = ambisonic_order
+    metadata["head_locked_stereo"] = head_locked_stereo
+    metadata["channel_map"] = range(0, num_channels)
     return metadata

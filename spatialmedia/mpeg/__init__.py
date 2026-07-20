@@ -1,5 +1,4 @@
 #! /usr/bin/env python
-# -*- coding: utf-8 -*-
 
 # Copyright 2016 Google Inc. All rights reserved.
 #
@@ -15,11 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import spatialmedia.mpeg.sa3d
-import spatialmedia.mpeg.box
-import spatialmedia.mpeg.constants
-import spatialmedia.mpeg.container
-import spatialmedia.mpeg.mpeg4_container
+from spatialmedia.mpeg import box, container, mpeg4_container, sa3d
 
 load = mpeg4_container.load
 
@@ -28,4 +23,15 @@ SA3DBox = sa3d.SA3DBox
 Container = container.Container
 Mpeg4Container = mpeg4_container.Mpeg4Container
 
-__all__ = ["box", "mpeg4", "container", "constants", "sa3d"]
+__all__ = [
+    "Box",
+    "Container",
+    "Mpeg4Container",
+    "SA3DBox",
+    "box",
+    "constants",
+    "container",
+    "load",
+    "mpeg4_container",
+    "sa3d",
+]

@@ -1,5 +1,4 @@
 #! /usr/bin/env python
-# -*- coding: utf-8 -*-
 
 # Copyright 2016 Google Inc. All rights reserved.
 #
@@ -20,12 +19,16 @@
 Tool for loading mpeg4 files and manipulating atoms.
 """
 
+from __future__ import annotations
+
 import io
 import struct
+from typing import BinaryIO, Optional, Union
 
 from spatialmedia.mpeg import constants
 
-def load(fh, position, end):
+
+def load(fh: BinaryIO, position: Optional[int], end: int) -> Optional[Box]:
     """Loads the box located at a position in a mp4 file.
 
     Args:
@@ -48,7 +51,7 @@ def load(fh, position, end):
         header_size = 16
 
     if size < 8:
-        print("Error, invalid size {} in {} at {}".format(size, name, position))
+        print(f"Error, invalid size {size} in {name} at {position}")
         return None
 
     if (position + size) > end:
@@ -65,20 +68,20 @@ def load(fh, position, end):
     return new_box
 
 
-class Box(object):
+class Box:
     """MPEG4 box contents and behaviour true for all boxes."""
 
-    def __init__(self):
-        self.name = ""
-        self.position = 0
-        self.header_size = 0
-        self.content_size = 0
-        self.contents = None
+    def __init__(self) -> None:
+        self.name: Union[bytes, str] = b""
+        self.position: int = 0
+        self.header_size: int = 0
+        self.content_size: int = 0
+        self.contents: Optional[bytes] = None
 
-    def content_start(self):
+    def content_start(self) -> int:
         return self.position + self.header_size
 
-    def save(self, in_fh, out_fh, delta):
+    def save(self, in_fh: BinaryIO, out_fh: BinaryIO, delta: int) -> None:
         """Save box contents prioritizing set contents.
 
         Args:
@@ -106,12 +109,12 @@ class Box(object):
         else:
             tag_copy(in_fh, out_fh, self.content_size)
 
-    def set(self, new_contents):
+    def set(self, new_contents: bytes) -> None:
         """Sets / overwrites the box contents."""
         self.contents = new_contents
-        self.content_size = len(contents)
+        self.content_size = len(new_contents)
 
-    def size(self):
+    def size(self) -> int:
         """Total size of a box.
 
         Returns:
@@ -119,14 +122,14 @@ class Box(object):
         """
         return self.header_size + self.content_size
 
-    def print_structure(self, indent=""):
+    def print_structure(self, indent: str = "") -> None:
         """Prints the box structure."""
         size1 = self.header_size
         size2 = self.content_size
-        print("{0} {1} [{2}, {3}]".format(indent, self.name, size1, size2))
+        print(f"{indent} {self.name} [{size1}, {size2}]")
 
 
-def tag_copy(in_fh, out_fh, size):
+def tag_copy(in_fh: BinaryIO, out_fh: BinaryIO, size: int) -> None:
     """Copies a block of data from in_fh to out_fh.
 
     Args:
@@ -138,7 +141,7 @@ def tag_copy(in_fh, out_fh, size):
     # On 32-bit systems reading / writing is limited to 2GB chunks.
     # To prevent overflow, read/write 64 MB chunks.
     block_size = 64 * 1024 * 1024
-    while (size > block_size):
+    while size > block_size:
         contents = in_fh.read(block_size)
         out_fh.write(contents)
         size = size - block_size

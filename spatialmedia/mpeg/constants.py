@@ -1,5 +1,4 @@
 #! /usr/bin/env python
-# -*- coding: utf-8 -*-
 
 # Copyright 2016 Google Inc. All rights reserved.
 #
@@ -30,6 +29,7 @@ TAG_FTYP = b"ftyp"
 TAG_ESDS = b"esds"
 TAG_SOUN = b"soun"
 TAG_VIDE = b"vide"
+TAG_TKHD = b"tkhd"
 TAG_SA3D = b"SA3D"
 
 TAG_PRHD = b"prhd"
@@ -82,47 +82,57 @@ TAG_APCO = b"apco"
 TAG_AP4H = b"ap4h"
 TAG_AP4X = b"ap4x"
 
-SOUND_SAMPLE_DESCRIPTIONS = frozenset([
-    TAG_NONE,
-    TAG_RAW_,
-    TAG_TWOS,
-    TAG_SOWT,
-    TAG_FL32,
-    TAG_FL64,
-    TAG_IN24,
-    TAG_IN32,
-    TAG_ULAW,
-    TAG_ALAW,
-    TAG_LPCM,
-    TAG_MP4A,
-    TAG_OPUS,
-    ])
+SOUND_SAMPLE_DESCRIPTIONS = frozenset(
+    [
+        TAG_NONE,
+        TAG_RAW_,
+        TAG_TWOS,
+        TAG_SOWT,
+        TAG_FL32,
+        TAG_FL64,
+        TAG_IN24,
+        TAG_IN32,
+        TAG_ULAW,
+        TAG_ALAW,
+        TAG_LPCM,
+        TAG_MP4A,
+        TAG_OPUS,
+    ]
+)
 
-VIDEO_SAMPLE_DESCRIPTIONS = frozenset([
-    TAG_NONE,
-    TAG_AVC1,
-    TAG_VP09,
-    TAG_AV01,
-    TAG_HEV1,
-    TAG_HVC1,
-    TAG_DVH1,
-    TAG_APCN,
-    TAG_APCH,
-    TAG_APCS,
-    TAG_APCO,
-    TAG_AP4H,
-    TAG_AP4X
-    ])
+VIDEO_SAMPLE_DESCRIPTIONS = frozenset(
+    [
+        TAG_NONE,
+        TAG_AVC1,
+        TAG_VP09,
+        TAG_AV01,
+        TAG_HEV1,
+        TAG_HVC1,
+        TAG_DVH1,
+        TAG_APCN,
+        TAG_APCH,
+        TAG_APCS,
+        TAG_APCO,
+        TAG_AP4H,
+        TAG_AP4X,
+    ]
+)
 
-CONTAINERS_LIST = frozenset([
-    TAG_MDIA,
-    TAG_MINF,
-    TAG_MOOV,
-    TAG_STBL,
-    TAG_STSD,
-    TAG_TRAK,
-    TAG_UDTA,
-    TAG_WAVE,
-    TAG_SV3D,
-    TAG_PROJ
-    ]).union(SOUND_SAMPLE_DESCRIPTIONS).union(VIDEO_SAMPLE_DESCRIPTIONS)
+CONTAINERS_LIST = (
+    frozenset(
+        [
+            TAG_MDIA,
+            TAG_MINF,
+            TAG_MOOV,
+            TAG_STBL,
+            TAG_STSD,
+            TAG_TRAK,
+            TAG_UDTA,
+            TAG_WAVE,
+            TAG_SV3D,
+            TAG_PROJ,
+        ]
+    )
+    .union(SOUND_SAMPLE_DESCRIPTIONS)
+    .union(VIDEO_SAMPLE_DESCRIPTIONS)
+)

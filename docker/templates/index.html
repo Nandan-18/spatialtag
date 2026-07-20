@@ -42,9 +42,18 @@
                     </label>
 
                     <label class="checkbox-container indent" id="3d-option-container">
-                        <input type="checkbox" id="3d">
+                        <span class="label-text">Stereo mode</span>
+                        <select id="stereo-mode">
+                            <option value="none">none</option>
+                            <option value="left-right">left-right</option>
+                            <option value="top-bottom">top-bottom</option>
+                        </select>
+                    </label>
+
+                    <label class="checkbox-container">
+                        <input type="checkbox" id="inplace" checked>
                         <span class="checkmark"></span>
-                        <span class="label-text">My video is stereoscopic 3D (top/bottom layout)</span>
+                        <span class="label-text">Inject in place (avoids a second full copy)</span>
                     </label>
 
                     <label class="checkbox-container">

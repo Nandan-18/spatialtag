@@ -1,6 +1,6 @@
 # Spatial Media Metadata Injector
 
-A tool for manipulating spatial media 
+A tool for manipulating spatial media
 ([spherical video](../docs/spherical-video-rfc.md) and
 [spatial audio](../docs/spatial-audio-rfc.md)) metadata in MP4 and MOV files.
 It can be used to inject spatial media metadata into a file or validate metadata
@@ -8,37 +8,46 @@ in an existing file.
 
 ## Usage
 
-[Python 2.7](https://www.python.org/downloads/) must be used to run the tool.
-From within the directory above `spatialmedia`:
+**Python 3.9+** is required. From the repository root (or after `pip install -e .`):
 
 #### Help
 
-    python spatialmedia -h
+    python3 -m spatialmedia -h
 
 Prints help and usage information.
 
 #### Examine
 
-    python spatialmedia <files...>
+    python3 -m spatialmedia <files...>
 
 For each file specified, prints spatial media metadata contained in the file.
 
 #### Inject
 
-    python spatialmedia -i [--stereo=(none|top-bottom|left-right)] [--spatial-audio] <input> <output>
+    python3 -m spatialmedia -i [--stereo=(none|top-bottom|left-right)] [--spatial-audio] <input> <output>
 
 Saves a version of `<input>` injected with spatial media metadata to `<output>`.
 
 #### In-place inject
 
-Input and output may be the same path. The tool rewrites only the trailing
-`moov` metadata box when media offsets would not change (typically when
-`moov` follows `mdat`). This avoids making a full second copy of large files.
+Rewrite metadata without making a full second copy of the media. Requires a
+layout where `mdat` offsets would not change (typically `moov` after `mdat`).
 
-    python spatialmedia -i [--stereo=...] <file> <file>
+    python3 -m spatialmedia -I [--stereo=...] <file>
+
+You can also pass the same path twice with `-i`:
+
+    python3 -m spatialmedia -i [--stereo=...] <file> <file>
 
 If the file layout would require moving `mdat` (for example `moov` before
 `mdat`), in-place inject is refused and a separate output path must be used.
+
+#### VR180 helper
+
+For side-by-side equirectangular VR180, `--vr180` derives stereo mode and 180°
+crop / v2 bounds from the video track dimensions:
+
+    python3 -m spatialmedia -I --vr180 <file>
 
 ##### --stereo
 
@@ -62,9 +71,15 @@ Enables injection of spatial audio metadata. If enabled, the file must contain a
 normalization; see the [Spatial Audio RFC](../docs/spatial-audio-rfc.md) for
 more information.
 
+## GUI
+
+    python3 -m spatialmedia.gui
+
+Supports spherical + stereoscopic (left-right or top-bottom) and spatial audio.
+For large files or headless use, prefer the [Docker web UI](../docker/).
+
 ## Building standalone GUI application
 
-Install [PyInstaller](http://pythonhosted.org/PyInstaller/), then run the
-following:
+Install [PyInstaller](https://pyinstaller.org/), then run:
 
-    pyinstaller spatial_media_metadata_injector.spec
+    pyinstaller spatialmedia/spatial_media_metadata_injector.spec
