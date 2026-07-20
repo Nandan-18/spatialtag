@@ -515,15 +515,15 @@ pre code {
 }
 
 .compare-bad {
-  background: #f5f5f7;
+  background: var(--bg-gray);
 }
 
 .compare-good {
-  background: linear-gradient(180deg, #e8f4fc 0%, #f5f5f7 100%);
+  background: linear-gradient(180deg, #d8ebe9 0%, var(--bg-gray) 100%);
 }
 
 .compare-audio {
-  background: linear-gradient(180deg, #f3ecff 0%, #f5f5f7 100%);
+  background: linear-gradient(180deg, #e4ebe3 0%, var(--bg-gray) 100%);
 }
 
 .audio-waves {
@@ -537,7 +537,7 @@ pre code {
   display: block;
   width: 8px;
   border-radius: 4px;
-  background: linear-gradient(180deg, #bf5af2, #7d47c9);
+  background: linear-gradient(180deg, #2a9d96, #0b7a75);
 }
 
 .audio-waves span:nth-child(1) { height: 24px; }
@@ -570,7 +570,7 @@ pre code {
   width: 80px;
   height: 80px;
   border-radius: 50%;
-  background: radial-gradient(circle at 30% 25%, #5ac8fa, #0066cc);
+  background: radial-gradient(circle at 30% 25%, #4cb8b1, #0b7a75);
 }
 
 .compare-card h3 {
@@ -598,7 +598,7 @@ pre code {
 }
 
 .format-card {
-  background: #fff;
+  background: var(--bg);
   border-radius: var(--radius);
   padding: 32px;
   text-align: center;
@@ -618,7 +618,7 @@ pre code {
   width: 160px;
   height: 48px;
   border-radius: 80px / 24px;
-  background: linear-gradient(90deg, #5ac8fa, #0066cc, #5856d6, #0066cc, #5ac8fa);
+  background: linear-gradient(90deg, #4cb8b1, #0b7a75, #1a5f5b, #0b7a75, #4cb8b1);
 }
 
 .format-vr180 {
@@ -629,7 +629,7 @@ pre code {
   width: 72px;
   height: 72px;
   border-radius: 50%;
-  background: radial-gradient(circle at 35% 30%, #a2d2ff, #0066cc);
+  background: radial-gradient(circle at 35% 30%, #7dcdc7, #0b7a75);
 }
 
 .ambix-channels {
@@ -708,8 +708,8 @@ pre code {
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.02em;
-  color: #0066cc;
-  background: rgba(0, 102, 204, 0.1);
+  color: var(--link);
+  background: rgba(11, 122, 117, 0.1);
 }
 
 .tool-card h3 {
