@@ -116,9 +116,9 @@ class TestAdd(unittest.TestCase):
         self.assertFalse(contents.find("PRHD") >= 0)
         self.assertFalse(contents.find("EQUI") >= 0)
         self.assertFalse(contents.find("ST3D") >= 0)
-        self.assertFalse(contents.find("ProjectionType = equirectangular") > 0)
-        self.assertTrue(contents.find("ProjectionType = rectangular") > 0)
-        self.assertTrue(contents.find("Spherical = false") > 0)
+        self.assertNotIn("ProjectionType = equirectangular", contents)
+        self.assertIn("ProjectionType = rectangular", contents)
+        self.assertIn("Spherical = false", contents)
 
     def test_inject_v2_equirect_mono(self):
         contents = self.inject_metadata(
@@ -293,8 +293,9 @@ class TestInPlace(unittest.TestCase):
         result = meta.inject_metadata(target, target, metadata, console)
         with open(target, "rb") as f:
             after = f.read()
+        self.assertFalse(result)
         self.assertEqual(original, after)
-        joined = "\n".join(logs) + (result or "")
+        joined = "\n".join(logs)
         self.assertTrue("in-place" in joined.lower() or "mdat" in joined.lower(), msg=joined)
 
     def test_in_place_flag_and_vr180(self):
@@ -433,10 +434,70 @@ class TestMetadataConflictClearing(unittest.TestCase):
         self.assertNotIn("SV3D", text)
 
 
+class TestInjectStatus(unittest.TestCase):
+    def setUp(self):
+        _ensure_output_dir()
+
+    def test_inplace_fails_closed_for_moov_first(self):
+        target = f"{_OUTPUT_DIR}/moov_first_inplace_fail.mp4"
+        shutil.copyfile("tests/fixtures/h264-moov-first.mp4", target)
+        before = os.path.getsize(target)
+        code, out = _run_main(["-I", "--stereo=left-right", target])
+        self.assertEqual(code, 1)
+        self.assertEqual(os.path.getsize(target), before)
+        self.assertNotIn("Saved file settings", out)
+
+    def test_invalid_bounds_exits_nonzero(self):
+        code, out = _run_main(
+            [
+                "-i",
+                "-2",
+                "--bounds",
+                "1:2:3",
+                _FIXTURE_H264,
+                f"{_OUTPUT_DIR}/bad_bounds.mp4",
+            ]
+        )
+        self.assertEqual(code, 1)
+        self.assertIn("bounds", out.lower())
+
+    def test_descriptor_length_multibyte(self):
+        raw = io.BytesIO(bytes([0x81, 0x48]))  # MPEG base-128 encoding of 200
+        self.assertEqual(meta.get_descriptor_length(raw), 200)
+
+    def test_aac_channels_missing_esds_returns_minus_one(self):
+        class FakeBox:
+            name = b"mp4a"
+            contents = []
+
+        self.assertEqual(meta.get_aac_num_channels(FakeBox(), io.BytesIO()), -1)
+
+    def test_v2_parse_fills_video_dict(self):
+        output = f"{_OUTPUT_DIR}/v2_parse_fields.mp4"
+        self.assertEqual(
+            main(
+                [
+                    "-i",
+                    "-2",
+                    "--stereo",
+                    "left-right",
+                    _FIXTURE_H264,
+                    output,
+                ]
+            ),
+            0,
+        )
+        parsed = meta.parse_metadata(output, lambda _x: None)
+        track = next(iter(parsed.video.values()))
+        self.assertEqual(track.get("Spherical"), "true")
+        self.assertEqual(track.get("StereoMode"), "left-right")
+
+
 class TestSpatialAudio(unittest.TestCase):
     def test_get_spatial_audio_description_orders(self):
         unsupported = meta.get_spatial_audio_description(2)
         self.assertFalse(unsupported.is_supported)
+        self.assertFalse(unsupported.has_head_locked_stereo)
 
         first_order = meta.get_spatial_audio_description(4)
         self.assertTrue(first_order.is_supported)

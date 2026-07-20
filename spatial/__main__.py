@@ -147,6 +147,8 @@ def main(main_args):
             )
 
         metadata = meta.Metadata(projection, stereo_mode, bounds)
+        if metadata.bounds_error:
+            return 1
         if args.vr180:
             # Keep v2 fields and also write v1 XML with crop for broader players.
             metadata.video = meta.generate_spherical_xml(projection, stereo_mode, crop)
@@ -178,8 +180,9 @@ def main(main_args):
                 return 1
 
         if metadata.video or metadata.projection or metadata.stereo_mode or metadata.audio:
-            meta.inject_metadata(input_file, output_file, metadata, console)
-            return 0
+            if meta.inject_metadata(input_file, output_file, metadata, console):
+                return 0
+            return 1
 
         console("Failed to generate metadata.")
         return 1

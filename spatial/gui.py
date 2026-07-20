@@ -138,17 +138,16 @@ class Application(tk.Frame):
             base_filename = split_filename[0]
             extension = split_filename[1]
 
-            # Create output filename for each file
-            # Fix: Use self.save_file directly as it's already the correct directory path
             output_file = os.path.join(
-                # os.path.dirname(self.save_file), # Remove os.path.dirname() call to fix directory path issue
-                self.save_file,  # Remove os.path.dirname() call
+                self.save_file,
                 f"{base_filename}_injected{extension}",
             )
 
             try:
-                meta.inject_metadata(input_file, output_file, metadata, console.append)
-                success_count += 1
+                if meta.inject_metadata(input_file, output_file, metadata, console.append):
+                    success_count += 1
+                else:
+                    console.append(f"Failed to inject metadata for {ntpath.basename(input_file)}")
             except Exception as e:
                 console.append(f"Error processing {ntpath.basename(input_file)}: {str(e)}")
 

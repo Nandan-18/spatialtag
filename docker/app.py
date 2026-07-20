@@ -161,13 +161,14 @@ def inject_metadata():
                             desc.order, desc.has_head_locked_stereo
                         )
 
-            meta.inject_metadata(input_path, output_path, metadata, console.append)
+            ok = meta.inject_metadata(input_path, output_path, metadata, console.append)
             results.append(
                 {
                     "filename": raw_filename,
-                    "output_url": f"/download/{batch_id}/{output_filename}",
+                    "output_url": f"/download/{batch_id}/{output_filename}" if ok else None,
                     "logs": console.log,
-                    "success": True,
+                    "success": bool(ok),
+                    "error": None if ok else "Inject failed",
                 }
             )
         except Exception as e:

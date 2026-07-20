@@ -83,11 +83,17 @@ class Metadata:
     def __init__(self, projection=None, stereo_mode=None, bounds=None):
         self.projection = None if (not projection or projection == "none") else projection
         self.stereo_mode = None if (not stereo_mode or stereo_mode == "none") else stereo_mode
+        self.bounds_error = False
         if bounds:
-            bounds = [max(0, min(int(b, 0), 0xFFFFFFFF)) for b in bounds.split(":")]
-            if len(bounds) != 4:
+            parts = bounds.split(":")
+            if len(parts) != 4:
                 print("Error: input bounds is incorrectly specified")
-        self.bounds = bounds
+                self.bounds = None
+                self.bounds_error = True
+            else:
+                self.bounds = [max(0, min(int(b, 0), 0xFFFFFFFF)) for b in parts]
+        else:
+            self.bounds = None
         self.video = None
         self.audio = None
 
@@ -121,7 +127,7 @@ def get_spatial_audio_description(num_channels):
         elif ((i + 1) * (i + 1) + 2) == num_channels:
             return SpatialAudioDescription(order=i, is_supported=True, has_head_locked_stereo=True)
 
-    return SpatialAudioDescription(order=-1, is_supported=False, has_head_locked_stereo=True)
+    return SpatialAudioDescription(order=-1, is_supported=False, has_head_locked_stereo=False)
 
 
 def spherical_uuid(metadata):
@@ -153,9 +159,10 @@ def mpeg4_add_spherical_xml_v1(mpeg4_file, in_fh, metadata):
       in_fh: file handle, Source for uncached file contents.
       metadata: string, xml metadata to inject into spherical tag.
     """
+    added_any = False
     for element in mpeg4_file.moov_box.contents:
         if element.name == mpeg.constants.TAG_TRAK:
-            added = False
+            is_video = False
             element.remove(mpeg.constants.TAG_UUID)
             for sub_element in element.contents:
                 if sub_element.name != mpeg.constants.TAG_MDIA:
@@ -166,19 +173,22 @@ def mpeg4_add_spherical_xml_v1(mpeg4_file, in_fh, metadata):
                     position = mdia_sub_element.content_start() + 8
                     in_fh.seek(position)
                     if in_fh.read(4) == mpeg.constants.TRAK_TYPE_VIDE:
-                        added = True
+                        is_video = True
                         break
-
-                if added:
-                    if not element.add(spherical_uuid(metadata)):
-                        return False
+                if is_video:
                     break
 
+            if is_video:
+                if not element.add(spherical_uuid(metadata)):
+                    return False
+                added_any = True
+
     mpeg4_file.resize()
-    return True
+    return added_any
 
 
 def mpeg4_add_spherical_v2(mpeg4_file, in_fh, projection, stereo_mode, bounds):
+    injected = False
     for element in mpeg4_file.moov_box.contents:
         if element.name == mpeg.constants.TAG_TRAK:
             for sub_element in element.contents:
@@ -190,11 +200,14 @@ def mpeg4_add_spherical_v2(mpeg4_file, in_fh, projection, stereo_mode, bounds):
                     position = mdia_sub_element.content_start() + 8
                     in_fh.seek(position)
                     if in_fh.read(4) == mpeg.constants.TAG_VIDE:
-                        ret = inject_spatial_video_v2_atoms(
+                        if not inject_spatial_video_v2_atoms(
                             in_fh, sub_element, projection, stereo_mode, bounds
-                        )
-                        mpeg4_file.resize()
-                        return ret
+                        ):
+                            return False
+                        injected = True
+    if injected:
+        mpeg4_file.resize()
+    return injected
 
 
 def inject_spatial_video_v2_atoms(in_fh, video_media_atom, projection, stereo_mode, bounds):
@@ -276,7 +289,7 @@ def mpeg4_add_spatial_audio(mpeg4_file, in_fh, audio_metadata, console):
                         return inject_spatial_audio_atom(
                             in_fh, sub_element, audio_metadata, console
                         )
-    return True
+    return False
 
 
 def mpeg4_add_audio_metadata(mpeg4_file, in_fh, audio_metadata, console):
@@ -289,6 +302,7 @@ def mpeg4_add_audio_metadata(mpeg4_file, in_fh, audio_metadata, console):
 
 
 def inject_spatial_audio_atom(in_fh, audio_media_atom, audio_metadata, console):
+    injected = False
     for atom in audio_media_atom.contents:
         if atom.name != mpeg.constants.TAG_MINF:
             continue
@@ -332,7 +346,8 @@ def inject_spatial_audio_atom(in_fh, audio_media_atom, audio_metadata, console):
                         sa3d_atom = mpeg.SA3DBox.create(num_channels, audio_metadata)
                         sample_description.remove(mpeg.constants.TAG_SA3D)
                         sample_description.contents.append(sa3d_atom)
-    return True
+                        injected = True
+    return injected
 
 
 def parse_spherical_xml(contents, console):
@@ -355,7 +370,7 @@ def parse_spherical_xml(contents, console):
                 index += len("<rdf:SphericalVideo")
                 contents = contents[:index] + RDF_PREFIX + contents[index:]
             parsed_xml = xml.etree.ElementTree.XML(contents)
-            console("\t\tWarning missing rdf prefix:", RDF_PREFIX)
+            console(f"\t\tWarning missing rdf prefix: {RDF_PREFIX}")
         except xml.etree.ElementTree.ParseError:
             console("\t\tParser Error on XML")
             console(traceback.format_exc())
@@ -365,8 +380,9 @@ def parse_spherical_xml(contents, console):
     sphericalDictionary = dict()
     for child in list(parsed_xml):
         if child.tag in SPHERICAL_TAGS.keys():
-            console("\t\t" + SPHERICAL_TAGS[child.tag] + " = " + child.text)
-            sphericalDictionary[SPHERICAL_TAGS[child.tag]] = child.text
+            text = child.text or ""
+            console("\t\t" + SPHERICAL_TAGS[child.tag] + " = " + text)
+            sphericalDictionary[SPHERICAL_TAGS[child.tag]] = text
         else:
             tag = child.tag
             if child.tag[: len(SPHERICAL_PREFIX)] == SPHERICAL_PREFIX:
@@ -440,15 +456,26 @@ def parse_spherical_mpeg4(mpeg4_file, fh, console):
                                         not in mpeg.constants.VIDEO_SAMPLE_DESCRIPTIONS
                                     ):
                                         continue
+                                    track_meta = metadata.video.setdefault(trackName, {})
                                     for sub_elem in sv3d_container_elem.contents:
                                         if sub_elem.name == mpeg.constants.TAG_SV3D:
                                             console("\t\tSV3D {")
                                             sub_elem.print_box(console)
                                             console("\t\t}")
+                                            track_meta.setdefault("Spherical", "true")
+                                            track_meta.setdefault(
+                                                "ProjectionType", "equirectangular"
+                                            )
                                         elif sub_elem.name == mpeg.constants.TAG_ST3D:
                                             console("\t\tST3D {")
                                             sub_elem.print_box(console)
                                             console("\t\t} ")
+                                            stereo = {
+                                                1: "top-bottom",
+                                                2: "left-right",
+                                            }.get(sub_elem.stereo_mode)
+                                            if stereo:
+                                                track_meta["StereoMode"] = stereo
 
     return metadata
 
@@ -559,23 +586,25 @@ def _apply_metadata_to_mpeg4(mpeg4_file, in_fh, metadata, console):
 
 
 def inject_mpeg4(input_file, output_file, metadata, console):
-    with open(input_file, "rb") as in_fh:
-        mpeg4_file = mpeg.load(in_fh)
-        if mpeg4_file is None:
-            console("Error file could not be opened.")
-            return
+    try:
+        with open(input_file, "rb") as in_fh:
+            mpeg4_file = mpeg.load(in_fh)
+            if mpeg4_file is None:
+                console("Error file could not be opened.")
+                return False
 
-        if not _apply_metadata_to_mpeg4(mpeg4_file, in_fh, metadata, console):
-            return
+            if not _apply_metadata_to_mpeg4(mpeg4_file, in_fh, metadata, console):
+                return False
 
-        console("Saved file settings")
-        parse_spherical_mpeg4(mpeg4_file, in_fh, console)
+            with open(output_file, "wb") as out_fh:
+                mpeg4_file.save(in_fh, out_fh)
 
-        with open(output_file, "wb") as out_fh:
-            mpeg4_file.save(in_fh, out_fh)
-        return
-
-    console('Error file: "' + input_file + '" does not exist or do not have permission.')
+            console("Saved file settings")
+            parse_spherical_mpeg4(mpeg4_file, in_fh, console)
+            return True
+    except OSError:
+        console('Error file: "' + input_file + '" does not exist or do not have permission.')
+        return False
 
 
 def inject_mpeg4_inplace(input_file, metadata, console):
@@ -583,25 +612,26 @@ def inject_mpeg4_inplace(input_file, metadata, console):
         fh = open(input_file, "r+b")
     except OSError:
         console('Error file: "' + input_file + '" does not exist or do not have permission.')
-        return
+        return False
 
     with fh:
         mpeg4_file = mpeg.load(fh)
         if mpeg4_file is None:
             console("Error file could not be opened.")
-            return
+            return False
 
         if not _apply_metadata_to_mpeg4(mpeg4_file, fh, metadata, console):
-            return
-
-        console("Saved file settings")
-        parse_spherical_mpeg4(mpeg4_file, fh, console)
+            return False
 
         try:
             mpeg4_file.save_moov_inplace(fh)
         except ValueError as exc:
             console(str(exc))
-            return
+            return False
+
+        console("Saved file settings")
+        parse_spherical_mpeg4(mpeg4_file, fh, console)
+        return True
 
 
 def parse_metadata(src, console):
@@ -633,7 +663,7 @@ def inject_metadata(src, dest, metadata, console):
         in_fh.close()
     except OSError:
         console("Error: " + infile + " does not exist or we do not have permission")
-        return
+        return False
 
     console("Processing: " + infile)
 
@@ -641,13 +671,12 @@ def inject_metadata(src, dest, metadata, console):
 
     if extension not in MPEG_FILE_EXTENSIONS:
         console("Unknown file type")
-        return
+        return False
 
     if infile == outfile:
-        inject_mpeg4_inplace(infile, metadata, console)
-        return
+        return bool(inject_mpeg4_inplace(infile, metadata, console))
 
-    inject_mpeg4(infile, outfile, metadata, console)
+    return bool(inject_mpeg4(infile, outfile, metadata, console))
 
 
 def generate_spherical_xml(projection="equirectangular", stereo=None, crop=None):
@@ -741,8 +770,8 @@ def get_descriptor_length(in_fh):
     descriptor_length = 0
     for _i in range(4):
         size_byte = struct.unpack(">c", in_fh.read(1))[0]
-        descriptor_length = descriptor_length << 7 | ord(size_byte) & int("0x7f", 0)
-        if ord(size_byte) != int("0x80", 0):
+        descriptor_length = (descriptor_length << 7) | (ord(size_byte) & 0x7F)
+        if not (ord(size_byte) & 0x80):
             break
     return descriptor_length
 
@@ -803,6 +832,7 @@ def get_aac_num_channels(box, in_fh):
     if box.name not in [mpeg.constants.TAG_MP4A, mpeg.constants.TAG_WAVE]:
         return -1
 
+    channel_configuration = -1
     for element in box.contents:
         if element.name == mpeg.constants.TAG_WAVE:
             # Handle .mov with AAC audio, where the structure is:
@@ -845,6 +875,7 @@ def get_aac_num_channels(box, in_fh):
             print("Error: Greater than 48khz audio is currently not supported.")
             return -1
         channel_configuration = (int("0078", 16) & decoder_descriptor) >> 3
+        break
     in_fh.seek(p)
     return channel_configuration
 
