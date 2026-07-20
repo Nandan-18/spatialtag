@@ -464,7 +464,81 @@ def parse_mpeg4(input_file, console):
             "permission.")
 
 
+def mpeg4_clear_spherical_v1(mpeg4_file):
+    """Remove spherical v1 UUID boxes from all tracks."""
+    for element in mpeg4_file.moov_box.contents:
+        if element.name == mpeg.constants.TAG_TRAK:
+            element.remove(mpeg.constants.TAG_UUID)
+
+
+def mpeg4_clear_spherical_v2(mpeg4_file):
+    """Remove spherical v2 st3d/sv3d boxes from video sample descriptions."""
+    for element in mpeg4_file.moov_box.contents:
+        if element.name != mpeg.constants.TAG_TRAK:
+            continue
+        for sub_element in element.contents:
+            if sub_element.name != mpeg.constants.TAG_MDIA:
+                continue
+            for mdia_sub in sub_element.contents:
+                if mdia_sub.name != mpeg.constants.TAG_MINF:
+                    continue
+                for minf_sub in mdia_sub.contents:
+                    if minf_sub.name != mpeg.constants.TAG_STBL:
+                        continue
+                    for stbl_sub in minf_sub.contents:
+                        if stbl_sub.name != mpeg.constants.TAG_STSD:
+                            continue
+                        for sample_description in stbl_sub.contents:
+                            if sample_description.name in mpeg.constants.VIDEO_SAMPLE_DESCRIPTIONS:
+                                sample_description.remove(mpeg.constants.TAG_ST3D)
+                                sample_description.remove(mpeg.constants.TAG_SV3D)
+    mpeg4_file.resize()
+
+
+def get_video_dimensions(src):
+    """Return (width, height) of the first video track, or None."""
+    infile = os.path.abspath(src)
+    try:
+        with open(infile, "rb") as in_fh:
+            mpeg4_file = mpeg.load(in_fh)
+            if mpeg4_file is None:
+                return None
+            for element in mpeg4_file.moov_box.contents:
+                if element.name != mpeg.constants.TAG_TRAK:
+                    continue
+                is_video = False
+                for sub_element in element.contents:
+                    if sub_element.name != mpeg.constants.TAG_MDIA:
+                        continue
+                    for mdia_sub in sub_element.contents:
+                        if mdia_sub.name != mpeg.constants.TAG_HDLR:
+                            continue
+                        in_fh.seek(mdia_sub.content_start() + 8)
+                        if in_fh.read(4) == mpeg.constants.TAG_VIDE:
+                            is_video = True
+                if not is_video:
+                    continue
+                for sub_element in element.contents:
+                    if sub_element.name != mpeg.constants.TAG_TKHD:
+                        continue
+                    in_fh.seek(sub_element.position + sub_element.size() - 8)
+                    width_fixed, height_fixed = struct.unpack(">II", in_fh.read(8))
+                    return (int(width_fixed / 65536), int(height_fixed / 65536))
+    except OSError:
+        return None
+    return None
+
+
 def _apply_metadata_to_mpeg4(mpeg4_file, in_fh, metadata, console):
+    applying_v1 = bool(metadata.video)
+    applying_v2 = bool(metadata.projection or metadata.stereo_mode)
+
+    # Avoid leftover conflicting tags when switching metadata versions.
+    if applying_v2 and not applying_v1:
+        mpeg4_clear_spherical_v1(mpeg4_file)
+    if applying_v1 and not applying_v2:
+        mpeg4_clear_spherical_v2(mpeg4_file)
+
     if metadata.video and not mpeg4_add_spherical_xml_v1(
             mpeg4_file, in_fh, metadata.video):
         console("Error failed to insert spherical data")
