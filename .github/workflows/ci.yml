@@ -7,6 +7,7 @@ on:
       - "spatial/**"
       - "tests/**"
       - "docker/**"
+      - "tools/**"
       - "pyproject.toml"
       - ".github/workflows/ci.yml"
   pull_request:
@@ -27,6 +28,12 @@ jobs:
         run: python -m ruff check spatial tests/test.py docker
       - name: Ruff format
         run: python -m ruff format --check spatial tests/test.py docker
+      - name: Generate spatial-audio fixture
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg
+          ffmpeg -y -f lavfi -i testsrc=size=320x240:rate=1 -f lavfi -i anullsrc=r=48000:cl=4.0 \
+            -t 0.05 -c:v libx264 -c:a aac -shortest tests/fixtures/h264-4ch.mp4
       - name: Unit tests
         run: python tests/test.py -v
       - name: Mypy (mpeg package)

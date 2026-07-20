@@ -1,0 +1,14 @@
+.git
+.github
+web/node_modules
+web/dist
+docs/superpowers
+**/__pycache__
+**/*.pyc
+.pytest_cache
+.ruff_cache
+.mypy_cache
+tests/output
+*.egg-info
+.venv
+venv
