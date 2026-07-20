@@ -193,29 +193,39 @@ def render_doc_page(title: str, body_html: str, current_page: str) -> str:
     site_href = relpath(current_page, "assets/css/site.css")
     favicon = render_favicon_links(current_page)
     site_js = html.escape(relpath(current_page, "assets/js/site.js"))
+    home_href = html.escape(nav_href(current_page, "index.html"))
+    description = html.escape(
+        f"{title} — SpatialTag docs for immersive MP4/MOV metadata "
+        "(360°, VR180, and spatial audio)."
+    )
     return f"""<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="{description}" />
+  <meta property="og:title" content="{html.escape(title)} · SpatialTag" />
+  <meta property="og:description" content="{description}" />
+  <meta property="og:type" content="article" />
   <title>{html.escape(title)} · SpatialTag</title>
   {favicon}
   <link rel="stylesheet" href="{html.escape(style_href)}" />
   <link rel="stylesheet" href="{html.escape(site_href)}" />
 </head>
 <body class="doc-page">
+  <a class="skip-link" href="#doc-content">Skip to content</a>
   {global_nav}
   <div class="docs-layout">
     {sidebar}
     <div class="docs-main">
-      <main class="doc-content">
+      <main class="doc-content" id="doc-content">
         <h1>{html.escape(title)}</h1>
         {body_html}
       </main>
       <footer class="doc-footer">
         <div class="footer-bottom">
           <p>SpatialTag &middot;
-            <a href="{html.escape(nav_href(current_page, "index.html"))}">Home</a>
+            <a href="{home_href}">Home</a>
             <span aria-hidden="true">&middot;</span>
             <a href="{html.escape(nav_href(current_page, "docs/download.html"))}">Download</a>
             <span aria-hidden="true">&middot;</span>
@@ -229,6 +239,52 @@ def render_doc_page(title: str, body_html: str, current_page: str) -> str:
 </body>
 </html>
 """
+
+
+def render_404_page() -> str:
+    style_href = "assets/css/style.css"
+    site_href = "assets/css/site.css"
+    favicon = render_favicon_links("404.html")
+    global_nav = render_global_nav("404.html")
+    return f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Page not found — SpatialTag." />
+  <meta name="robots" content="noindex" />
+  <title>Not found · SpatialTag</title>
+  {favicon}
+  <link rel="stylesheet" href="{style_href}" />
+  <link rel="stylesheet" href="{site_href}" />
+</head>
+<body class="doc-page">
+  {global_nav}
+  <main class="doc-content" style="max-width:640px;margin:80px auto;padding:0 22px;">
+    <h1>Page not found</h1>
+    <p>That URL is not part of the SpatialTag docs site.</p>
+    <p>
+      <a href="index.html">Home</a>
+      &middot;
+      <a href="docs/index.html">Docs</a>
+      &middot;
+      <a href="docs/download.html">Download</a>
+    </p>
+  </main>
+</body>
+</html>
+"""
+
+
+_NAV_RE = re.compile(
+    r'<nav class="global-nav" aria-label="Global">.*?</nav>',
+    re.DOTALL,
+)
+
+
+def sync_index_nav(index_html: str) -> str:
+    """Keep homepage global nav in sync with GLOBAL_NAV_LINKS."""
+    return _NAV_RE.sub(render_global_nav("index.html"), index_html, count=1)
 
 
 def prepare_markdown(text: str, out_rel: str) -> str:
@@ -270,7 +326,9 @@ def build_site(output_dir: Path) -> None:
     output_dir.mkdir(parents=True)
 
     shutil.copytree(WEB / "assets", output_dir / "assets")
-    shutil.copy2(WEB / "index.html", output_dir / "index.html")
+    index_src = (WEB / "index.html").read_text(encoding="utf-8")
+    (output_dir / "index.html").write_text(sync_index_nav(index_src), encoding="utf-8")
+    (output_dir / "404.html").write_text(render_404_page(), encoding="utf-8")
     serve_json = WEB / "serve.json"
     if serve_json.is_file():
         shutil.copy2(serve_json, output_dir / "serve.json")
