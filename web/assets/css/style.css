@@ -1,18 +1,52 @@
+@font-face {
+  font-family: "Fraunces";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("../fonts/fraunces-latin-600.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Source Sans 3";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("../fonts/source-sans-3-latin-400.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Source Sans 3";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("../fonts/source-sans-3-latin-600.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "IBM Plex Mono";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("../fonts/ibm-plex-mono-latin-400.woff2") format("woff2");
+}
+
 :root {
-  --bg: #fbfbfd;
-  --bg-gray: #f5f5f7;
-  --bg-dark: #000;
-  --text: #1d1d1f;
-  --text-secondary: #6e6e73;
-  --text-tertiary: #86868b;
-  --link: #0066cc;
-  --link-hover: #0077ed;
-  --border: rgba(0, 0, 0, 0.08);
+  --bg: #f7f4ef;
+  --bg-gray: #ebe6de;
+  --bg-dark: #1a2332;
+  --bg-code: #1a2332;
+  --text: #12141a;
+  --text-secondary: #4a4e57;
+  --text-tertiary: #6b7080;
+  --link: #0b7a75;
+  --link-hover: #096660;
+  --border: rgba(18, 20, 26, 0.1);
   --radius: 18px;
   --radius-sm: 12px;
   --max: 980px;
-  --font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  --mono: "SF Mono", SFMono-Regular, ui-monospace, Menlo, Monaco, Consolas, monospace;
+  --font: "Source Sans 3", "Segoe UI", Helvetica, Arial, sans-serif;
+  --font-display: "Fraunces", Georgia, "Times New Roman", serif;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, Monaco, Consolas, monospace;
   --nav-h: 44px;
   --ease: cubic-bezier(0.25, 0.1, 0.25, 1);
 }
@@ -84,7 +118,7 @@ pre code {
   top: 0;
   z-index: 100;
   min-height: var(--nav-h);
-  background: rgba(251, 251, 253, 0.72);
+  background: rgba(247, 244, 239, 0.72);
   backdrop-filter: saturate(180%) blur(20px);
   -webkit-backdrop-filter: saturate(180%) blur(20px);
   border-bottom: 1px solid var(--border);
@@ -102,6 +136,7 @@ pre code {
 }
 
 .nav-logo {
+  font-family: var(--font-display);
   font-size: 15px;
   font-weight: 600;
   color: var(--text);
