@@ -14,24 +14,24 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-"""Spatial Media Metadata Injector 
+"""Spatial Media Metadata Injector
 
 Tool for examining and injecting spatial media metadata in MP4/MOV files.
 """
 
 import argparse
-import os
-import re
 import sys
 
-path = os.path.dirname(sys.modules[__name__].__file__)
-path = os.path.join(path, '..')
-sys.path.insert(0, path)
 from spatialmedia import metadata_utils
 
 
 def console(contents):
   print(contents)
+
+
+def main_entry():
+  """Console-script entry point."""
+  main(sys.argv[1:])
 
 
 def main(main_args):
@@ -49,11 +49,24 @@ def main(main_args):
       "injects spatial media metadata into the first file specified (.mp4 or "
       ".mov) and saves the result to the second file specified")
   parser.add_argument(
+      "-I",
+      "--in-place",
+      action="store_true",
+      help=
+      "inject metadata into a single file in place (no second full copy when "
+      "supported by the file layout)")
+  parser.add_argument(
       "-2",
       "--v2",
       action="store_true",
       help=
       "Uses v2 of the video metadata spec")
+  parser.add_argument(
+      "--vr180",
+      action="store_true",
+      help=
+      "VR180 side-by-side helper: sets left-right stereo plus 180° crop and "
+      "v2 equirect bounds from the video dimensions")
   video_group = parser.add_argument_group("Spherical Video")
   video_group.add_argument("-s",
                            "--stereo",
@@ -102,21 +115,64 @@ def main(main_args):
 
   args = parser.parse_args(main_args)
 
-  if args.inject:
-    if len(args.file) != 2:
-      console("Injecting metadata requires both an input file and output file.")
-      return
+  if args.in_place and args.inject:
+    console("Use either -i/--inject or -I/--in-place, not both.")
+    return
 
-    metadata = metadata_utils.Metadata(args.projection, args.stereo_mode, args.bounds)
-    if not args.v2:
+  do_inject = args.inject or args.in_place
+  if do_inject:
+    if args.in_place:
+      if len(args.file) != 1:
+        console("In-place inject requires exactly one file.")
+        return
+      input_file = args.file[0]
+      output_file = args.file[0]
+    else:
+      if len(args.file) != 2:
+        console("Injecting metadata requires both an input file and output file.")
+        return
+      input_file = args.file[0]
+      output_file = args.file[1]
+
+    stereo_mode = args.stereo_mode
+    projection = args.projection
+    crop = args.crop
+    bounds = args.bounds
+    use_v2 = args.v2
+
+    if args.vr180:
+      dims = metadata_utils.get_video_dimensions(input_file)
+      if not dims:
+        console("Could not read video dimensions for --vr180.")
+        return
+      width, height = dims
+      if width < 2 or height < 1:
+        console("Invalid video dimensions for --vr180: %dx%d" % (width, height))
+        return
+      eye_w = width // 2
+      eye_h = height
+      stereo_mode = "left-right"
+      projection = "equirectangular"
+      crop = "%d:%d:%d:%d:%d:0" % (
+          eye_w, eye_h, eye_w * 2, eye_h, eye_w // 2)
+      bounds = "0:0:0x40000000:0x40000000"
+      use_v2 = True
+      console("VR180 settings: %dx%d frame, crop=%s, bounds=%s" % (
+          width, height, crop, bounds))
+
+    metadata = metadata_utils.Metadata(projection, stereo_mode, bounds)
+    if args.vr180:
+      # Keep v2 fields and also write v1 XML with crop for broader players.
+      metadata.video = metadata_utils.generate_spherical_xml(
+          projection, stereo_mode, crop)
+    elif not use_v2:
       metadata.projection = None
       metadata.stereo_mode = None
-      metadata.video = metadata_utils.generate_spherical_xml(args.projection,
-                                                             args.stereo_mode,
-                                                             args.crop)
+      metadata.video = metadata_utils.generate_spherical_xml(
+          projection, stereo_mode, crop)
 
     if args.spatial_audio:
-      parsed_metadata = metadata_utils.parse_metadata(args.file[0], console)
+      parsed_metadata = metadata_utils.parse_metadata(input_file, console)
       if not metadata.audio:
         spatial_audio_description = metadata_utils.get_spatial_audio_description(
             parsed_metadata.num_audio_channels)
@@ -130,8 +186,7 @@ def main(main_args):
           return
 
     if metadata.video or metadata.projection or metadata.stereo_mode:
-      metadata_utils.inject_metadata(args.file[0], args.file[1], metadata,
-                                     console)
+      metadata_utils.inject_metadata(input_file, output_file, metadata, console)
     else:
       console("Failed to generate metadata.")
     return
