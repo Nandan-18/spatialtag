@@ -11,18 +11,11 @@ import ctypes
 import traceback
 
 try:
-    # python 3
     import tkinter as tk
     from tkinter import filedialog, messagebox, ttk
 except ImportError:
-    # python 2
-    import Tkinter as tk
-    import tkMessageBox as messagebox
-    import tkFileDialog as filedialog
-    import ttk
-except ImportError:
     print("Tkinter library is not available.")
-    exit(0)
+    raise SystemExit(1) from None
 
 
 path = os.path.dirname(sys.modules[__name__].__file__)
@@ -50,7 +43,7 @@ class Console:
         self.log = []
 
     def append(self, text):
-        print(text.encode("utf-8"))
+        print(text)
         self.log.append(text)
 
 

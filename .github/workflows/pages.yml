@@ -24,7 +24,12 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.14"
 
       - name: Generate test fixture and run browser inject smoke test
         run: |
@@ -36,12 +41,12 @@ jobs:
 
       - name: Build static site
         run: |
-          python -m pip install markdown pygments
+          python -m pip install "markdown>=3.10.2" "pygments>=2.20"
           python web/build.py --output web/dist
 
-      - uses: actions/configure-pages@v5
-      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/configure-pages@v6
+      - uses: actions/upload-pages-artifact@v5
         with:
           path: web/dist
       - id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
