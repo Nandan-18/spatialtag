@@ -229,7 +229,7 @@ class TestInPlace(unittest.TestCase):
 
     def test_inject_inplace_refuses_moov_before_mdat(self):
         target = f"{_OUTPUT_DIR}/moov_before_mdat.mp4"
-        _reorder_moov_before_mdat("data/testsrc_320x240_h264.mp4", target)
+        shutil.copyfile("data/testsrc_320x240_h264_moov_first.mp4", target)
         with open(target, "rb") as f:
             original = f.read()
 
@@ -249,6 +249,17 @@ class TestInPlace(unittest.TestCase):
         self.assertTrue(
             "in-place" in joined.lower() or "mdat" in joined.lower(),
             msg=joined)
+
+    def test_in_place_flag_and_vr180(self):
+        target = f"{_OUTPUT_DIR}/cli_vr180.mp4"
+        shutil.copyfile("data/testsrc_320x240_h264.mp4", target)
+        self.assertIsNone(main(["-I", "--vr180", target]))
+        contents = []
+        metadata_utils.parse_metadata(target, contents.append)
+        text = "\n".join(contents)
+        self.assertIn("StereoMode = left-right", text)
+        self.assertIn("SV3D", text)
+        self.assertIn("CroppedAreaImageWidthPixels = 160", text)
 
 
 if __name__ == '__main__':
