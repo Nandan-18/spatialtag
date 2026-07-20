@@ -120,16 +120,26 @@ def render_nav(current_page: str) -> str:
     return "\n".join(lines).replace("INDEX", html.escape(index_href))
 
 
+def render_favicon_links(current_page: str) -> str:
+    icon_href = html.escape(relpath(current_page, "assets/favicon.svg"))
+    return (
+        f'<link rel="icon" href="{icon_href}" type="image/svg+xml" />\n'
+        f'  <link rel="apple-touch-icon" href="{icon_href}" />'
+    )
+
+
 def render_doc_page(title: str, body_html: str, current_page: str) -> str:
     nav = render_nav(current_page)
     style_href = relpath(current_page, "assets/css/style.css")
     site_href = relpath(current_page, "assets/css/site.css")
+    favicon = render_favicon_links(current_page)
     return f"""<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>{html.escape(title)} · Spatial Media</title>
+  {favicon}
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
