@@ -7,6 +7,8 @@ Releases](https://github.com/Nandan-18/spatial-media/releases/latest).
 |------|-------------|
 | `spatialtag-linux-x86_64` | Linux CLI (x86_64) |
 | `spatialtag-macos-arm64` | macOS CLI (Apple Silicon) |
+| `spatialtag-windows-x86_64.exe` | Windows CLI (x86_64) |
+| `SHA256SUMS.txt` | SHA-256 checksums for release assets |
 | `audio.zip` | HRIR reference WAV files |
 
 ## CLI usage
