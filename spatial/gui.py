@@ -1,6 +1,6 @@
-"""Spatial Media Metadata Injector GUI
+"""SpatialTag GUI
 
-GUI application for examining/injecting spatial media metadata in MP4/MOV files.
+Desktop UI for inspecting and injecting immersive MP4/MOV metadata.
 """
 
 import ntpath
@@ -319,9 +319,9 @@ class Application(tk.Frame):
         self.button_inject.grid(row=0, column=1, padx=14, pady=2)
 
     def __init__(self, master=None):
-        master.wm_title("Spatial Media Metadata Injector")
+        master.wm_title("SpatialTag")
         master.config(menu=tk.Menu(master))
-        self.title = "Spatial Media Metadata Injector"
+        self.title = "SpatialTag"
         self.open_options = {}
         self.open_options["filetypes"] = [("Videos", ("*.mov", "*.mp4"))]
         self.open_options["multiple"] = True  # Enable multiple file selection
@@ -351,7 +351,7 @@ def main():
     root = tk.Tk()
     root.tk.call("tk", "scaling", 2.0)
     root.withdraw()
-    app_window = tk.Toplevel(root, class_="Spatial Media Metadata Injector")
+    app_window = tk.Toplevel(root, class_="SpatialTag")
     app_window.resizable(False, False)
     app_window.protocol("WM_DELETE_WINDOW", root.destroy)
     tk.report_callback_exception = report_callback_exception
