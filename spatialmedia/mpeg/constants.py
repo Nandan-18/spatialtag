@@ -30,6 +30,7 @@ TAG_FTYP = b"ftyp"
 TAG_ESDS = b"esds"
 TAG_SOUN = b"soun"
 TAG_VIDE = b"vide"
+TAG_TKHD = b"tkhd"
 TAG_SA3D = b"SA3D"
 
 TAG_PRHD = b"prhd"
