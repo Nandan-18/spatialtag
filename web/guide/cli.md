@@ -138,17 +138,24 @@ top-bottom), and spatial audio when the file has a compatible ambisonics track.
 For large files or headless servers, use the [Docker web UI](docker.html), the
 [browser demo](../index.html#demo), or the CLI with `-I`.
 
-## Standalone executable
+## Standalone executables
 
-When building from source, install build dependencies and run PyInstaller:
+Install build dependencies, then choose the CLI or GUI PyInstaller spec:
 
 ```bash
 python3 -m pip install -e ".[build]"
+
+# Console CLI binary (spatialtag)
 pyinstaller --clean --noconfirm spatial/spatial.spec
+
+# Desktop GUI (SpatialTag / SpatialTag.app)
+python3 tools/build.py
+# or: pyinstaller --clean --noconfirm spatial/gui.spec
 ```
 
-The bundled app is built from `gui.py` (Tkinter). On Linux you may need
-`python3-tk` installed separately.
+The GUI bundle is built from `spatial/gui.py` (Tkinter). On Linux you may need
+`python3-tk` installed separately. Release CI publishes CLI binaries; build the
+GUI locally when you need a desktop app.
 
 ## Programmatic use
 
