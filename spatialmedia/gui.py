@@ -114,7 +114,7 @@ class Application(tk.Frame):
         )
 
         if not metadata:
-            self.var_3d.set(0)
+            self.var_stereo.set("none")
 
         if not audio_metadata:
             self.var_spatial_audio.set(0)
@@ -128,9 +128,11 @@ class Application(tk.Frame):
                 self.var_spherical.set(0)
 
             if metadata.get("StereoMode", "") == "top-bottom":
-                self.var_3d.set(1)
+                self.var_stereo.set("top-bottom")
+            elif metadata.get("StereoMode", "") == "left-right":
+                self.var_stereo.set("left-right")
             else:
-                self.var_3d.set(0)
+                self.var_stereo.set("none")
 
         if audio_metadata:
             self.var_spatial_audio.set(1)
@@ -140,9 +142,9 @@ class Application(tk.Frame):
 
     def action_inject_delay(self):
         """Process all selected files for injection."""
-        stereo = None
-        if self.var_3d.get():
-            stereo = "top-bottom"
+        stereo = self.var_stereo.get()
+        if stereo == "none":
+            stereo = None
 
         metadata = metadata_utils.Metadata()
         metadata.video = metadata_utils.generate_spherical_xml(stereo=stereo)
@@ -202,7 +204,7 @@ class Application(tk.Frame):
     def action_set_spatial_audio(self):
         self.update_state()
 
-    def action_set_3d(self):
+    def action_set_stereo(self):
         self.update_state()
 
     def enable_state(self):
@@ -211,22 +213,26 @@ class Application(tk.Frame):
     def disable_state(self):
         self.checkbox_spherical.configure(state="disabled")
         self.checkbox_spatial_audio.configure(state="disabled")
-        self.checkbox_3D.configure(state="disabled")
+        self.combo_stereo.configure(state="disabled")
         self.button_inject.configure(state="disabled")
         self.button_open.configure(state="disabled")
 
     def update_state(self):
         self.checkbox_spherical.configure(state="normal")
         if self.var_spherical.get():
-            self.checkbox_3D.configure(state="normal")
+            self.combo_stereo.configure(state="readonly")
             self.button_inject.configure(state="normal")
-            if self.spatial_audio_description.is_supported:
+            if (self.spatial_audio_description
+                    and self.spatial_audio_description.is_supported):
                 self.checkbox_spatial_audio.configure(state="normal")
+            else:
+                self.checkbox_spatial_audio.configure(state="disabled")
         else:
-            self.checkbox_3D.configure(state="disabled")
+            self.combo_stereo.configure(state="disabled")
             self.button_inject.configure(state="disabled")
             self.checkbox_spatial_audio.configure(state="disabled")
-        if self.spatial_audio_description.has_head_locked_stereo:
+        if (self.spatial_audio_description
+                and self.spatial_audio_description.has_head_locked_stereo):
             self.label_spatial_audio.configure(
                 text="{}\n{}".format(SPATIAL_AUDIO_LABEL, HEAD_LOCKED_STEREO_LABEL)
             )
@@ -281,18 +287,24 @@ class Application(tk.Frame):
         self.checkbox_spherical["command"] = self.action_set_spherical
         self.checkbox_spherical.grid(row=row, column=column, padx=PAD_X, pady=2)
 
-        # 3D
+        # Stereo mode
         row = row + 1
         column = 0
         self.label_3D = tk.Label(self, anchor="w")
-        self.label_3D["text"] = "My video is stereoscopic 3D (top/bottom layout)"
+        self.label_3D["text"] = "Stereo mode"
         self.label_3D.grid(row=row, column=column, padx=PAD_X, pady=7, sticky="w")
         column += 1
 
-        self.var_3d = tk.IntVar()
-        self.checkbox_3D = tk.Checkbutton(self, variable=self.var_3d)
-        self.checkbox_3D["command"] = self.action_set_3d
-        self.checkbox_3D.grid(row=row, column=column, padx=PAD_X, pady=2)
+        self.var_stereo = tk.StringVar(value="none")
+        self.combo_stereo = ttk.Combobox(
+            self,
+            textvariable=self.var_stereo,
+            values=("none", "left-right", "top-bottom"),
+            state="readonly",
+            width=12,
+        )
+        self.combo_stereo.bind("<<ComboboxSelected>>", lambda _e: self.action_set_stereo())
+        self.combo_stereo.grid(row=row, column=column, padx=PAD_X, pady=2, sticky="w")
 
         # Spatial Audio Checkbox
         row += 1
