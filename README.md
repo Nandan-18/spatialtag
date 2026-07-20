@@ -64,9 +64,9 @@ See [spatialmedia/README.md](spatialmedia/README.md) for all CLI flags, GUI usag
 
 ## Browser demo (GitHub Pages)
 
-**[Live demo →](https://nandan-18.github.io/spatial-media/)** — inspect and inject 360° / VR180 metadata entirely in your browser (no upload to a server). Best for files under ~2 GB; for multi‑GB sources use the CLI with `-I`.
+**[Live demo →](https://nandan-18.github.io/spatial-media/)** — inspect and inject 360° / VR180 metadata in your browser, read the full specifications, and **download CLI binaries** (Linux + macOS). Best for browser use under ~2 GB; for multi‑GB sources use the CLI with `-I`.
 
-To deploy from this repo: enable **GitHub Pages → Source: GitHub Actions** in repository settings. Pushes to `main` that touch `docs/` run [.github/workflows/pages.yml](.github/workflows/pages.yml).
+Pages deploys from `docs/` via [.github/workflows/pages.yml](.github/workflows/pages.yml) (builds binaries + static docs on each push to `main`).
 
 ## Other interfaces
 
