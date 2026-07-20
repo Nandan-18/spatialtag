@@ -20,9 +20,12 @@ from contextlib import redirect_stdout
 import spatial.metadata as meta
 from spatial.__main__ import main
 from spatial.mpeg import mp4
+from spatial.mpeg.sa3d import SA3DBox
+from spatial.mpeg.sa3d import load as load_sa3d
 
 _OUTPUT_DIR = "tests/output"
 _FIXTURE_H264 = "tests/fixtures/h264.mp4"
+_FIXTURE_H264_4CH = "tests/fixtures/h264-4ch.mp4"
 
 
 def _ensure_output_dir():
@@ -428,6 +431,61 @@ class TestMetadataConflictClearing(unittest.TestCase):
         self.assertIn("StereoMode = left-right", text)
         self.assertNotIn("ST3D", text)
         self.assertNotIn("SV3D", text)
+
+
+class TestSpatialAudio(unittest.TestCase):
+    def test_get_spatial_audio_description_orders(self):
+        unsupported = meta.get_spatial_audio_description(2)
+        self.assertFalse(unsupported.is_supported)
+
+        first_order = meta.get_spatial_audio_description(4)
+        self.assertTrue(first_order.is_supported)
+        self.assertEqual(first_order.order, 1)
+        self.assertFalse(first_order.has_head_locked_stereo)
+
+        with_stereo = meta.get_spatial_audio_description(6)
+        self.assertTrue(with_stereo.is_supported)
+        self.assertEqual(with_stereo.order, 1)
+        self.assertTrue(with_stereo.has_head_locked_stereo)
+
+    def test_sa3d_box_create_and_metadata_string(self):
+        audio_metadata = meta.get_spatial_audio_metadata(1, False)
+        box = SA3DBox.create(4, audio_metadata)
+        self.assertEqual(box.num_channels, 4)
+        self.assertEqual(box.ambisonic_order, 1)
+        self.assertFalse(box.head_locked_stereo)
+        self.assertEqual(box.channel_map, [0, 1, 2, 3])
+        self.assertIn("Order 1", box.get_metadata_string())
+        self.assertIn("4 Channel(s)", box.get_metadata_string())
+
+    def test_sa3d_box_roundtrip_bytes(self):
+        audio_metadata = meta.get_spatial_audio_metadata(1, True)
+        original = SA3DBox.create(6, audio_metadata)
+        buf = io.BytesIO()
+        original.save(None, buf, 0)
+        raw = buf.getvalue()
+        loaded = load_sa3d(io.BytesIO(raw), 0, len(raw))
+        self.assertIsNotNone(loaded)
+        self.assertEqual(loaded.num_channels, 6)
+        self.assertEqual(loaded.ambisonic_order, 1)
+        self.assertTrue(loaded.head_locked_stereo)
+        self.assertEqual(loaded.channel_map, [0, 1, 2, 3, 4, 5])
+
+    @unittest.skipUnless(os.path.exists(_FIXTURE_H264_4CH), "h264-4ch.mp4 fixture not present")
+    def test_inject_spatial_audio_on_4ch_fixture(self):
+        _ensure_output_dir()
+        output = f"{_OUTPUT_DIR}/spatial_audio_4ch.mp4"
+        code, _ = _run_main(["-i", "--spatial-audio", _FIXTURE_H264_4CH, output])
+        self.assertEqual(code, 0)
+        text = _parse_text(output)
+        self.assertIn("Ambisonic Order", text)
+        self.assertEqual(text.count("Ambisonic Order"), 1)
+
+        # Re-inject should not stack duplicate SA3D atoms.
+        code, _ = _run_main(["-i", "--spatial-audio", output, output])
+        self.assertEqual(code, 0)
+        text = _parse_text(output)
+        self.assertEqual(text.count("Ambisonic Order"), 1)
 
 
 class TestMpeg4Container(unittest.TestCase):
