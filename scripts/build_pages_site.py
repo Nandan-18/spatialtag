@@ -12,8 +12,9 @@ import shutil
 from pathlib import Path
 
 import markdown
-from markdown.extensions.tables import TableExtension
+from markdown.extensions.codehilite import CodeHiliteExtension
 from markdown.extensions.fenced_code import FencedCodeExtension
+from markdown.extensions.tables import TableExtension
 
 ROOT = Path(__file__).resolve().parent.parent
 DOCS_SRC = ROOT / "docs"
@@ -140,26 +141,29 @@ def render_doc_page(title: str, body_html: str, current_page: str) -> str:
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>{html.escape(title)} · Spatial Media</title>
   {favicon}
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="{html.escape(style_href)}" />
   <link rel="stylesheet" href="{html.escape(site_href)}" />
 </head>
 <body class="doc-page">
-  <canvas id="starfield" aria-hidden="true"></canvas>
-  <div class="aurora" aria-hidden="true"></div>
+  <nav class="global-nav" aria-label="Global">
+    <div class="nav-inner">
+      <a class="nav-logo" href="{html.escape(relpath(current_page, "index.html"))}">Spatial Media</a>
+      <div class="nav-links">
+        <a href="{html.escape(relpath(current_page, "index.html"))}">Home</a>
+        <a href="{html.escape(relpath(current_page, "download.html"))}">Download</a>
+        <a href="{html.escape(relpath(current_page, "guide/cli.html"))}">CLI</a>
+      </div>
+    </div>
+  </nav>
   <div class="page doc-shell">
-    {nav}
-    <main class="doc-content glass">
+    <main class="doc-content">
       <h1>{html.escape(title)}</h1>
       {body_html}
     </main>
-    <footer class="footer">
+    <footer class="doc-footer">
       <p>Apache License 2.0 · Spatial Media metadata tools</p>
     </footer>
   </div>
-  <script src="{html.escape(relpath(current_page, "assets/js/site.js"))}"></script>
 </body>
 </html>
 """
@@ -170,34 +174,61 @@ def render_download_page(downloads: list[dict], current_page: str = "download.ht
     for item in downloads:
         href = relpath(current_page, item["path"])
         cards.append(
-            f"""<article class="download-card glass">
+            f"""<article class="download-card">
   <h2>{html.escape(item["label"])}</h2>
   <p class="download-meta">{html.escape(item.get("arch", ""))} · {format_bytes(item["size"])}</p>
   <p class="download-note">{html.escape(item.get("note", ""))}</p>
-  <a class="btn-primary download-btn" href="{html.escape(href)}" download>Download {html.escape(item["filename"])}</a>
-  <p class="sha mono">SHA-256: {html.escape(item["sha256"])}</p>
+  <a class="button button-primary download-btn" href="{html.escape(href)}" download>Download {html.escape(item["filename"])}</a>
+  <p class="sha">SHA-256: {html.escape(item["sha256"])}</p>
 </article>"""
         )
 
     cli_href = html.escape(relpath(current_page, "guide/cli.html"))
+    usage_code = highlight_code(
+        "chmod +x spatialmedia-macos-arm64   # macOS / Linux\n"
+        "./spatialmedia-macos-arm64 -h\n"
+        "./spatialmedia-macos-arm64 -I --vr180 /path/to/video.mp4\n",
+        "bash",
+    )
     body = f"""
-<p class="lede">Standalone CLI binaries built on every deploy. No Python install required — download, make executable, and run from a terminal.</p>
+<p class="lede">Standalone CLI binaries built on every deploy. No Python install required: download, make executable, and run from a terminal.</p>
 <div class="download-grid">{"".join(cards) if cards else "<p>No binaries bundled yet.</p>"}</div>
 <section class="doc-section">
   <h2>Usage</h2>
-  <pre><code>chmod +x spatialmedia-macos-arm64   # macOS / Linux
-./spatialmedia-macos-arm64 -h
-./spatialmedia-macos-arm64 -I --vr180 /path/to/video.mp4</code></pre>
+  {usage_code}
   <p>See the <a href="{cli_href}">CLI guide</a> for all options including in-place inject for large files.</p>
 </section>
 """
     return render_doc_page("Download CLI", body, current_page)
 
 
+def highlight_code(source: str, language: str) -> str:
+    """Highlight a code snippet with Pygments for static HTML pages."""
+    from pygments import highlight
+    from pygments.formatters import HtmlFormatter
+    from pygments.lexers import get_lexer_by_name, TextLexer
+
+    try:
+        lexer = get_lexer_by_name(language, stripall=False)
+    except Exception:
+        lexer = TextLexer()
+    formatter = HtmlFormatter(cssclass="highlight", nowrap=False)
+    return highlight(source, lexer, formatter)
+
+
 def md_to_html(text: str) -> str:
     return markdown.markdown(
         text,
-        extensions=[TableExtension(), FencedCodeExtension()],
+        extensions=[
+            TableExtension(),
+            FencedCodeExtension(),
+            CodeHiliteExtension(
+                css_class="highlight",
+                guess_lang=False,
+                linenums=False,
+                pygments_formatter="html",
+            ),
+        ],
         output_format="html5",
     )
 
@@ -257,40 +288,6 @@ def build_site(output_dir: Path, manifest_path: Path) -> None:
         render_download_page(bundled),
         encoding="utf-8",
     )
-
-    # Patch demo index nav/footer links (simple string replace for key URLs)
-    index_path = output_dir / "index.html"
-    index_html = index_path.read_text(encoding="utf-8")
-    index_html = index_html.replace(
-        '<link rel="stylesheet" href="assets/css/style.css" />',
-        '<link rel="stylesheet" href="assets/css/style.css" />\n    <link rel="stylesheet" href="assets/css/site.css" />',
-    )
-    nav = render_nav("index.html")
-    index_html = index_html.replace(
-        '<div class="page">',
-        f'<div class="page">\n      {nav}',
-    )
-    index_html = index_html.replace(
-        """        <div class="hero-links">
-          <a href="https://github.com/Nandan-18/spatial-media" target="_blank" rel="noopener">GitHub</a>
-          <a href="https://github.com/Nandan-18/spatial-media/blob/main/spatialmedia/README.md" target="_blank" rel="noopener">CLI docs</a>
-          <a href="spherical-video-v2-rfc.md">Spherical v2 RFC</a>
-        </div>""",
-        """        <div class="hero-links">
-          <a href="download.html">Download CLI</a>
-          <a href="guide/cli.html">CLI docs</a>
-          <a href="spec/spherical-video-v2.html">Spherical v2 RFC</a>
-        </div>""",
-    )
-    index_html = index_html.replace(
-        '          <a href="https://github.com/Nandan-18/spatial-media#quick-start-cli">CLI</a>',
-        '          <a href="download.html">CLI binary</a> or <a href="guide/cli.html">CLI guide</a>',
-    )
-    index_html = index_html.replace(
-        "</body>",
-        '    <script src="assets/js/site.js"></script>\n  </body>',
-    )
-    index_path.write_text(index_html, encoding="utf-8")
 
     print(f"Built site at {output_dir} ({len(bundled)} download(s))")
 
