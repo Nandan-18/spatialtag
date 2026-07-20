@@ -28,7 +28,7 @@ except ImportError:
 path = os.path.dirname(sys.modules[__name__].__file__)
 path = os.path.join(path, "..")
 sys.path.insert(0, path)
-import cli.metadata as meta
+import spatial.metadata as meta
 
 SPATIAL_AUDIO_LABEL = "My video has spatial audio (ambiX ACN/SN3D format)"
 HEAD_LOCKED_STEREO_LABEL = "with head-locked stereo"

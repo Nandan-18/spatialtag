@@ -8,7 +8,7 @@ import traceback
 import xml.etree
 import xml.etree.ElementTree
 
-from cli import mpeg
+from spatial import mpeg
 
 MPEG_FILE_EXTENSIONS = [".mp4", ".mov"]
 

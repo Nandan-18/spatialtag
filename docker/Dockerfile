@@ -14,7 +14,7 @@ COPY docker/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy source code (Assuming build context is the repository root)
-COPY spatialmedia /app/spatialmedia
+COPY spatial /app/spatial
 COPY docker/app.py /app/app.py
 COPY docker/templates /app/templates
 COPY docker/static /app/static

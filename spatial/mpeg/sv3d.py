@@ -6,7 +6,7 @@ conforms to that outlined in web/spec/v2.md
 
 import struct
 
-from cli.mpeg import box, constants
+from spatial.mpeg import box, constants
 
 
 def is_supported_box_name(name):

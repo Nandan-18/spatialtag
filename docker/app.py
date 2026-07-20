@@ -3,13 +3,13 @@ import sys
 from werkzeug.utils import secure_filename
 from flask import Flask, render_template, request, send_file, jsonify
 
-# Ensure we can import cli from the repository root.
+# Ensure we can import spatial from the repository root.
 try:
-    import cli.metadata as meta
+    import spatial.metadata as meta
 except ImportError:
     # Fallback for local dev if running from docker folder
     sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-    import cli.metadata as meta
+    import spatial.metadata as meta
 
 app = Flask(__name__)
 # Use a static path so all workers access the same directory

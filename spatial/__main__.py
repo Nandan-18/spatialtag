@@ -6,7 +6,7 @@ Tool for examining and injecting spatial media metadata in MP4/MOV files.
 import argparse
 import sys
 
-import cli.metadata as meta
+import spatial.metadata as meta
 
 
 def console(contents):

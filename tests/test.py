@@ -1,5 +1,5 @@
 """
-Unit tests for the cli tool.
+Unit tests for the spatial-media tool.
 
 # Test inputs are generated with
 ffmpeg -y -f lavfi -i testsrc -vf scale=320:240 -vcodec libx264 -t 0.05 tests/fixtures/h264.mp4
@@ -17,9 +17,9 @@ import struct
 import unittest
 from contextlib import redirect_stdout
 
-import cli.metadata as meta
-from cli.__main__ import main
-from cli.mpeg import mp4
+import spatial.metadata as meta
+from spatial.__main__ import main
+from spatial.mpeg import mp4
 
 _OUTPUT_DIR = "tests/output"
 _FIXTURE_H264 = "tests/fixtures/h264.mp4"

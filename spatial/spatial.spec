@@ -1,5 +1,5 @@
 # -*- mode: python -*-
-# PyInstaller spec for the cli console binary.
+# PyInstaller spec for the spatial-media console binary.
 
 import sys
 from pathlib import Path
@@ -10,11 +10,11 @@ block_cipher = None
 root = Path(SPECPATH).resolve().parent
 
 a = Analysis(
-    [str(root / "cli" / "__main__.py")],
-    pathex=[str(root)],
+    [str(root / "spatial" / "__main__.py")],
+    pathex=[str(root.parent)],
     binaries=[],
     datas=[],
-    hiddenimports=collect_submodules("cli"),
+    hiddenimports=collect_submodules("spatial"),
     hookspath=[],
     runtime_hooks=[],
     excludes=[],
@@ -27,7 +27,7 @@ exe = EXE(
     a.binaries,
     a.zipfiles,
     a.datas,
-    name="cli",
+    name="spatial-media",
     debug=False,
     strip=False,
     upx=True,

@@ -61,7 +61,7 @@ def build_executable():
         print("Attempting to continue with build...")
 
     # Get the specification file path
-    specification_file = os.path.join("cli", "gui.spec")
+    specification_file = os.path.join("spatial", "gui.spec")
 
     # Build command
     command = ["pyinstaller", "--clean", specification_file]

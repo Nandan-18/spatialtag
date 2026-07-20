@@ -4,7 +4,7 @@ on:
   push:
     branches: [main]
     paths:
-      - "cli/**"
+      - "spatial/**"
       - "tests/**"
       - "docker/**"
       - "pyproject.toml"
@@ -24,11 +24,11 @@ jobs:
       - name: Install package
         run: python -m pip install -e ".[dev]"
       - name: Ruff lint
-        run: python -m ruff check cli tests/test.py docker
+        run: python -m ruff check spatial tests/test.py docker
       - name: Ruff format
-        run: python -m ruff format --check cli tests/test.py docker
+        run: python -m ruff format --check spatial tests/test.py docker
       - name: Unit tests
         run: python tests/test.py -v
       - name: Mypy (mpeg package)
-        run: python -m mypy cli/mpeg
+        run: python -m mypy spatial/mpeg
         continue-on-error: true

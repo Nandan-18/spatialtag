@@ -4,7 +4,7 @@ import sys
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-import cli.metadata as meta
-from cli import mpeg
+import spatial.metadata as meta
+from spatial import mpeg
 
 __all__ = ["meta", "mpeg"]

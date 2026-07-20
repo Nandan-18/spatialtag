@@ -8,7 +8,7 @@ from __future__ import annotations
 import io
 from typing import BinaryIO, Optional
 
-from cli.mpeg import constants, container
+from spatial.mpeg import constants, container
 
 
 def load(fh: BinaryIO) -> Optional[Mpeg4Container]:

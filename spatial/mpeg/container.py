@@ -5,7 +5,7 @@ Functions for loading MPEG files and manipulating boxes.
 
 import struct
 
-from cli.mpeg import box, constants, sa3d, sv3d
+from spatial.mpeg import box, constants, sa3d, sv3d
 
 
 def load(fh, position, end):

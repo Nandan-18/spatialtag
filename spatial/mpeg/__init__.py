@@ -1,4 +1,4 @@
-from cli.mpeg import box, container, mp4, sa3d
+from spatial.mpeg import box, container, mp4, sa3d
 
 load = mp4.load
 

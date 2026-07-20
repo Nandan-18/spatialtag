@@ -6,7 +6,7 @@ conforms to that outlined in web/spec/audio.md
 
 import struct
 
-from cli.mpeg import box, constants
+from spatial.mpeg import box, constants
 
 
 def load(fh, position=None, end=None):

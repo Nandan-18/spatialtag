@@ -9,7 +9,7 @@ import io
 import struct
 from typing import BinaryIO, Optional, Union
 
-from cli.mpeg import constants
+from spatial.mpeg import constants
 
 
 def load(fh: BinaryIO, position: Optional[int], end: int) -> Optional[Box]:
