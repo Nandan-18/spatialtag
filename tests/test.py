@@ -2,9 +2,9 @@
 Unit tests for the spatialtag tool.
 
 # Test inputs are generated with
-ffmpeg -y -f lavfi -i testsrc -vf scale=320:240 -vcodec libx264 -t 0.05 tests/fixtures/h264.mp4
-ffmpeg -y -f lavfi -i testsrc=size=320x240:rate=1 -f lavfi -i anullsrc=r=48000:cl=4.0 \
-  -t 0.05 -c:v libx264 -c:a aac -shortest tests/fixtures/h264-4ch.mp4
+ffmpeg -y -f lavfi -i testsrc=size=320:240 -vcodec libx264 -t 0.05 tests/fixtures/h264.mp4
+ffmpeg -y -f lavfi -i testsrc=size=320x240:rate=25 -f lavfi -i anullsrc=r=48000:cl=4.0 \
+  -t 0.2 -c:v libx264 -pix_fmt yuv420p -c:a aac -shortest tests/fixtures/h264-4ch.mp4
 ffmpeg -y -f lavfi -i testsrc -vf scale=320:240 -vcodec libvpx-vp9 -t 0.05 tests/fixtures/vp9.mp4
 ffmpeg -y -f lavfi -i testsrc -vf scale=32:24 -vcodec prores -t 0.05 tests/fixtures/prores.mov
 
@@ -536,8 +536,8 @@ class TestSpatialAudio(unittest.TestCase):
     def test_inject_spatial_audio_on_4ch_fixture(self):
         _ensure_output_dir()
         output = f"{_OUTPUT_DIR}/spatial_audio_4ch.mp4"
-        code, _ = _run_main(["-i", "--spatial-audio", _FIXTURE_H264_4CH, output])
-        self.assertEqual(code, 0)
+        code, out = _run_main(["-i", "--spatial-audio", _FIXTURE_H264_4CH, output])
+        self.assertEqual(code, 0, msg=out)
         text = _parse_text(output)
         self.assertIn("Ambisonic Order", text)
         self.assertEqual(text.count("Ambisonic Order"), 1)
