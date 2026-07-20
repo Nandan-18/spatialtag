@@ -1,6 +1,6 @@
 # Spatial Media Metadata Injector: Web UI
 
-Browser-based metadata injection for MP4/MOV files, running in Docker. Uses the same `spatialmedia` library as the CLI and desktop GUI, wrapped in a small Flask app.
+Browser-based metadata injection for MP4/MOV files, running in Docker. Uses the same `cli` library as the CLI and desktop GUI, wrapped in a small Flask app.
 
 ## Features
 
@@ -17,7 +17,7 @@ Browser-based metadata injection for MP4/MOV files, running in Docker. Uses the 
 
 ## Build
 
-Run from the **repository root** (build context must include `spatialmedia/`):
+Run from the **repository root** (build context must include `cli/`):
 
 ```bash
 docker build -t spatial-media-web -f docker/Dockerfile .
@@ -62,7 +62,7 @@ docker run -p 5000:5000 \
 Copy or move files into that folder, then use the web UI to inject (with **Inject in place** enabled). Alternatively, run the CLI on the host for maximum control:
 
 ```bash
-spatialmedia -I --vr180 /path/to/your/videos/file.mp4
+cli -I --vr180 /path/to/your/videos/file.mp4
 ```
 
 ## Usage

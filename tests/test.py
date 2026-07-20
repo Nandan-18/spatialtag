@@ -1,12 +1,12 @@
 """
-Unit tests for the spatialmedia CLI tool.
+Unit tests for the cli tool.
 
 # Test inputs are generated with
-ffmpeg -y -f lavfi -i testsrc -vf scale=320:240 -vcodec libx264 -t 0.05 tests/fixtures/testsrc_320x240_h264.mp4
+ffmpeg -y -f lavfi -i testsrc -vf scale=320:240 -vcodec libx264 -t 0.05 tests/fixtures/h264.mp4
 ffmpeg -y -f lavfi -i testsrc=size=320x240:rate=1 -f lavfi -i anoisesrc=channel_layout=4.0:sample_rate=48000 \
-  -t 0.05 -c:v libx264 -c:a aac -shortest tests/fixtures/testsrc_320x240_h264_4ch.mp4
-ffmpeg -y -f lavfi -i testsrc -vf scale=320:240 -vcodec libvpx-vp9 -t 0.05 tests/fixtures/testsrc_320x240_vp9.mp4
-ffmpeg -y -f lavfi -i testsrc -vf scale=32:24 -vcodec prores -t 0.05 tests/fixtures/testsrc_32x24_prores.mov
+  -t 0.05 -c:v libx264 -c:a aac -shortest tests/fixtures/h264-4ch.mp4
+ffmpeg -y -f lavfi -i testsrc -vf scale=320:240 -vcodec libvpx-vp9 -t 0.05 tests/fixtures/vp9.mp4
+ffmpeg -y -f lavfi -i testsrc -vf scale=32:24 -vcodec prores -t 0.05 tests/fixtures/prores.mov
 
 """
 
@@ -17,12 +17,12 @@ import struct
 import unittest
 from contextlib import redirect_stdout
 
-from spatialmedia import metadata_utils
-from spatialmedia.__main__ import main
-from spatialmedia.mpeg import mpeg4_container
+import cli.metadata as meta
+from cli.__main__ import main
+from cli.mpeg import mp4
 
 _OUTPUT_DIR = "tests/output"
-_FIXTURE_H264 = "tests/fixtures/testsrc_320x240_h264.mp4"
+_FIXTURE_H264 = "tests/fixtures/h264.mp4"
 
 
 def _ensure_output_dir():
@@ -56,7 +56,7 @@ def _top_level_boxes(path):
 
 def _parse_text(path):
     lines = []
-    metadata_utils.parse_metadata(path, lines.append)
+    meta.parse_metadata(path, lines.append)
     return "\n".join(lines)
 
 
@@ -72,7 +72,7 @@ class TestAdd(unittest.TestCase):
         self.assertIsNone(main(args))
 
         contents = []
-        metadata_utils.parse_metadata(args[-1], lambda x: contents.append(x))
+        meta.parse_metadata(args[-1], lambda x: contents.append(x))
         try:
             os.remove(args[-1])
         except OSError:
@@ -85,7 +85,7 @@ class TestAdd(unittest.TestCase):
                 "-i",
                 "--projection",
                 "equirectangular",
-                "tests/fixtures/testsrc_320x240_h264.mp4",
+                "tests/fixtures/h264.mp4",
                 f"{_OUTPUT_DIR}/equirect_mono_v1.mp4",
             ]
         )
@@ -104,7 +104,7 @@ class TestAdd(unittest.TestCase):
                 "left-right",
                 "--projection",
                 "none",
-                "tests/fixtures/testsrc_320x240_h264.mp4",
+                "tests/fixtures/h264.mp4",
                 f"{_OUTPUT_DIR}/rectangular_left_right_v1.mp4",
             ]
         )
@@ -124,7 +124,7 @@ class TestAdd(unittest.TestCase):
                 "--v2",
                 "--projection",
                 "equirectangular",
-                "tests/fixtures/testsrc_320x240_h264.mp4",
+                "tests/fixtures/h264.mp4",
                 f"{_OUTPUT_DIR}/equirect_mono.mp4",
             ]
         )
@@ -148,7 +148,7 @@ class TestAdd(unittest.TestCase):
                 "0x1:-2:0x7FFFFFFF:32",
                 "--projection",
                 "equirectangular",
-                "tests/fixtures/testsrc_320x240_h264.mp4",
+                "tests/fixtures/h264.mp4",
                 f"{_OUTPUT_DIR}/equirect_mono.mp4",
             ]
         )
@@ -170,7 +170,7 @@ class TestAdd(unittest.TestCase):
                 "--v2",
                 "--projection",
                 "equirectangular",
-                "tests/fixtures/testsrc_320x240_vp9.mp4",
+                "tests/fixtures/vp9.mp4",
                 f"{_OUTPUT_DIR}/equirect_mono_vp9.mp4",
             ]
         )
@@ -189,7 +189,7 @@ class TestAdd(unittest.TestCase):
                 "--v2",
                 "--projection",
                 "equirectangular",
-                "tests/fixtures/testsrc_32x24_prores.mov",
+                "tests/fixtures/prores.mov",
                 f"{_OUTPUT_DIR}/equirect_mono_prores.mov",
             ]
         )
@@ -209,7 +209,7 @@ class TestAdd(unittest.TestCase):
                 "left-right",
                 "--projection",
                 "none",
-                "tests/fixtures/testsrc_320x240_h264.mp4",
+                "tests/fixtures/h264.mp4",
                 f"{_OUTPUT_DIR}/rectangular_left_right.mp4",
             ]
         )
@@ -228,7 +228,7 @@ class TestAdd(unittest.TestCase):
                 "top-bottom",
                 "--projection",
                 "none",
-                "tests/fixtures/testsrc_320x240_h264.mp4",
+                "tests/fixtures/h264.mp4",
                 f"{_OUTPUT_DIR}/rectangular_top_bottom.mp4",
             ]
         )
@@ -246,7 +246,7 @@ class TestInPlace(unittest.TestCase):
 
     def test_inject_inplace_left_right(self):
         target = f"{_OUTPUT_DIR}/inplace_left_right.mp4"
-        shutil.copyfile("tests/fixtures/testsrc_320x240_h264.mp4", target)
+        shutil.copyfile("tests/fixtures/h264.mp4", target)
         before = os.path.getsize(target)
         names_before = [n for _, n, _, _ in _top_level_boxes(target)]
         self.assertEqual(names_before[-1], b"moov")
@@ -269,26 +269,26 @@ class TestInPlace(unittest.TestCase):
         self.assertLess(after - before, 256 * 1024)
 
         contents = []
-        metadata_utils.parse_metadata(target, contents.append)
+        meta.parse_metadata(target, contents.append)
         text = "\n".join(contents)
         self.assertIn("StereoMode = left-right", text)
 
     def test_inject_inplace_refuses_moov_before_mdat(self):
         target = f"{_OUTPUT_DIR}/moov_before_mdat.mp4"
-        shutil.copyfile("tests/fixtures/testsrc_320x240_h264_moov_first.mp4", target)
+        shutil.copyfile("tests/fixtures/h264-moov-first.mp4", target)
         with open(target, "rb") as f:
             original = f.read()
 
         logs = []
-        metadata = metadata_utils.Metadata()
-        metadata.video = metadata_utils.generate_spherical_xml(
+        metadata = meta.Metadata()
+        metadata.video = meta.generate_spherical_xml(
             "equirectangular", "left-right", None
         )
 
         def console(msg):
             logs.append(msg)
 
-        result = metadata_utils.inject_metadata(target, target, metadata, console)
+        result = meta.inject_metadata(target, target, metadata, console)
         with open(target, "rb") as f:
             after = f.read()
         self.assertEqual(original, after)
@@ -297,10 +297,10 @@ class TestInPlace(unittest.TestCase):
 
     def test_in_place_flag_and_vr180(self):
         target = f"{_OUTPUT_DIR}/cli_vr180.mp4"
-        shutil.copyfile("tests/fixtures/testsrc_320x240_h264.mp4", target)
+        shutil.copyfile("tests/fixtures/h264.mp4", target)
         self.assertIsNone(main(["-I", "--vr180", target]))
         contents = []
-        metadata_utils.parse_metadata(target, contents.append)
+        meta.parse_metadata(target, contents.append)
         text = "\n".join(contents)
         self.assertIn("StereoMode = left-right", text)
         self.assertIn("SV3D", text)
@@ -309,13 +309,13 @@ class TestInPlace(unittest.TestCase):
 
 class TestHelpers(unittest.TestCase):
     def test_get_video_dimensions(self):
-        self.assertEqual(metadata_utils.get_video_dimensions(_FIXTURE_H264), (320, 240))
+        self.assertEqual(meta.get_video_dimensions(_FIXTURE_H264), (320, 240))
 
     def test_get_video_dimensions_missing_file(self):
-        self.assertIsNone(metadata_utils.get_video_dimensions("tests/fixtures/does_not_exist.mp4"))
+        self.assertIsNone(meta.get_video_dimensions("tests/fixtures/does_not_exist.mp4"))
 
     def test_generate_spherical_xml_with_crop(self):
-        xml = metadata_utils.generate_spherical_xml(
+        xml = meta.generate_spherical_xml(
             "equirectangular", "left-right", "160:240:320:240:80:0"
         )
         self.assertIn("CroppedAreaImageWidthPixels>160", xml)
@@ -429,12 +429,12 @@ class TestMetadataConflictClearing(unittest.TestCase):
 class TestMpeg4Container(unittest.TestCase):
     def test_mdat_delta_zero_for_moov_last_fixture(self):
         with open(_FIXTURE_H264, "rb") as fh:
-            mpeg4 = mpeg4_container.load(fh)
+            mpeg4 = mp4.load(fh)
         self.assertEqual(mpeg4.mdat_delta(), 0)
         self.assertEqual(_top_level_boxes(_FIXTURE_H264)[-1][1], b"moov")
 
     def test_moov_first_fixture_is_unsupported_for_inplace(self):
-        names = [n for _, n, _, _ in _top_level_boxes("tests/fixtures/testsrc_320x240_h264_moov_first.mp4")]
+        names = [n for _, n, _, _ in _top_level_boxes("tests/fixtures/h264-moov-first.mp4")]
         self.assertEqual(names[:2], [b"ftyp", b"moov"])
         self.assertNotEqual(names[-1], b"moov")
 
@@ -443,13 +443,13 @@ class TestMpeg4Container(unittest.TestCase):
         shutil.copyfile(_FIXTURE_H264, target)
         before = os.path.getsize(target)
 
-        metadata = metadata_utils.Metadata("equirectangular", "left-right", None)
-        metadata.video = metadata_utils.generate_spherical_xml(
+        metadata = meta.Metadata("equirectangular", "left-right", None)
+        metadata.video = meta.generate_spherical_xml(
             "equirectangular", "left-right", None
         )
 
         logs = []
-        metadata_utils.inject_metadata(target, target, metadata, logs.append)
+        meta.inject_metadata(target, target, metadata, logs.append)
 
         after = os.path.getsize(target)
         self.assertGreater(after, before)
@@ -457,8 +457,8 @@ class TestMpeg4Container(unittest.TestCase):
         self.assertIn("StereoMode = left-right", _parse_text(target))
 
     def test_save_moov_inplace_raises_for_moov_first(self):
-        with open("tests/fixtures/testsrc_320x240_h264_moov_first.mp4", "r+b") as fh:
-            mpeg4 = mpeg4_container.load(fh)
+        with open("tests/fixtures/h264-moov-first.mp4", "r+b") as fh:
+            mpeg4 = mp4.load(fh)
             with self.assertRaises(ValueError) as ctx:
                 mpeg4.save_moov_inplace(fh)
         msg = str(ctx.exception).lower()

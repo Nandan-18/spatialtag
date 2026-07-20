@@ -3,14 +3,13 @@ import sys
 from werkzeug.utils import secure_filename
 from flask import Flask, render_template, request, send_file, jsonify
 
-# Ensure we can import spatialmedia
-# Assuming the Dockerfile places spatialmedia in a reachable location or we are running from root
+# Ensure we can import cli from the repository root.
 try:
-    from spatialmedia import metadata_utils
+    import cli.metadata as meta
 except ImportError:
     # Fallback for local dev if running from docker folder
     sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-    from spatialmedia import metadata_utils
+    import cli.metadata as meta
 
 app = Flask(__name__)
 # Use a static path so all workers access the same directory
@@ -89,9 +88,9 @@ def inject_metadata():
     if stereo_mode == "none":
         stereo_mode = None
 
-    metadata = metadata_utils.Metadata()
+    metadata = meta.Metadata()
     if options.get("spherical"):
-        metadata.video = metadata_utils.generate_spherical_xml(stereo=stereo_mode)
+        metadata.video = meta.generate_spherical_xml(stereo=stereo_mode)
 
     # Audio handling logic copied from gui.py
     # Note: In the GUI 'spatial_audio' checkbox is only enabled if supported.
@@ -127,15 +126,15 @@ def inject_metadata():
         try:
             # Re-parse to get specific audio audio capabilities for this file if needed
             if options.get("spatial_audio"):
-                parsed = metadata_utils.parse_metadata(input_path, lambda x: None)
+                parsed = meta.parse_metadata(input_path, lambda x: None)
                 if parsed and parsed.num_audio_channels:
-                    desc = metadata_utils.get_spatial_audio_description(parsed.num_audio_channels)
+                    desc = meta.get_spatial_audio_description(parsed.num_audio_channels)
                     if desc.is_supported:
-                        metadata.audio = metadata_utils.get_spatial_audio_metadata(
+                        metadata.audio = meta.get_spatial_audio_metadata(
                             desc.order, desc.has_head_locked_stereo
                         )
 
-            metadata_utils.inject_metadata(input_path, output_path, metadata, console.append)
+            meta.inject_metadata(input_path, output_path, metadata, console.append)
             results.append(
                 {
                     "filename": filename,

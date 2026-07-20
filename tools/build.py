@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 import os
 import shutil
 import subprocess
@@ -62,7 +61,7 @@ def build_executable():
         print("Attempting to continue with build...")
 
     # Get the specification file path
-    specification_file = os.path.join("spatialmedia", "spatial_media_metadata_injector.spec")
+    specification_file = os.path.join("cli", "gui.spec")
 
     # Build command
     command = ["pyinstaller", "--clean", specification_file]

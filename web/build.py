@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Build the GitHub Pages site: markdown docs, download page, static assets."""
 
 from __future__ import annotations
@@ -23,30 +22,30 @@ DEFAULT_OUT = WEB / "dist"
 # (source path relative to ROOT, output path relative to site root, page title)
 DOC_PAGES: list[tuple[str, str, str]] = [
     ("README.md", "guide/overview.html", "Overview"),
-    ("spatialmedia/README.md", "guide/cli.html", "CLI Guide"),
+    ("cli/README.md", "guide/cli.html", "CLI Guide"),
     ("docker/README.md", "guide/docker.html", "Docker Web UI"),
-    ("audio/README.md", "guide/spatial-audio-resources.html", "Spatial Audio Resources"),
-    ("web/spec/spatial-audio.md", "spec/spatial-audio.html", "Spatial Audio RFC"),
-    ("web/spec/spherical-v1.md", "spec/spherical-video-v1.html", "Spherical Video v1 RFC"),
-    ("web/spec/spherical-v2.md", "spec/spherical-video-v2.html", "Spherical Video v2 RFC"),
+    ("audio/README.md", "guide/audio.html", "Spatial Audio Resources"),
+    ("web/spec/audio.md", "spec/audio.html", "Spatial Audio RFC"),
+    ("web/spec/v1.md", "spec/v1.html", "Spherical Video v1 RFC"),
+    ("web/spec/v2.md", "spec/v2.html", "Spherical Video v2 RFC"),
     ("web/spec/vr180.md", "spec/vr180.html", "VR180 Format"),
 ]
 
 LINK_REWRITES: dict[str, str] = {
-    "spatial-audio.md": "spec/spatial-audio.html",
-    "spherical-v1.md": "spec/spherical-video-v1.html",
-    "spherical-v2.md": "spec/spherical-video-v2.html",
+    "audio.md": "spec/audio.html",
+    "v1.md": "spec/v1.html",
+    "v2.md": "spec/v2.html",
     "vr180.md": "spec/vr180.html",
-    "../web/spec/spatial-audio.md": "spec/spatial-audio.html",
-    "../web/spec/spherical-v1.md": "spec/spherical-video-v1.html",
-    "../web/spec/spherical-v2.md": "spec/spherical-video-v2.html",
+    "../web/spec/audio.md": "spec/audio.html",
+    "../web/spec/v1.md": "spec/v1.html",
+    "../web/spec/v2.md": "spec/v2.html",
     "../web/spec/vr180.md": "spec/vr180.html",
-    "spatialmedia/README.md": "guide/cli.html",
-    "../spatialmedia/README.md": "guide/cli.html",
+    "cli/README.md": "guide/cli.html",
+    "../cli/README.md": "guide/cli.html",
     "docker/README.md": "guide/docker.html",
     "../docker/README.md": "guide/docker.html",
-    "audio/README.md": "guide/spatial-audio-resources.html",
-    "../audio/README.md": "guide/spatial-audio-resources.html",
+    "audio/README.md": "guide/audio.html",
+    "../audio/README.md": "guide/audio.html",
     "README.md": "guide/overview.html",
 }
 
@@ -56,11 +55,11 @@ NAV_ITEMS = [
     ("Overview", "guide/overview.html"),
     ("CLI Guide", "guide/cli.html"),
     ("Docker", "guide/docker.html"),
-    ("Spatial Audio", "guide/spatial-audio-resources.html"),
+    ("Spatial Audio", "guide/audio.html"),
     ("Specifications", None),
-    ("Spatial Audio RFC", "spec/spatial-audio.html"),
-    ("Spherical v1", "spec/spherical-video-v1.html"),
-    ("Spherical v2", "spec/spherical-video-v2.html"),
+    ("Spatial Audio RFC", "spec/audio.html"),
+    ("Spherical v1", "spec/v1.html"),
+    ("Spherical v2", "spec/v2.html"),
     ("VR180", "spec/vr180.html"),
 ]
 
@@ -85,16 +84,16 @@ GLOBAL_NAV_GROUPS: list[tuple[str, list[tuple[str, str]]]] = [
     (
         "Specs",
         [
-            ("Spherical v1", "spec/spherical-video-v1.html"),
-            ("Spherical v2", "spec/spherical-video-v2.html"),
+            ("Spherical v1", "spec/v1.html"),
+            ("Spherical v2", "spec/v2.html"),
             ("VR180", "spec/vr180.html"),
-            ("Spatial audio", "spec/spatial-audio.html"),
+            ("Spatial audio", "spec/audio.html"),
         ],
     ),
     (
         "Resources",
         [
-            ("HRIR assets", "guide/spatial-audio-resources.html"),
+            ("HRIR assets", "guide/audio.html"),
         ],
     ),
 ]
@@ -226,7 +225,7 @@ def render_doc_page(title: str, body_html: str, current_page: str) -> str:
       {body_html}
     </main>
     <footer class="doc-footer">
-      <p>Apache License 2.0 · Spatial Media metadata tools</p>
+      <p>Spatial Media metadata tools</p>
     </footer>
   </div>
 </body>
@@ -250,9 +249,9 @@ def render_download_page(downloads: list[dict], current_page: str = "download.ht
 
     cli_href = html.escape(relpath(current_page, "guide/cli.html"))
     usage_code = highlight_code(
-        "chmod +x spatialmedia-macos-arm64   # macOS / Linux\n"
-        "./spatialmedia-macos-arm64 -h\n"
-        "./spatialmedia-macos-arm64 -I --vr180 /path/to/video.mp4\n",
+        "chmod +x cli-macos-arm64   # macOS / Linux\n"
+        "./cli-macos-arm64 -h\n"
+        "./cli-macos-arm64 -I --vr180 /path/to/video.mp4\n",
         "bash",
     )
     body = f"""

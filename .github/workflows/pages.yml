@@ -11,7 +11,7 @@ on:
     branches: [main]
     paths:
       - "web/**"
-      - "spatialmedia/**"
+      - "cli/**"
       - "docker/README.md"
       - "audio/README.md"
       - "README.md"
@@ -40,9 +40,9 @@ jobs:
         with:
           filters: |
             cli:
-              - 'spatialmedia/**'
+              - 'cli/**'
               - 'pyproject.toml'
-              - 'spatialmedia/spatialmedia_cli.spec'
+              - 'cli/cli.spec'
 
   build-linux:
     needs: changes
@@ -56,13 +56,13 @@ jobs:
       - name: Build Linux CLI binary
         run: |
           python -m pip install -e ".[build]"
-          pyinstaller --clean --noconfirm spatialmedia/spatialmedia_cli.spec
-          cp dist/spatialmedia spatialmedia-linux-x86_64
-          chmod +x spatialmedia-linux-x86_64
+          pyinstaller --clean --noconfirm cli/cli.spec
+          cp dist/cli cli-linux-x86_64
+          chmod +x cli-linux-x86_64
       - uses: actions/upload-artifact@v4
         with:
           name: cli-linux
-          path: spatialmedia-linux-x86_64
+          path: cli-linux-x86_64
 
   build-macos:
     needs: changes
@@ -76,13 +76,13 @@ jobs:
       - name: Build macOS CLI binary
         run: |
           python -m pip install -e ".[build]"
-          pyinstaller --clean --noconfirm spatialmedia/spatialmedia_cli.spec
-          cp dist/spatialmedia spatialmedia-macos-arm64
-          chmod +x spatialmedia-macos-arm64
+          pyinstaller --clean --noconfirm cli/cli.spec
+          cp dist/cli cli-macos-arm64
+          chmod +x cli-macos-arm64
       - uses: actions/upload-artifact@v4
         with:
           name: cli-macos
-          path: spatialmedia-macos-arm64
+          path: cli-macos-arm64
 
   deploy:
     needs: [changes, build-linux, build-macos]
@@ -101,7 +101,7 @@ jobs:
         uses: actions/cache/restore@v4
         with:
           path: cached-binaries
-          key: cli-binaries-${{ hashFiles('spatialmedia/**/*.py', 'pyproject.toml', 'spatialmedia/spatialmedia_cli.spec') }}
+          key: cli-binaries-${{ hashFiles('cli/**/*.py', 'pyproject.toml', 'cli/cli.spec') }}
           restore-keys: |
             cli-binaries-
 
@@ -115,10 +115,10 @@ jobs:
         run: |
           mkdir -p staged-binaries
           for path in \
-            artifacts/cli-linux/spatialmedia-linux-x86_64 \
-            artifacts/cli-macos/spatialmedia-macos-arm64 \
-            cached-binaries/spatialmedia-linux-x86_64 \
-            cached-binaries/spatialmedia-macos-arm64
+            artifacts/cli-linux/cli-linux-x86_64 \
+            artifacts/cli-macos/cli-macos-arm64 \
+            cached-binaries/cli-linux-x86_64 \
+            cached-binaries/cli-macos-arm64
           do
             if [ -f "$path" ]; then
               cp "$path" "staged-binaries/$(basename "$path")"
@@ -133,8 +133,8 @@ jobs:
           from pathlib import Path
 
           entries = [
-              ("staged-binaries/spatialmedia-linux-x86_64", "spatialmedia-linux-x86_64", "Linux (x86_64)", "Ubuntu / most Linux distros", "Single-file executable. chmod +x then run from a terminal."),
-              ("staged-binaries/spatialmedia-macos-arm64", "spatialmedia-macos-arm64", "macOS (Apple Silicon)", "arm64 (M1/M2/M3+)", "May need: xattr -dr com.apple.quarantine ./spatialmedia-macos-arm64"),
+              ("staged-binaries/cli-linux-x86_64", "cli-linux-x86_64", "Linux (x86_64)", "Ubuntu / most Linux distros", "Single-file executable. chmod +x then run from a terminal."),
+              ("staged-binaries/cli-macos-arm64", "cli-macos-arm64", "macOS (Apple Silicon)", "arm64 (M1/M2/M3+)", "May need: xattr -dr com.apple.quarantine ./cli-macos-arm64"),
           ]
           downloads = []
           for source, filename, label, arch, note in entries:
@@ -155,7 +155,7 @@ jobs:
           sudo apt-get update -qq
           sudo apt-get install -y -qq ffmpeg
           ffmpeg -y -f lavfi -i testsrc=size=320x240:rate=1 -f lavfi -i anoisesrc=channel_layout=4.0:sample_rate=48000 \
-            -t 0.05 -c:v libx264 -c:a aac -shortest tests/fixtures/testsrc_320x240_h264_4ch.mp4
+            -t 0.05 -c:v libx264 -c:a aac -shortest tests/fixtures/h264-4ch.mp4
           node web/test-inject.mjs
 
       - name: Build static site
@@ -172,7 +172,7 @@ jobs:
         if: needs.changes.outputs.cli == 'true'
         with:
           path: cached-binaries
-          key: cli-binaries-${{ hashFiles('spatialmedia/**/*.py', 'pyproject.toml', 'spatialmedia/spatialmedia_cli.spec') }}
+          key: cli-binaries-${{ hashFiles('cli/**/*.py', 'pyproject.toml', 'cli/cli.spec') }}
 
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3

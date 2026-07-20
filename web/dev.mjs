@@ -43,7 +43,7 @@ function startServer() {
 const watchGlobs = [
   webDir,
   path.join(root, "README.md"),
-  path.join(root, "spatialmedia", "README.md"),
+  path.join(root, "cli", "README.md"),
   path.join(root, "docker", "README.md"),
   path.join(root, "audio", "README.md"),
 ];

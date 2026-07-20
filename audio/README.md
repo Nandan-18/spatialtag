@@ -2,16 +2,16 @@
 
 Reference assets for **ambisonic binaural monitoring**: the same class of HRIR filters used in Google VR Audio, YouTube 360/VR, and related decoders. Use these when building preview tools or monitoring ambisonic mixes in a DAW.
 
-These are **listening/monitoring assets**, not metadata injection code. To tag MP4/MOV files with spatial audio metadata (`SA3D` atoms), use the [browser demo](https://nandan-18.github.io/spatial-media/), the [CLI/GUI](../spatialmedia/README.md) (`-a`), or the [Docker web UI](../docker/README.md). See the [Spatial Audio RFC](../web/spec/spatial-audio.md) for the box format.
+These are **listening/monitoring assets**, not metadata injection code. To tag MP4/MOV files with spatial audio metadata (`SA3D` atoms), use the [browser demo](https://nandan-18.github.io/spatial-media/), the [CLI/GUI](../cli/README.md) (`-a`), or the [Docker web UI](../docker/README.md). See the [Spatial Audio RFC](../web/spec/audio.md) for the box format.
 
 ## Directory overview
 
 | Directory | Contents |
 |-----------|----------|
-| [raw-symmetric-cube-hrirs/](raw-symmetric-cube-hrirs/) | Cube-layout HRIR measurements (SADIE KU100–derived); includes an [ambiX](https://github.com/kronihias/ambix) preset |
-| [symmetric-ambisonic-binaural-decoder/](symmetric-ambisonic-binaural-decoder/) | Spherical-harmonic HRIR filters for first-order ambisonic binaural decode (Google VR Audio style) |
-| [ambisonic-correction-filters/](ambisonic-correction-filters/) | EQ compensation when migrating mixes from THRIVE HRTFs to SADIE KU100 |
-| [third_party/](third_party/) | Third-party license notices |
+| [hrirs/](hrirs/) | Cube-layout HRIR measurements (SADIE KU100–derived); includes an [ambiX](https://github.com/kronihias/ambix) preset |
+| [decoder/](decoder/) | Spherical-harmonic HRIR filters for first-order ambisonic binaural decode (Google VR Audio style) |
+| [corrections/](corrections/) | EQ compensation when migrating mixes from THRIVE HRTFs to SADIE KU100 |
+| [vendor/](vendor/) | Third-party HRIR measurements |
 
 ## Raw symmetric cube HRIRs
 
@@ -78,7 +78,7 @@ HRTFs impose listener-specific spectral coloration. Example frequency responses 
 
 ### Can I retune an existing THRIVE-monitored mix?
 
-Apply the [ambisonic correction filters](#ambisonic-correction-filters) to your ambiX tracks to align timbre with the SADIE KU100 decoder.
+Apply the [ambisonic correction filters](#corrections) to your ambiX tracks to align timbre with the SADIE KU100 decoder.
 
 ### Expected loudness
 

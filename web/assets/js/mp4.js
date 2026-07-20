@@ -1,6 +1,6 @@
 /**
  * Minimal MP4/MOV box loader and metadata injector for browser use.
- * Ported from spatialmedia/mpeg for GitHub Pages demo scope.
+ * Ported from cli/mpeg for GitHub Pages demo scope.
  */
 
 import {

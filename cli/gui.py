@@ -1,19 +1,3 @@
-#! /usr/bin/env python
-
-# Copyright 2016 Google Inc. All rights reserved.
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
 """Spatial Media Metadata Injector GUI
 
 GUI application for examining/injecting spatial media metadata in MP4/MOV files.
@@ -44,7 +28,7 @@ except ImportError:
 path = os.path.dirname(sys.modules[__name__].__file__)
 path = os.path.join(path, "..")
 sys.path.insert(0, path)
-from spatialmedia import metadata_utils
+import cli.metadata as meta
 
 SPATIAL_AUDIO_LABEL = "My video has spatial audio (ambiX ACN/SN3D format)"
 HEAD_LOCKED_STEREO_LABEL = "with head-locked stereo"
@@ -86,7 +70,7 @@ class Application(tk.Frame):
         )
 
         console = Console()
-        parsed_metadata = metadata_utils.parse_metadata(self.in_file, console.append)
+        parsed_metadata = meta.parse_metadata(self.in_file, console.append)
 
         metadata = None
         audio_metadata = None
@@ -107,7 +91,7 @@ class Application(tk.Frame):
         self.checkbox_spherical.configure(state="normal")
 
         self.var_spherical.set(1)
-        self.spatial_audio_description = metadata_utils.get_spatial_audio_description(
+        self.spatial_audio_description = meta.get_spatial_audio_description(
             parsed_metadata.num_audio_channels
         )
 
@@ -144,11 +128,11 @@ class Application(tk.Frame):
         if stereo == "none":
             stereo = None
 
-        metadata = metadata_utils.Metadata()
-        metadata.video = metadata_utils.generate_spherical_xml(stereo=stereo)
+        metadata = meta.Metadata()
+        metadata.video = meta.generate_spherical_xml(stereo=stereo)
 
         if self.var_spatial_audio.get():
-            metadata.audio = metadata_utils.get_spatial_audio_metadata(
+            metadata.audio = meta.get_spatial_audio_metadata(
                 self.spatial_audio_description.order,
                 self.spatial_audio_description.has_head_locked_stereo,
             )
@@ -170,7 +154,7 @@ class Application(tk.Frame):
             )
 
             try:
-                metadata_utils.inject_metadata(input_file, output_file, metadata, console.append)
+                meta.inject_metadata(input_file, output_file, metadata, console.append)
                 success_count += 1
             except Exception as e:
                 console.append(f"Error processing {ntpath.basename(input_file)}: {str(e)}")

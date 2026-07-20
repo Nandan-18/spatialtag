@@ -1,18 +1,3 @@
-#! /usr/bin/env python
-
-# Copyright 2016 Google Inc. All rights reserved.
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
 """Spatial Media Metadata Injector
 
 Tool for examining and injecting spatial media metadata in MP4/MOV files.
@@ -21,7 +6,7 @@ Tool for examining and injecting spatial media metadata in MP4/MOV files.
 import argparse
 import sys
 
-from spatialmedia import metadata_utils
+import cli.metadata as meta
 
 
 def console(contents):
@@ -141,7 +126,7 @@ def main(main_args):
         use_v2 = args.v2
 
         if args.vr180:
-            dims = metadata_utils.get_video_dimensions(input_file)
+            dims = meta.get_video_dimensions(input_file)
             if not dims:
                 console("Could not read video dimensions for --vr180.")
                 return
@@ -160,23 +145,23 @@ def main(main_args):
                 "VR180 settings: %dx%d frame, crop=%s, bounds=%s" % (width, height, crop, bounds)
             )
 
-        metadata = metadata_utils.Metadata(projection, stereo_mode, bounds)
+        metadata = meta.Metadata(projection, stereo_mode, bounds)
         if args.vr180:
             # Keep v2 fields and also write v1 XML with crop for broader players.
-            metadata.video = metadata_utils.generate_spherical_xml(projection, stereo_mode, crop)
+            metadata.video = meta.generate_spherical_xml(projection, stereo_mode, crop)
         elif not use_v2:
             metadata.projection = None
             metadata.stereo_mode = None
-            metadata.video = metadata_utils.generate_spherical_xml(projection, stereo_mode, crop)
+            metadata.video = meta.generate_spherical_xml(projection, stereo_mode, crop)
 
         if args.spatial_audio:
-            parsed_metadata = metadata_utils.parse_metadata(input_file, console)
+            parsed_metadata = meta.parse_metadata(input_file, console)
             if not metadata.audio:
-                spatial_audio_description = metadata_utils.get_spatial_audio_description(
+                spatial_audio_description = meta.get_spatial_audio_description(
                     parsed_metadata.num_audio_channels
                 )
                 if spatial_audio_description.is_supported:
-                    metadata.audio = metadata_utils.get_spatial_audio_metadata(
+                    metadata.audio = meta.get_spatial_audio_metadata(
                         spatial_audio_description.order,
                         spatial_audio_description.has_head_locked_stereo,
                     )
@@ -188,7 +173,7 @@ def main(main_args):
                     return
 
         if metadata.video or metadata.projection or metadata.stereo_mode:
-            metadata_utils.inject_metadata(input_file, output_file, metadata, console)
+            meta.inject_metadata(input_file, output_file, metadata, console)
         else:
             console("Failed to generate metadata.")
         return
@@ -196,12 +181,12 @@ def main(main_args):
     if len(args.file) > 0:
         for input_file in args.file:
             if args.spatial_audio:
-                parsed_metadata = metadata_utils.parse_metadata(input_file, console)
-                metadata.audio = metadata_utils.get_spatial_audio_description(
+                parsed_metadata = meta.parse_metadata(input_file, console)
+                metadata.audio = meta.get_spatial_audio_description(
                     parsed_metadata.num_channels
                 )
 
-            metadata_utils.parse_metadata(input_file, console)
+            meta.parse_metadata(input_file, console)
         return
 
     parser.print_help()

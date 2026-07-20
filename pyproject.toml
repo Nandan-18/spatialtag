@@ -3,11 +3,10 @@ requires = ["setuptools>=61"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "spatialmedia"
+name = "cli"
 version = "2.2.0"
 description = "Specifications and tools for 360 video and spatial audio."
 readme = "README.md"
-license = { text = "Apache-2.0" }
 requires-python = ">=3.9"
 authors = [{ name = "Google Inc" }]
 dependencies = []
@@ -18,23 +17,23 @@ build = ["pyinstaller", "pillow", "packaging"]
 dev = ["ruff>=0.6", "mypy>=1.8", "markdown>=3.5", "pygments>=2.17"]
 
 [project.scripts]
-spatialmedia = "spatialmedia.__main__:main_entry"
+cli = "cli.__main__:main_entry"
 
 [tool.setuptools.packages.find]
-include = ["spatialmedia*"]
+include = ["cli*"]
 
 [tool.ruff]
 target-version = "py39"
 line-length = 100
-src = ["spatialmedia", "docker"]
+src = ["cli", "docker"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I"]
 ignore = ["E501"]
 
 [tool.ruff.lint.per-file-ignores]
-"spatialmedia/__main__.py" = ["E402"]
-"spatialmedia/gui.py" = ["E402", "I001"]
+"cli/__main__.py" = ["E402"]
+"cli/gui.py" = ["E402", "I001"]
 "docker/app.py" = ["E402", "I001"]
 
 [tool.ruff.format]
@@ -42,6 +41,6 @@ quote-style = "double"
 
 [tool.mypy]
 python_version = "3.9"
-packages = ["spatialmedia.mpeg"]
+packages = ["cli.mpeg"]
 ignore_missing_imports = true
 warn_unused_ignores = true

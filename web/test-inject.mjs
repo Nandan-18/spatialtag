@@ -12,8 +12,8 @@ import {
 
 const webDir = path.dirname(fileURLToPath(import.meta.url));
 const root = path.join(webDir, "..");
-const fixture = path.join(root, "tests/fixtures/testsrc_320x240_h264.mp4");
-const fixture4ch = path.join(root, "tests/fixtures/testsrc_320x240_h264_4ch.mp4");
+const fixture = path.join(root, "tests/fixtures/h264.mp4");
+const fixture4ch = path.join(root, "tests/fixtures/h264-4ch.mp4");
 const out = path.join(root, "tests/output/demo_inject.mp4");
 const outAudio = path.join(root, "tests/output/demo_inject_audio.mp4");
 
@@ -58,7 +58,7 @@ function testVideoInject() {
 
 function testSpatialAudioInject() {
   if (!fs.existsSync(fixture4ch)) {
-    console.log("Skip 4ch inject test: tests/fixtures/testsrc_320x240_h264_4ch.mp4 not found");
+    console.log("Skip 4ch inject test: tests/fixtures/h264-4ch.mp4 not found");
     return;
   }
 

@@ -1,6 +1,6 @@
 /**
  * Spherical video v1 XML metadata generation and parsing.
- * Mirrors spatialmedia/metadata_utils.py constants.
+ * Mirrors cli/metadata.py constants.
  */
 
 export const SPHERICAL_UUID_BYTES = new Uint8Array([
@@ -127,7 +127,7 @@ export function stereoLabel(mode) {
   return "mono";
 }
 
-// --- Spatial audio (SA3D) --- mirrors spatialmedia/metadata_utils.py ---
+// --- Spatial audio (SA3D) --- mirrors cli/metadata.py ---
 
 const MAX_SUPPORTED_AMBIX_ORDER = 1;
 

@@ -1,5 +1,5 @@
 # -*- mode: python -*-
-# PyInstaller spec for the spatialmedia CLI (console).
+# PyInstaller spec for the cli console binary.
 
 import sys
 from pathlib import Path
@@ -7,15 +7,14 @@ from pathlib import Path
 from PyInstaller.utils.hooks import collect_submodules
 
 block_cipher = None
-# SPECPATH is the spatialmedia/ directory containing this spec file.
 root = Path(SPECPATH).resolve().parent
 
 a = Analysis(
-    [str(root / "spatialmedia" / "__main__.py")],
+    [str(root / "cli" / "__main__.py")],
     pathex=[str(root)],
     binaries=[],
     datas=[],
-    hiddenimports=collect_submodules("spatialmedia"),
+    hiddenimports=collect_submodules("cli"),
     hookspath=[],
     runtime_hooks=[],
     excludes=[],
@@ -28,7 +27,7 @@ exe = EXE(
     a.binaries,
     a.zipfiles,
     a.datas,
-    name="spatialmedia",
+    name="cli",
     debug=False,
     strip=False,
     upx=True,
