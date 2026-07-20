@@ -44,11 +44,11 @@ def get_executable_name():
     """Get platform-specific executable name"""
     platform_name = get_platform_name()
     if platform_name == "windows":
-        return "Spatial Media Metadata Injector.exe"
+        return "SpatialTag.exe"
     elif platform_name == "macos":
-        return "Spatial Media Metadata Injector.app"
+        return "SpatialTag.app"
     else:
-        return "Spatial Media Metadata Injector"
+        return "SpatialTag"
 
 
 def build_executable():

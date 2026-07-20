@@ -1,6 +1,6 @@
-"""Spatial Media Metadata Injector
+"""SpatialTag CLI
 
-Tool for examining and injecting spatial media metadata in MP4/MOV files.
+Inspect and inject immersive MP4/MOV metadata from the command line.
 """
 
 import argparse
