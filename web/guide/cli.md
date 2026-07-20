@@ -15,8 +15,8 @@ Releases](download.html). Make it executable, then run `spatialtag -h`.
 Or install from a git clone:
 
 ```bash
-git clone https://github.com/Nandan-18/spatial-media.git
-cd spatial-media
+git clone https://github.com/Nandan-18/spatialtag.git
+cd spatialtag
 python3 -m pip install -e .
 spatialtag -h
 ```

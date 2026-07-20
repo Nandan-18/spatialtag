@@ -25,8 +25,8 @@ demo](../index.html#demo) or [download a CLI binary](download.html).
 ## Build and run
 
 ```bash
-git clone https://github.com/Nandan-18/spatial-media.git
-cd spatial-media
+git clone https://github.com/Nandan-18/spatialtag.git
+cd spatialtag
 docker build -t spatialtag-web -f docker/Dockerfile .
 mkdir -p data
 docker run -p 5000:5000 \

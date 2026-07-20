@@ -3,9 +3,9 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/Nandan-18/spatial-media/actions/workflows/ci.yml"><img src="https://github.com/Nandan-18/spatial-media/actions/workflows/ci.yml/badge.svg" alt="CI" /></a>
-  <a href="https://nandan-18.github.io/spatial-media/"><img src="https://img.shields.io/badge/docs-SpatialTag-0B7A75" alt="Docs" /></a>
-  <a href="https://github.com/Nandan-18/spatial-media/releases/latest"><img src="https://img.shields.io/github/v/release/Nandan-18/spatial-media?label=release" alt="Release" /></a>
+  <a href="https://github.com/Nandan-18/spatialtag/actions/workflows/ci.yml"><img src="https://github.com/Nandan-18/spatialtag/actions/workflows/ci.yml/badge.svg" alt="CI" /></a>
+  <a href="https://nandan-18.github.io/spatialtag/"><img src="https://img.shields.io/badge/docs-SpatialTag-0B7A75" alt="Docs" /></a>
+  <a href="https://github.com/Nandan-18/spatialtag/releases/latest"><img src="https://img.shields.io/github/v/release/Nandan-18/spatialtag?label=release" alt="Release" /></a>
   <img src="https://img.shields.io/badge/python-%3E%3D3.12-blue" alt="Python &gt;= 3.12" />
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-green" alt="License: MIT" /></a>
 </p>
@@ -32,7 +32,7 @@ that metadata so your immersive content plays back correctly everywhere.
   (Tkinter), a **browser demo**, or a **Docker web UI** (Flask).
 
 **Site:**
-[nandan-18.github.io/spatial-media](https://nandan-18.github.io/spatial-media/)
+[nandan-18.github.io/spatialtag](https://nandan-18.github.io/spatialtag/)
 (browser demo, docs)
 
 ## Quick start
@@ -40,15 +40,15 @@ that metadata so your immersive content plays back correctly everywhere.
 SpatialTag CLI command: `spatialtag`
 
 ```bash
-git clone https://github.com/Nandan-18/spatial-media.git
-cd spatial-media
+git clone https://github.com/Nandan-18/spatialtag.git
+cd spatialtag
 python3 -m pip install -e .
 spatialtag video.mp4              # inspect metadata
 spatialtag -I --vr180 video.mp4   # inject in place
 ```
 
 Pre-built [CLI binaries and HRIR
-assets](https://github.com/Nandan-18/spatial-media/releases/latest)
+assets](https://github.com/Nandan-18/spatialtag/releases/latest)
 are on GitHub Releases if you prefer not to install Python.
 
 ## Repository layout

@@ -1,7 +1,7 @@
 # Download
 
 Pre-built assets are published on [GitHub
-Releases](https://github.com/Nandan-18/spatial-media/releases/latest).
+Releases](https://github.com/Nandan-18/spatialtag/releases/latest).
 
 | File | Description |
 |------|-------------|
@@ -27,8 +27,8 @@ See the [CLI guide](cli.html) for all options.
 ## Install from source
 
 ```bash
-git clone https://github.com/Nandan-18/spatial-media.git
-cd spatial-media
+git clone https://github.com/Nandan-18/spatialtag.git
+cd spatialtag
 python3 -m pip install -e .
 spatialtag -h
 ```

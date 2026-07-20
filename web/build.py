@@ -65,7 +65,7 @@ GLOBAL_NAV_LINKS: list[tuple[str, str]] = [
     ("Demo", "index.html#demo"),
     ("Docs", "docs/index.html"),
     ("Download", "docs/download.html"),
-    ("GitHub", "https://github.com/Nandan-18/spatial-media"),
+    ("GitHub", "https://github.com/Nandan-18/spatialtag"),
 ]
 
 
@@ -230,7 +230,7 @@ def render_doc_page(title: str, body_html: str, current_page: str) -> str:
             <span aria-hidden="true">&middot;</span>
             <a href="{html.escape(nav_href(current_page, "docs/download.html"))}">Download</a>
             <span aria-hidden="true">&middot;</span>
-            <a href="https://github.com/Nandan-18/spatial-media">GitHub</a>
+            <a href="https://github.com/Nandan-18/spatialtag">GitHub</a>
           </p>
         </div>
       </footer>
