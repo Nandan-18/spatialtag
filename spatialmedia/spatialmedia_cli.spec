@@ -7,7 +7,8 @@ from pathlib import Path
 from PyInstaller.utils.hooks import collect_submodules
 
 block_cipher = None
-root = Path(SPECPATH).resolve().parent.parent
+# SPECPATH is the spatialmedia/ directory containing this spec file.
+root = Path(SPECPATH).resolve().parent
 
 a = Analysis(
     [str(root / "spatialmedia" / "__main__.py")],
