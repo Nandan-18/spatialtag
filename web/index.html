@@ -17,35 +17,31 @@
     <nav class="global-nav" aria-label="Global">
       <div class="nav-inner">
         <a class="nav-logo" href="index.html">Spatial Media</a>
-        <div class="nav-links">
-          <div class="nav-group nav-group-primary">
-            <a href="#demo">Demo</a>
-            <a href="download.html">Download</a>
-          </div>
-          <div class="nav-group">
-            <span class="nav-group-label">Guides</span>
-            <div class="nav-sublinks">
-              <a href="guide/overview.html">Overview</a>
-              <a href="guide/cli.html">CLI</a>
-              <a href="guide/docker.html">Docker</a>
-              <a href="guide/cli.html#desktop-gui">GUI</a>
-            </div>
-          </div>
-          <div class="nav-group">
-            <span class="nav-group-label">Specs</span>
-            <div class="nav-sublinks">
-              <a href="spec/v1.html">Spherical v1</a>
-              <a href="spec/v2.html">Spherical v2</a>
-              <a href="spec/vr180.html">VR180</a>
-              <a href="spec/audio.html">Spatial audio</a>
-            </div>
-          </div>
-          <div class="nav-group">
-            <span class="nav-group-label">Resources</span>
-            <div class="nav-sublinks">
-              <a href="guide/audio.html">HRIR assets</a>
-            </div>
-          </div>
+        <button
+          class="nav-toggle"
+          type="button"
+          aria-expanded="false"
+          aria-controls="global-nav-links"
+          aria-label="Open menu"
+        >
+          <span class="nav-toggle-bar" aria-hidden="true"></span>
+          <span class="nav-toggle-bar" aria-hidden="true"></span>
+        </button>
+        <div class="nav-links" id="global-nav-links">
+          <a href="#demo">Demo</a>
+          <a href="download.html">Download</a>
+          <span class="nav-divider" aria-hidden="true"></span>
+          <a href="guide/overview.html">Overview</a>
+          <a href="guide/cli.html">CLI</a>
+          <a href="guide/docker.html">Docker</a>
+          <a href="guide/cli.html#desktop-gui">GUI</a>
+          <span class="nav-divider" aria-hidden="true"></span>
+          <a href="spec/v1.html">Spherical v1</a>
+          <a href="spec/v2.html">Spherical v2</a>
+          <a href="spec/vr180.html">VR180</a>
+          <a href="spec/audio.html">Spatial audio</a>
+          <span class="nav-divider" aria-hidden="true"></span>
+          <a href="guide/audio.html">HRIR</a>
         </div>
       </div>
     </nav>
@@ -180,37 +176,6 @@
             </div>
           </li>
         </ol>
-      </div>
-    </section>
-
-    <section id="tools" class="section section-gray">
-      <div class="section-inner">
-        <h2 class="section-headline">One library. Four ways to work.</h2>
-        <p class="section-lead">
-          Every interface uses the same <code>cli</code> core. Pick the surface that fits your file size and workflow.
-        </p>
-        <div class="tools-grid">
-          <a class="tool-card" href="#demo">
-            <span class="tool-icon">Web</span>
-            <h3>Browser demo</h3>
-            <p>Inspect and inject video + spatial audio metadata locally. Best under ~2 GB.</p>
-          </a>
-          <a class="tool-card" href="download.html">
-            <span class="tool-icon">CLI</span>
-            <h3>Command line</h3>
-            <p>Scriptable inject, in-place rewrite (<code>-I</code>), and VR180 helper for large files.</p>
-          </a>
-          <a class="tool-card" href="guide/cli.html#desktop-gui">
-            <span class="tool-icon">GUI</span>
-            <h3>Desktop app</h3>
-            <p>Interactive file pickers for spherical video and spatial audio on macOS, Linux, or Windows.</p>
-          </a>
-          <a class="tool-card" href="guide/docker.html">
-            <span class="tool-icon">Docker</span>
-            <h3>Web UI</h3>
-            <p>Drag-and-drop in the browser with mounted volumes for multi-GB in-place inject.</p>
-          </a>
-        </div>
       </div>
     </section>
 
@@ -429,6 +394,7 @@
       <p>Spatial Media metadata tools</p>
     </footer>
 
+    <script src="assets/js/site.js" defer></script>
     <script type="module" src="assets/js/app.js"></script>
   </body>
 </html>
