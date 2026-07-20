@@ -82,10 +82,12 @@ def inject_metadata():
     if not files_to_process:
         return jsonify({'error': 'No files specified'}), 400
 
-    stereo_mode = "none"
-    if options.get('stereo'): # Checkbox for 3D
-         stereo_mode = "top-bottom" # As per GUI logic
-    
+    stereo_mode = options.get('stereo_mode') or "none"
+    if stereo_mode not in ("none", "left-right", "top-bottom"):
+        stereo_mode = "none"
+    if stereo_mode == "none":
+        stereo_mode = None
+
     metadata = metadata_utils.Metadata()
     if options.get('spherical'):
         metadata.video = metadata_utils.generate_spherical_xml(stereo=stereo_mode)
@@ -96,6 +98,7 @@ def inject_metadata():
     # For now, simplistic approach:
     
     results = []
+    use_inplace = bool(options.get('inplace', True))
     
     for raw_filename in files_to_process:
         normalized_filename = raw_filename.replace('\\', '/')
@@ -110,8 +113,12 @@ def inject_metadata():
 
         filename = secure_filename(raw_filename)
         input_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-        output_filename = f"injected_{filename}"
-        output_path = os.path.join(app.config['UPLOAD_FOLDER'], output_filename)
+        if use_inplace:
+            output_filename = filename
+            output_path = input_path
+        else:
+            output_filename = f"injected_{filename}"
+            output_path = os.path.join(app.config['UPLOAD_FOLDER'], output_filename)
         
         console = Console()
         try:

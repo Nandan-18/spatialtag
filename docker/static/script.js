@@ -5,7 +5,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const controls = document.getElementById('controls');
     const injectBtn = document.getElementById('inject-btn');
     const sphericalCb = document.getElementById('spherical');
-    const cb3d = document.getElementById('3d');
+    const stereoMode = document.getElementById('stereo-mode');
+    const inplaceCb = document.getElementById('inplace');
     const cbAudio = document.getElementById('spatial-audio');
     const statusMessage = document.getElementById('status-message');
     const resultsArea = document.getElementById('results-area');
@@ -145,12 +146,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (sphericalCb.checked) {
-            cb3d.disabled = false;
-            cb3d.parentElement.style.opacity = '1';
+            stereoMode.disabled = false;
+            stereoMode.parentElement.style.opacity = '1';
         } else {
-            cb3d.disabled = true;
-            cb3d.checked = false;
-            cb3d.parentElement.style.opacity = '0.5';
+            stereoMode.disabled = true;
+            stereoMode.value = 'none';
+            stereoMode.parentElement.style.opacity = '0.5';
         }
 
         // Auto-check spatial audio if any uploaded file supports it?
@@ -170,7 +171,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const options = {
             spherical: sphericalCb.checked,
-            stereo: cb3d.checked,
+            stereo_mode: stereoMode.value,
+            inplace: inplaceCb.checked,
             spatial_audio: cbAudio.checked
         };
 
