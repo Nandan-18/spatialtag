@@ -19,6 +19,5 @@ tests/output/
 *.app
 site/
 web/dist/
-web/manifest.json
 node_modules/
 .pnpm-store/
