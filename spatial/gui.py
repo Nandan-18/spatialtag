@@ -73,7 +73,7 @@ class Application(tk.Frame):
 
         for line in console.log:
             if "Error" in line:
-                self.set_error("Failed to load file %s" % ntpath.basename(self.in_file))
+                self.set_error(f"Failed to load file {ntpath.basename(self.in_file)}")
                 self.var_spherical.set(0)
                 self.var_spatial_audio.set(0)
                 self.disable_state()

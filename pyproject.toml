@@ -32,8 +32,8 @@ line-length = 100
 src = ["spatial", "docker"]
 
 [tool.ruff.lint]
-select = ["E", "F", "I"]
-ignore = ["E501"]
+select = ["E", "F", "I", "UP", "B"]
+ignore = ["E501", "UP031"]
 
 [tool.ruff.lint.per-file-ignores]
 "spatial/__main__.py" = ["E402"]

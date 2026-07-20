@@ -7,12 +7,12 @@ from __future__ import annotations
 
 import io
 import struct
-from typing import BinaryIO, Optional, Union
+from typing import BinaryIO
 
 from spatial.mpeg import constants
 
 
-def load(fh: BinaryIO, position: Optional[int], end: int) -> Optional[Box]:
+def load(fh: BinaryIO, position: int | None, end: int) -> Box | None:
     """Loads the box located at a position in a mp4 file.
 
     Args:
@@ -56,11 +56,11 @@ class Box:
     """MPEG4 box contents and behaviour true for all boxes."""
 
     def __init__(self) -> None:
-        self.name: Union[bytes, str] = b""
+        self.name: bytes | str = b""
         self.position: int = 0
         self.header_size: int = 0
         self.content_size: int = 0
-        self.contents: Optional[bytes] = None
+        self.contents: bytes | None = None
 
     def content_start(self) -> int:
         return self.position + self.header_size
@@ -157,7 +157,7 @@ def index_copy(in_fh, out_fh, box, mode, mode_length, delta=0):
     new_contents = []
     new_contents.append(struct.pack(">I", header))
     new_contents.append(struct.pack(">I", values))
-    for i in range(values):
+    for _i in range(values):
         content = fh.read(mode_length)
         content = struct.unpack(mode, content)[0] + delta
         new_contents.append(struct.pack(mode, content))

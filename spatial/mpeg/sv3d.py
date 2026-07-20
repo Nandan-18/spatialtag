@@ -74,7 +74,7 @@ class SVHDBox(box.Box):
     def print_box(self, console):
         """Prints the contents of this box to console."""
         console("\t\t\tSVHD {")
-        console("\t\t\t\tMetadata Source: %s" % self.metadata_source)
+        console(f"\t\t\t\tMetadata Source: {self.metadata_source}")
         console("\t\t\t}")
 
     def save(self, in_fh, out_fh, delta):

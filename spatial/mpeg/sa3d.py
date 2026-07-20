@@ -45,7 +45,7 @@ def load(fh, position=None, end=None):
     new_box.ambisonic_channel_ordering = struct.unpack(">B", fh.read(1))[0]
     new_box.ambisonic_normalization = struct.unpack(">B", fh.read(1))[0]
     new_box.num_channels = struct.unpack(">I", fh.read(4))[0]
-    for i in range(0, new_box.num_channels):
+    for _i in range(0, new_box.num_channels):
         new_box.channel_map.append(struct.unpack(">I", fh.read(4))[0])
     return new_box
 
@@ -127,13 +127,13 @@ class SA3DBox(box.Box):
         ambisonic_type = self.ambisonic_type_name()
         channel_ordering = self.ambisonic_channel_ordering_name()
         ambisonic_normalization = self.ambisonic_normalization_name()
-        console("\t\tAmbisonic Type: %s" % ambisonic_type)
-        console("\t\tContains Head-Locked Stereo: %r" % self.head_locked_stereo)
+        console(f"\t\tAmbisonic Type: {ambisonic_type}")
+        console(f"\t\tContains Head-Locked Stereo: {self.head_locked_stereo!r}")
         console("\t\tAmbisonic Order: %d" % self.ambisonic_order)
-        console("\t\tAmbisonic Channel Ordering: %s" % channel_ordering)
-        console("\t\tAmbisonic Normalization: %s" % ambisonic_normalization)
+        console(f"\t\tAmbisonic Channel Ordering: {channel_ordering}")
+        console(f"\t\tAmbisonic Normalization: {ambisonic_normalization}")
         console("\t\tNumber of Channels: %d" % self.num_channels)
-        console("\t\tChannel Map: %s" % str(self.channel_map))
+        console(f"\t\tChannel Map: {str(self.channel_map)}")
 
     def get_metadata_string(self):
         """Outputs a concise single line audio metadata string."""

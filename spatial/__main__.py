@@ -189,7 +189,7 @@ def main(main_args):
             parsed_metadata = meta.parse_metadata(input_file, console)
             if args.spatial_audio:
                 if parsed_metadata is None:
-                    console("Failed to parse %s" % input_file)
+                    console(f"Failed to parse {input_file}")
                     return 1
                 description = meta.get_spatial_audio_description(parsed_metadata.num_audio_channels)
                 console(

@@ -6,12 +6,12 @@ Functions for loading MP4/MOV files and manipulating boxes.
 from __future__ import annotations
 
 import io
-from typing import BinaryIO, Optional
+from typing import BinaryIO
 
 from spatial.mpeg import constants, container
 
 
-def load(fh: BinaryIO) -> Optional[Mpeg4Container]:
+def load(fh: BinaryIO) -> Mpeg4Container | None:
     """Load the mpeg4 file structure of a file.
 
     Args:
@@ -74,7 +74,7 @@ class Mpeg4Container(container.Container):
         self.free_box = None
         self.first_mdat_box = None
         self.ftyp_box = None
-        self.first_mdat_position: Optional[int] = None
+        self.first_mdat_position: int | None = None
         self.padding = 0
 
     def merge(self, element):

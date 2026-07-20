@@ -105,7 +105,7 @@ for tag in SPHERICAL_TAGS_LIST:
     SPHERICAL_TAGS[SPHERICAL_PREFIX + tag] = tag
 
 integer_regex_group = r"(\d+)"
-crop_regex = "^{0}$".format(":".join([integer_regex_group] * 6))
+crop_regex = "^{}$".format(":".join([integer_regex_group] * 6))
 
 MAX_SUPPORTED_AMBIX_ORDER = 1
 
@@ -391,7 +391,7 @@ def parse_spherical_mpeg4(mpeg4_file, fh, console):
     for element in mpeg4_file.moov_box.contents:
         if element.name == mpeg.constants.TAG_TRAK:
             trackName = "Track %d" % track_num
-            console("\t%s" % trackName)
+            console(f"\t{trackName}")
             track_num += 1
             for sub_element in element.contents:
                 if sub_element.name == mpeg.constants.TAG_UUID:
@@ -739,7 +739,7 @@ def get_descriptor_length(in_fh):
     current position in the input file.
     """
     descriptor_length = 0
-    for i in range(4):
+    for _i in range(4):
         size_byte = struct.unpack(">c", in_fh.read(1))[0]
         descriptor_length = descriptor_length << 7 | ord(size_byte) & int("0x7f", 0)
         if ord(size_byte) != int("0x80", 0):
