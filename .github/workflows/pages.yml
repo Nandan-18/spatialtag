@@ -153,7 +153,7 @@ jobs:
 
       - name: Build static site
         run: |
-          python -m pip install markdown
+          python -m pip install markdown pygments
           python scripts/build_pages_site.py --output site --manifest site-manifest.json
 
       - name: Save CLI binaries cache
