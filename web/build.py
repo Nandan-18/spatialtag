@@ -172,7 +172,7 @@ def render_docs_sidebar(current_page: str) -> str:
         f'aria-expanded="false" aria-controls="docs-sidebar-nav">'
         f"Browse docs</button>\n"
         f'  <nav class="docs-sidebar-nav" id="docs-sidebar-nav">\n'
-        f'{"".join(sections)}\n'
+        f"{''.join(sections)}\n"
         f"  </nav>\n"
         f"</aside>"
     )
@@ -231,15 +231,20 @@ def render_doc_page(title: str, body_html: str, current_page: str) -> str:
 """
 
 
-def prepare_markdown(text: str) -> str:
-    """Drop the leading markdown H1; the page title is rendered from the body."""
+def prepare_markdown(text: str, out_rel: str) -> str:
+    """Normalize markdown links and image URLs for the rendered HTML path."""
     lines = text.splitlines()
     if lines and lines[0].startswith("# "):
         lines = lines[1:]
         while lines and not lines[0].strip():
             lines = lines[1:]
     text = "\n".join(lines)
-    return re.sub(r"\]\(([^)]+\.md)\)", lambda m: f"]({m.group(1)[:-3]}.html)", text)
+    text = re.sub(r"\]\(([^)]+\.md)\)", lambda m: f"]({m.group(1)[:-3]}.html)", text)
+    # web/spec uses ../img/; pages under docs/spec/ need ../../img/.
+    img_prefix = Path(os.path.relpath("img", Path(out_rel).parent)).as_posix() + "/"
+    if img_prefix != "../img/":
+        text = text.replace("../img/", img_prefix)
+    return text
 
 
 def md_to_html(text: str) -> str:
@@ -271,7 +276,7 @@ def build_site(output_dir: Path) -> None:
 
     for src_rel, out_rel, title in DOC_PAGES:
         src = ROOT / src_rel
-        body = md_to_html(prepare_markdown(src.read_text(encoding="utf-8")))
+        body = md_to_html(prepare_markdown(src.read_text(encoding="utf-8"), out_rel))
         page_html = render_doc_page(title, body, out_rel)
         out_path = output_dir / out_rel
         out_path.parent.mkdir(parents=True, exist_ok=True)
