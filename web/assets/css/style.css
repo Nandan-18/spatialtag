@@ -496,6 +496,10 @@ pre code {
   grid-template-columns: repeat(3, 1fr);
 }
 
+.compare-grid-4 {
+  grid-template-columns: repeat(4, 1fr);
+}
+
 .compare-card {
   background: #fff;
   border-radius: var(--radius);
@@ -1840,6 +1844,7 @@ pre code {
   .compare-grid,
   .format-grid,
   .compare-grid-3,
+  .compare-grid-4,
   .format-grid-3,
   .tools-grid,
   .steps {
@@ -1925,5 +1930,34 @@ pre code {
   .seg-btn {
     flex: 1;
     text-align: center;
+  }
+}
+
+.skip-link {
+  position: absolute;
+  left: 12px;
+  top: -40px;
+  z-index: 1000;
+  padding: 8px 12px;
+  border-radius: 6px;
+  background: var(--link);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.skip-link:focus {
+  top: 12px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }

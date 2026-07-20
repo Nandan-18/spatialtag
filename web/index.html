@@ -7,13 +7,23 @@
       name="description"
       content="SpatialTag inspects and injects 360°, VR180, and spatial audio metadata in MP4/MOV files. Browser demo, CLI, GUI, and Docker."
     />
+    <meta property="og:title" content="SpatialTag | Inspect and inject immersive metadata" />
+    <meta
+      property="og:description"
+      content="Inspect and inject 360°, VR180, and spatial audio metadata in MP4/MOV files."
+    />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary" />
     <title>SpatialTag | Inspect and inject immersive metadata</title>
     <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="assets/favicon.svg" />
+    <link rel="preload" href="assets/fonts/fraunces-latin-600.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="assets/fonts/source-sans-3-latin-400.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="stylesheet" href="assets/css/style.css" />
     <link rel="stylesheet" href="assets/css/site.css" />
   </head>
   <body>
+    <a class="skip-link" href="#demo">Skip to demo</a>
     <nav class="global-nav" aria-label="Global">
       <div class="nav-inner">
         <a class="nav-logo" href="index.html">SpatialTag</a>
@@ -108,7 +118,7 @@
           <a class="button button-primary" href="#demo">Try in browser</a>
           <a class="button button-secondary" href="docs/download.html">Download CLI</a>
         </div>
-        <p class="hero-note">Runs locally. Your files never leave your device.</p>
+        <p class="hero-note">Browser demo and CLI run locally. Your files stay on your device.</p>
       </div>
       <div class="hero-visual" aria-hidden="true">
         <div class="tag-demo">
@@ -230,8 +240,8 @@
 
     <section id="paths" class="section section-gray">
       <div class="section-inner">
-        <h2 class="section-headline">Three ways to tag.</h2>
-        <div class="compare-grid compare-grid-3">
+        <h2 class="section-headline">Ways to tag.</h2>
+        <div class="compare-grid compare-grid-4">
           <article class="compare-card">
             <h3>Browser</h3>
             <p>Inspect and inject in the demo below. Best under ~2 GB.</p>
@@ -243,9 +253,14 @@
             <a href="docs/download.html">Download</a>
           </article>
           <article class="compare-card">
-            <h3>Docs</h3>
-            <p>Guides and spherical / spatial-audio specifications.</p>
-            <a href="docs/index.html">Read docs</a>
+            <h3>Docker</h3>
+            <p>Self-hosted web UI for batch tagging on your machine or server.</p>
+            <a href="docs/docker.html">Docker guide</a>
+          </article>
+          <article class="compare-card">
+            <h3>Desktop GUI</h3>
+            <p>Tkinter app for spherical video and spatial audio when installed with the GUI extra.</p>
+            <a href="docs/cli.html">GUI setup</a>
           </article>
         </div>
       </div>
@@ -365,9 +380,9 @@
                     <div class="option-row">
                       <span class="option-label">Stereo layout</span>
                       <div class="chip-group" role="group" aria-label="Stereo mode">
-                        <button type="button" class="seg-btn" data-stereo="none">Mono</button>
-                        <button type="button" class="seg-btn is-selected" data-stereo="left-right">Side-by-side</button>
-                        <button type="button" class="seg-btn" data-stereo="top-bottom">Over-under</button>
+                        <button type="button" class="seg-btn" data-stereo="none" aria-pressed="false">Mono</button>
+                        <button type="button" class="seg-btn is-selected" data-stereo="left-right" aria-pressed="true">Side-by-side</button>
+                        <button type="button" class="seg-btn" data-stereo="top-bottom" aria-pressed="false">Over-under</button>
                       </div>
                       <input type="hidden" id="stereo-mode" value="left-right" />
                     </div>
@@ -425,7 +440,7 @@
                     <span class="inject-btn-spinner hidden" aria-hidden="true"></span>
                   </button>
                   <div class="status-wrap">
-                    <p id="status" class="status-line">Choose a file to begin.</p>
+                    <p id="status" class="status-line" role="status" aria-live="polite">Choose a file to begin.</p>
                     <div id="results" class="result-card hidden">
                       <div class="result-card-icon" aria-hidden="true">
                         <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
@@ -492,7 +507,7 @@
         </div>
       </div>
       <div class="footer-bottom">
-        <p>Open source. Your files never leave your device.</p>
+        <p>Open source. Browser demo and CLI keep files on your device.</p>
       </div>
     </footer>
 
