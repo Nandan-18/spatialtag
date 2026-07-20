@@ -9,10 +9,10 @@
     "test:demo": "node test-inject.mjs"
   },
   "devDependencies": {
-    "chokidar": "^4.0.3",
-    "serve": "^14.2.4"
+    "chokidar": "^5.0.0",
+    "serve": "^14.2.6"
   },
   "engines": {
-    "node": ">=18"
+    "node": ">=22"
   }
 }
