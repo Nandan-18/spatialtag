@@ -1149,6 +1149,22 @@ pre code {
   color: #64d2ff;
 }
 
+.metadata-help {
+  margin: 0;
+  padding: 0 16px 16px;
+  text-align: center;
+  font-size: 12px;
+}
+
+.metadata-help a {
+  color: #64d2ff;
+}
+
+.metadata-help span {
+  margin: 0 8px;
+  color: #48484a;
+}
+
 .metadata-panel:not(.empty) .metadata-empty {
   display: none;
 }
@@ -1203,6 +1219,11 @@ pre code {
 .meta-chip-v2 {
   color: #64d2ff;
   background: rgba(100, 210, 255, 0.12);
+}
+
+.meta-chip-audio {
+  color: #bf5af2;
+  background: rgba(191, 90, 242, 0.15);
 }
 
 .meta-chip-warn {
@@ -1367,6 +1388,18 @@ pre code {
   color: #64d2ff;
   background: rgba(100, 210, 255, 0.12);
   font-family: var(--mono);
+}
+
+.toggle-card-icon-audio {
+  color: #bf5af2;
+  background: rgba(191, 90, 242, 0.15);
+  font-family: var(--mono);
+  font-size: 10px;
+}
+
+.toggle-card.is-disabled {
+  opacity: 0.45;
+  pointer-events: none;
 }
 
 .toggle-card-text {

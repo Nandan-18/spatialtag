@@ -2,6 +2,7 @@ import { injectMetadata, parseMetadata } from "./mp4.js";
 import {
   computeVr180Settings,
   formatBytes,
+  formatSa3dSummary,
   generateSphericalXml,
 } from "./metadata.js";
 
@@ -117,12 +118,54 @@ function updateMetaStatus(meta) {
   if (!status) return;
   const hasV1 = Boolean(meta?.v1);
   const hasV2 = Boolean(meta?.v2?.stereo || meta?.v2?.bounds);
+  const hasAudio = Boolean(meta?.audio);
+  const parts = [];
   if (hasV1 || hasV2) {
-    status.textContent = hasV1 && hasV2 ? "v1 + v2 found" : hasV1 ? "v1 XML found" : "v2 atoms found";
+    parts.push(hasV1 && hasV2 ? "video v1+v2" : hasV1 ? "video v1" : "video v2");
+  }
+  if (hasAudio) parts.push("SA3D");
+  if (parts.length) {
+    status.textContent = parts.join(" + ");
     status.className = "meta-status meta-status-found";
-  } else {
-    status.textContent = "No spherical tags";
+  } else if (meta?.numAudioChannels) {
+    status.textContent = `${meta.numAudioChannels}ch audio, no tags`;
     status.className = "meta-status meta-status-none";
+  } else {
+    status.textContent = "No immersive tags";
+    status.className = "meta-status meta-status-none";
+  }
+}
+
+function updateSpatialAudioControl(meta) {
+  const toggle = $("#spatial-audio");
+  const card = $("#spatial-audio-card");
+  const hint = $("#spatial-audio-hint");
+  if (!toggle || !card) return;
+
+  const supported = Boolean(meta?.spatialAudioSupported);
+  toggle.disabled = !supported;
+  card.classList.toggle("is-disabled", !supported);
+
+  if (!meta) {
+    toggle.checked = false;
+    if (hint) hint.textContent = "Requires compatible ambiX ACN/SN3D track";
+    return;
+  }
+
+  if (meta.audio) toggle.checked = true;
+  else toggle.checked = supported;
+
+  if (hint) {
+    if (supported) {
+      const desc = meta.spatialAudioDescription;
+      hint.textContent = desc.hasHeadLockedStereo
+        ? `${meta.numAudioChannels} channels (ambiX + head-locked stereo)`
+        : `${meta.numAudioChannels} channels (first-order ambiX)`;
+    } else if (meta.numAudioChannels) {
+      hint.textContent = `${meta.numAudioChannels} channel(s): not a supported ambiX layout`;
+    } else {
+      hint.textContent = "No audio track detected";
+    }
   }
 }
 
@@ -173,6 +216,38 @@ function renderMetadata(meta) {
       metaGroup("Spherical v2", "meta-chip-warn", "missing", [["Status", "No ST3D / SV3D atoms"]]),
     );
   }
+
+  const audioRows = [];
+  if (meta.numAudioChannels) {
+    audioRows.push(["Audio channels", String(meta.numAudioChannels)]);
+  }
+  if (meta.numAudioTracks > 1) {
+    audioRows.push(["Audio tracks", String(meta.numAudioTracks), ""]);
+  }
+  if (meta.audio) {
+    audioRows.push(["Summary", formatSa3dSummary(meta.audio)]);
+    audioRows.push(["Ambisonic order", String(meta.audio.ambisonicOrder)]);
+    audioRows.push(["Normalization", meta.audio.normalizationName]);
+    audioRows.push(["Channel ordering", meta.audio.orderingName]);
+    if (meta.audio.headLockedStereo) {
+      audioRows.push(["Head-locked stereo", "yes", "is-good"]);
+    }
+    tags.appendChild(metaGroup("Spatial audio", "meta-chip-audio", "SA3D", audioRows));
+  } else if (meta.numAudioChannels) {
+    audioRows.push([
+      "Status",
+      meta.spatialAudioSupported ? "Supported layout, no SA3D yet" : "Unsupported channel layout",
+    ]);
+    tags.appendChild(
+      metaGroup("Spatial audio", "meta-chip-warn", "missing", audioRows),
+    );
+  } else {
+    tags.appendChild(
+      metaGroup("Spatial audio", "meta-chip-warn", "n/a", [["Status", "No audio track in file"]]),
+    );
+  }
+
+  updateSpatialAudioControl(meta);
 }
 
 function stereoLabel(mode) {
@@ -208,6 +283,10 @@ function updateInjectPreview() {
   }
   items.push("v1 spherical XML in UUID box");
 
+  if ($("#spatial-audio")?.checked) {
+    items.push("Spatial audio <code>SA3D</code> atom (ACN/SN3D)");
+  }
+
   list.innerHTML = items.map((item) => `<li>${item}</li>`).join("");
 }
 
@@ -222,6 +301,12 @@ function resetWorkspace() {
   $("#metadata-tags").innerHTML = "";
   $("#results")?.classList.add("hidden");
   $("#file-input").value = "";
+  const saToggle = $("#spatial-audio");
+  if (saToggle) {
+    saToggle.checked = false;
+    saToggle.disabled = true;
+  }
+  $("#spatial-audio-card")?.classList.add("is-disabled");
   updateMetaStatus(null);
   setWorkflowStep("load");
   setStatus("Choose a file to begin.");
@@ -320,6 +405,7 @@ async function inject() {
       stereo: stereoMode,
       crop,
       bounds,
+      spatialAudio: $("#spatial-audio")?.checked ?? false,
     });
 
     const outName = state.file.name.replace(/(\.[^.]+)?$/, "_spatial$1");
@@ -410,6 +496,7 @@ function initControls() {
   });
 
   $("#use-v2")?.addEventListener("change", updateInjectPreview);
+  $("#spatial-audio")?.addEventListener("change", updateInjectPreview);
 }
 
 initDropZone();
