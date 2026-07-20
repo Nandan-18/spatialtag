@@ -5,9 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta
       name="description"
-      content="Inspect and inject 360°, VR180, and spatial audio metadata in MP4/MOV files. Browser demo, CLI, GUI, and Docker, all from one toolkit."
+      content="SpatialTag inspects and injects 360°, VR180, and spatial audio metadata in MP4/MOV files. Browser demo, CLI, GUI, and Docker."
     />
-    <title>Spatial Media | Immersive Video and Audio Metadata</title>
+    <title>SpatialTag | Inspect and inject immersive metadata</title>
     <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="assets/favicon.svg" />
     <link rel="stylesheet" href="assets/css/style.css" />
@@ -16,7 +16,7 @@
   <body>
     <nav class="global-nav" aria-label="Global">
       <div class="nav-inner">
-        <a class="nav-logo" href="index.html">Spatial Media</a>
+        <a class="nav-logo" href="index.html">SpatialTag</a>
         <button
           class="nav-toggle"
           type="button"
@@ -96,13 +96,13 @@
 
     <header class="hero">
       <div class="hero-content">
-        <p class="hero-eyebrow">Immersive MP4 metadata</p>
+        <p class="hero-brand">SpatialTag</p>
         <h1 class="hero-title">
           Tag video and audio<br />for immersive playback.
         </h1>
         <p class="hero-subtitle">
-          VR headsets and immersive apps read metadata inside your MP4, not the pixels or PCM samples.
-          Spatial Media inspects and injects the tags for spherical video projection and ambisonic audio.
+          SpatialTag inspects and injects the MP4/MOV metadata that platforms need
+          for 360°, VR180, and spatial audio.
         </p>
         <div class="hero-cta">
           <a class="button button-primary" href="#demo">Try in browser</a>
@@ -111,12 +111,13 @@
         <p class="hero-note">Runs locally. Your files never leave your device.</p>
       </div>
       <div class="hero-visual" aria-hidden="true">
-        <div class="sphere-demo">
-          <div class="sphere-ring ring-1"></div>
-          <div class="sphere-ring ring-2"></div>
-          <div class="sphere-core"></div>
-          <div class="sphere-tag sphere-tag-v">SV3D</div>
-          <div class="sphere-tag sphere-tag-a">SA3D</div>
+        <div class="tag-demo">
+          <div class="tag-demo-file">
+            <span class="tag-demo-filename">clip.mp4</span>
+            <span class="tag-demo-atom">moov</span>
+          </div>
+          <div class="tag-demo-stamp">SpatialTag</div>
+          <div class="tag-demo-horizon"></div>
         </div>
       </div>
     </header>
@@ -196,7 +197,7 @@
       <div class="section-inner">
         <h2 class="section-headline">One moov box. Video and audio atoms.</h2>
         <p class="section-lead">
-          Metadata lives in the <code>moov</code> atom, not in encoded media. Spatial Media reads
+          Metadata lives in the <code>moov</code> atom, not in encoded media. SpatialTag reads
           your file structure, shows existing tags, and writes spherical video
           (<code>SV3D</code>, <code>ST3D</code>, v1 XML) and spatial audio (<code>SA3D</code>)
           without re-encoding.
@@ -441,8 +442,8 @@
     <footer class="site-footer">
       <div class="footer-inner">
         <div class="footer-brand">
-          <p class="footer-name">Spatial Media</p>
-          <p class="footer-tagline">Immersive MP4/MOV metadata tools</p>
+          <p class="footer-name">SpatialTag</p>
+          <p class="footer-tagline">inspect and inject immersive metadata</p>
         </div>
         <div class="footer-links">
           <div class="footer-col">
