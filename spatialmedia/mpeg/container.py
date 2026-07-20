@@ -1,5 +1,4 @@
 #! /usr/bin/env python
-# -*- coding: utf-8 -*-
 
 # Copyright 2016 Google Inc. All rights reserved.
 #
@@ -22,10 +21,8 @@ Functions for loading MPEG files and manipulating boxes.
 
 import struct
 
-from spatialmedia.mpeg import box
-from spatialmedia.mpeg import constants
-from spatialmedia.mpeg import sa3d
-from spatialmedia.mpeg import sv3d
+from spatialmedia.mpeg import box, constants, sa3d, sv3d
+
 
 def load(fh, position, end):
     if position is None:
@@ -74,8 +71,7 @@ def load(fh, position, end):
         elif sample_description_version == 2:
             padding = 64
         else:
-            print("Unsupported sample description version:",
-                  sample_description_version)
+            print("Unsupported sample description version:", sample_description_version)
     if name in constants.VIDEO_SAMPLE_DESCRIPTIONS:
         current_pos = fh.tell()
         fh.seek(current_pos + 8)
@@ -84,8 +80,7 @@ def load(fh, position, end):
 
         padding = 78
         if sample_description_version > 0:
-            print("Warning: video sample description version > 0:",
-                  sample_description_version)
+            print("Warning: video sample description version > 0:", sample_description_version)
 
     new_box = Container()
     new_box.name = name
@@ -93,8 +88,7 @@ def load(fh, position, end):
     new_box.header_size = header_size
     new_box.content_size = size - header_size
     new_box.padding = padding
-    new_box.contents = load_multiple(
-        fh, position + header_size + padding, position + size)
+    new_box.contents = load_multiple(fh, position + header_size + padding, position + size)
 
     if new_box.contents is None:
         return None
@@ -104,7 +98,7 @@ def load(fh, position, end):
 
 def load_multiple(fh, position=None, end=None):
     loaded = list()
-    while (position + 4 < end):
+    while position + 4 < end:
         new_box = load(fh, position, end)
         if new_box is None:
             print("Error, failed to load box.")
@@ -142,7 +136,7 @@ class Container(box.Box):
         """Prints the box structure and recurses on contents."""
         size1 = self.header_size
         size2 = self.content_size
-        print("{0} {1} [{2}, {3}]".format(indent, self.name, size1, size2))
+        print(f"{indent} {self.name} [{size1}, {size2}]")
 
         size = len(self.contents)
         for i in range(size):
@@ -180,7 +174,7 @@ class Container(box.Box):
         """
         for content in self.contents:
             if content.name == element.name:
-                if isinstance(content, container_leaf):
+                if isinstance(content, box.Box):
                     return content.merge(element)
                 print("Error, cannot merge leafs.")
                 return False
@@ -194,8 +188,8 @@ class Container(box.Box):
         Returns:
           Int, increased size of container.
         """
-        assert(self.name == element.name)
-        assert(isinstance(element, container_box))
+        assert self.name == element.name
+        assert isinstance(element, Container)
         for sub_element in element.contents:
             if not self.add(sub_element):
                 return False
