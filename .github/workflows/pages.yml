@@ -1,3 +1,9 @@
+# Deploy static site + optional CLI binaries to GitHub Pages.
+#
+# Checks you will see on each deploy:
+#   - build-linux / build-macos / deploy  → jobs in this workflow
+#   - pages build and deployment / *      → GitHub's Pages deployment UI
+#     (paired with actions/deploy-pages; not duplicate workflows)
 name: Deploy GitHub Pages
 
 on:
@@ -10,6 +16,7 @@ on:
       - "docker/README.md"
       - "spatial-audio/README.md"
       - "README.md"
+      - "pyproject.toml"
       - ".github/workflows/pages.yml"
   workflow_dispatch:
 
@@ -20,10 +27,27 @@ permissions:
 
 concurrency:
   group: pages
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      cli: ${{ steps.filter.outputs.cli }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            cli:
+              - 'spatialmedia/**'
+              - 'pyproject.toml'
+              - 'spatialmedia/spatialmedia_cli.spec'
+
   build-linux:
+    needs: changes
+    if: github.event_name == 'workflow_dispatch' || needs.changes.outputs.cli == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -42,6 +66,8 @@ jobs:
           path: spatialmedia-linux-x86_64
 
   build-macos:
+    needs: changes
+    if: github.event_name == 'workflow_dispatch' || needs.changes.outputs.cli == 'true'
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
@@ -60,42 +86,87 @@ jobs:
           path: spatialmedia-macos-arm64
 
   deploy:
-    needs: [build-linux, build-macos]
+    needs: [changes, build-linux, build-macos]
+    if: |
+      always() &&
+      (needs.build-linux.result == 'success' || needs.build-linux.result == 'skipped') &&
+      (needs.build-macos.result == 'success' || needs.build-macos.result == 'skipped')
     runs-on: ubuntu-latest
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/download-artifact@v4
+
+      - name: Restore cached CLI binaries
+        uses: actions/cache/restore@v4
+        with:
+          path: cached-binaries
+          key: cli-binaries-${{ hashFiles('spatialmedia/**/*.py', 'pyproject.toml', 'spatialmedia/spatialmedia_cli.spec') }}
+          restore-keys: |
+            cli-binaries-
+
+      - name: Download fresh CLI artifacts
+        uses: actions/download-artifact@v4
+        continue-on-error: true
         with:
           path: artifacts
+
+      - name: Stage binaries for site build
+        run: |
+          mkdir -p staged-binaries
+          for path in \
+            artifacts/cli-linux/spatialmedia-linux-x86_64 \
+            artifacts/cli-macos/spatialmedia-macos-arm64 \
+            cached-binaries/spatialmedia-linux-x86_64 \
+            cached-binaries/spatialmedia-macos-arm64
+          do
+            if [ -f "$path" ]; then
+              cp "$path" "staged-binaries/$(basename "$path")"
+            fi
+          done
+          ls -la staged-binaries || true
+
       - name: Write download manifest
         run: |
-          cat > site-manifest.json <<'EOF'
-          {
-            "downloads": [
-              {
-                "source": "artifacts/cli-linux/spatialmedia-linux-x86_64",
-                "filename": "spatialmedia-linux-x86_64",
-                "label": "Linux (x86_64)",
-                "arch": "Ubuntu / most Linux distros",
-                "note": "Single-file executable. chmod +x then run from a terminal."
-              },
-              {
-                "source": "artifacts/cli-macos/spatialmedia-macos-arm64",
-                "filename": "spatialmedia-macos-arm64",
-                "label": "macOS (Apple Silicon)",
-                "arch": "arm64 (M1/M2/M3+)",
-                "note": "May need: xattr -dr com.apple.quarantine ./spatialmedia-macos-arm64"
-              }
-            ]
-          }
-          EOF
+          python3 <<'PY'
+          import json
+          from pathlib import Path
+
+          entries = [
+              ("staged-binaries/spatialmedia-linux-x86_64", "spatialmedia-linux-x86_64", "Linux (x86_64)", "Ubuntu / most Linux distros", "Single-file executable. chmod +x then run from a terminal."),
+              ("staged-binaries/spatialmedia-macos-arm64", "spatialmedia-macos-arm64", "macOS (Apple Silicon)", "arm64 (M1/M2/M3+)", "May need: xattr -dr com.apple.quarantine ./spatialmedia-macos-arm64"),
+          ]
+          downloads = []
+          for source, filename, label, arch, note in entries:
+              if Path(source).is_file():
+                  downloads.append({
+                      "source": source,
+                      "filename": filename,
+                      "label": label,
+                      "arch": arch,
+                      "note": note,
+                  })
+          Path("site-manifest.json").write_text(json.dumps({"downloads": downloads}, indent=2) + "\n")
+          print(f"Manifest: {len(downloads)} binary(ies)")
+          PY
+
       - name: Build static site
         run: |
           python -m pip install markdown
           python scripts/build_pages_site.py --output site --manifest site-manifest.json
+
+      - name: Save CLI binaries cache
+        if: needs.changes.outputs.cli == 'true'
+        run: |
+          mkdir -p cached-binaries
+          cp staged-binaries/* cached-binaries/ 2>/dev/null || true
+      - uses: actions/cache/save@v4
+        if: needs.changes.outputs.cli == 'true'
+        with:
+          path: cached-binaries
+          key: cli-binaries-${{ hashFiles('spatialmedia/**/*.py', 'pyproject.toml', 'spatialmedia/spatialmedia_cli.spec') }}
+
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
