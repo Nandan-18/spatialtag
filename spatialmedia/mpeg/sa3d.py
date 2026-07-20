@@ -1,5 +1,4 @@
 #! /usr/bin/env python
-# -*- coding: utf-8 -*-
 
 # Copyright 2016 Google Inc. All rights reserved.
 #
@@ -23,12 +22,11 @@ conforms to that outlined in docs/spatial-audio-rfc.md
 
 import struct
 
-from spatialmedia.mpeg import box
-from spatialmedia.mpeg import constants
+from spatialmedia.mpeg import box, constants
 
 
 def load(fh, position=None, end=None):
-    """ Loads the SA3D box located at position in an mp4 file.
+    """Loads the SA3D box located at position in an mp4 file.
 
     Args:
       fh: file handle, input file handle.
@@ -46,33 +44,32 @@ def load(fh, position=None, end=None):
     size = struct.unpack(">I", fh.read(4))[0]
     name = fh.read(4)
 
-    if (name != constants.TAG_SA3D):
+    if name != constants.TAG_SA3D:
         print("Error: box is not an SA3D box.")
         return None
 
-    if (position + size > end):
+    if position + size > end:
         print("Error: SA3D box size exceeds bounds.")
         return None
 
     new_box.content_size = size - new_box.header_size
     new_box.version = struct.unpack(">B", fh.read(1))[0]
     new_box.ambisonic_type = struct.unpack(">B", fh.read(1))[0]
-    new_box.head_locked_stereo = (new_box.ambisonic_type & int('10000000', 2) != 0)
-    new_box.ambisonic_type = new_box.ambisonic_type & int('01111111', 2)
+    new_box.head_locked_stereo = new_box.ambisonic_type & int("10000000", 2) != 0
+    new_box.ambisonic_type = new_box.ambisonic_type & int("01111111", 2)
     new_box.ambisonic_order = struct.unpack(">I", fh.read(4))[0]
     new_box.ambisonic_channel_ordering = struct.unpack(">B", fh.read(1))[0]
     new_box.ambisonic_normalization = struct.unpack(">B", fh.read(1))[0]
     new_box.num_channels = struct.unpack(">I", fh.read(4))[0]
     for i in range(0, new_box.num_channels):
-        new_box.channel_map.append(
-            struct.unpack(">I", fh.read(4))[0])
+        new_box.channel_map.append(struct.unpack(">I", fh.read(4))[0])
     return new_box
 
 
 class SA3DBox(box.Box):
-    ambisonic_types = {'periphonic': 0}
-    ambisonic_orderings = {'ACN': 0}
-    ambisonic_normalizations = {'SN3D': 0}
+    ambisonic_types = {"periphonic": 0}
+    ambisonic_orderings = {"ACN": 0}
+    ambisonic_normalizations = {"SN3D": 0}
 
     def __init__(self):
         box.Box.__init__(self)
@@ -92,22 +89,23 @@ class SA3DBox(box.Box):
         new_box = SA3DBox()
         new_box.header_size = 8
         new_box.name = constants.TAG_SA3D
-        new_box.version = 0                     # uint8
-        new_box.content_size += 1               # uint8
-        new_box.ambisonic_type = SA3DBox.ambisonic_types[
-            audio_metadata["ambisonic_type"]]
+        new_box.version = 0  # uint8
+        new_box.content_size += 1  # uint8
+        new_box.ambisonic_type = SA3DBox.ambisonic_types[audio_metadata["ambisonic_type"]]
         new_box.head_locked_stereo = audio_metadata["head_locked_stereo"]
-        new_box.content_size += 1               # uint8
+        new_box.content_size += 1  # uint8
         new_box.ambisonic_order = audio_metadata["ambisonic_order"]
-        new_box.content_size += 4               # uint32
+        new_box.content_size += 4  # uint32
         new_box.ambisonic_channel_ordering = SA3DBox.ambisonic_orderings[
-            audio_metadata["ambisonic_channel_ordering"]]
-        new_box.content_size += 1               # uint8
+            audio_metadata["ambisonic_channel_ordering"]
+        ]
+        new_box.content_size += 1  # uint8
         new_box.ambisonic_normalization = SA3DBox.ambisonic_normalizations[
-            audio_metadata["ambisonic_normalization"]]
-        new_box.content_size += 1               # uint8
+            audio_metadata["ambisonic_normalization"]
+        ]
+        new_box.content_size += 1  # uint8
         new_box.num_channels = num_channels
-        new_box.content_size += 4               # uint32
+        new_box.content_size += 4  # uint32
 
         channel_map = audio_metadata["channel_map"]
         for channel_element in channel_map:
@@ -116,20 +114,31 @@ class SA3DBox(box.Box):
         return new_box
 
     def ambisonic_type_name(self):
-        return  next((key for key,value in SA3DBox.ambisonic_types.items()
-                 if value==self.ambisonic_type))
+        return next(
+            (key for key, value in SA3DBox.ambisonic_types.items() if value == self.ambisonic_type)
+        )
 
     def ambisonic_channel_ordering_name(self):
-        return next((key for key,value in SA3DBox.ambisonic_orderings.items()
-                if value==self.ambisonic_channel_ordering))
+        return next(
+            (
+                key
+                for key, value in SA3DBox.ambisonic_orderings.items()
+                if value == self.ambisonic_channel_ordering
+            )
+        )
 
     def ambisonic_normalization_name(self):
-        return next((key for key,value in SA3DBox.ambisonic_normalizations.items()
-                if value==self.ambisonic_normalization))
+        return next(
+            (
+                key
+                for key, value in SA3DBox.ambisonic_normalizations.items()
+                if value == self.ambisonic_normalization
+            )
+        )
 
     def print_box(self, console):
-        """ Prints the contents of this spatial audio (SA3D) box to the
-            console.
+        """Prints the contents of this spatial audio (SA3D) box to the
+        console.
         """
         ambisonic_type = self.ambisonic_type_name()
         channel_ordering = self.ambisonic_channel_ordering_name()
@@ -143,28 +152,31 @@ class SA3DBox(box.Box):
         console("\t\tChannel Map: %s" % str(self.channel_map))
 
     def get_metadata_string(self):
-        """ Outputs a concise single line audio metadata string. """
-        metadata = "%s, %s, %s, Order %d, %d Channel(s), Channel Map: %s" \
-            % (self.ambisonic_normalization_name(),\
-               self.ambisonic_channel_ordering_name(),\
-               self.ambisonic_type_name(),\
-               self.ambisonic_order,\
-               self.num_channels,\
-               str(self.channel_map))
+        """Outputs a concise single line audio metadata string."""
+        metadata = "%s, %s, %s, Order %d, %d Channel(s), Channel Map: %s" % (
+            self.ambisonic_normalization_name(),
+            self.ambisonic_channel_ordering_name(),
+            self.ambisonic_type_name(),
+            self.ambisonic_order,
+            self.num_channels,
+            str(self.channel_map),
+        )
         return metadata
 
     def save(self, in_fh, out_fh, delta):
-        if (self.header_size == 16):
+        if self.header_size == 16:
             out_fh.write(struct.pack(">I", 1))
             out_fh.write(struct.pack(">Q", self.size()))
             out_fh.write(self.name)
-        elif(self.header_size == 8):
+        elif self.header_size == 8:
             out_fh.write(struct.pack(">I", self.size()))
             out_fh.write(self.name)
 
         ambisonic_type = (
-            self.ambisonic_type | int('10000000', 2) if
-            self.head_locked_stereo else self.ambisonic_type & int('01111111', 2))
+            self.ambisonic_type | int("10000000", 2)
+            if self.head_locked_stereo
+            else self.ambisonic_type & int("01111111", 2)
+        )
         out_fh.write(struct.pack(">B", self.version))
         out_fh.write(struct.pack(">B", ambisonic_type))
         out_fh.write(struct.pack(">I", self.ambisonic_order))
@@ -172,5 +184,5 @@ class SA3DBox(box.Box):
         out_fh.write(struct.pack(">B", self.ambisonic_normalization))
         out_fh.write(struct.pack(">I", self.num_channels))
         for i in self.channel_map:
-            if (i != None):
+            if i is not None:
                 out_fh.write(struct.pack(">I", int(i)))

@@ -1,5 +1,4 @@
 #! /usr/bin/env python
-# -*- coding: utf-8 -*-
 
 # Copyright 2016 Google Inc. All rights reserved.
 #
@@ -20,20 +19,19 @@
 Functions for loading MP4/MOV files and manipulating boxes.
 """
 
+from __future__ import annotations
+
 import io
+from typing import BinaryIO, Optional
 
-from spatialmedia.mpeg import box
-from spatialmedia.mpeg import constants
-from spatialmedia.mpeg import container
+from spatialmedia.mpeg import constants, container
 
 
-def load(fh):
+def load(fh: BinaryIO) -> Optional[Mpeg4Container]:
     """Load the mpeg4 file structure of a file.
 
     Args:
       fh: file handle, input file handle.
-      position: int, current file position.
-      size: int, maximum size. This is used to ensure correct box sizes.
 
     return:
       mpeg4, the loaded mpeg4 structure.
@@ -54,14 +52,13 @@ def load(fh):
     loaded_mpeg4.contents = contents
 
     for element in loaded_mpeg4.contents:
-        if (element.name == constants.TAG_MOOV):
+        if element.name == constants.TAG_MOOV:
             loaded_mpeg4.moov_box = element
-        if (element.name == constants.TAG_FREE):
+        if element.name == constants.TAG_FREE:
             loaded_mpeg4.free_box = element
-        if (element.name == constants.TAG_MDAT
-                and not loaded_mpeg4.first_mdat_box):
+        if element.name == constants.TAG_MDAT and not loaded_mpeg4.first_mdat_box:
             loaded_mpeg4.first_mdat_box = element
-        if (element.name == constants.TAG_FTYP):
+        if element.name == constants.TAG_FTYP:
             loaded_mpeg4.ftyp_box = element
 
     if not loaded_mpeg4.moov_box:
@@ -72,10 +69,8 @@ def load(fh):
         print("Error, file does not contain mdat box.")
         return None
 
-    loaded_mpeg4.first_mdat_position = \
-        loaded_mpeg4.first_mdat_box.position
-    loaded_mpeg4.first_mdat_position += \
-        loaded_mpeg4.first_mdat_box.header_size
+    loaded_mpeg4.first_mdat_position = loaded_mpeg4.first_mdat_box.position
+    loaded_mpeg4.first_mdat_position += loaded_mpeg4.first_mdat_box.header_size
 
     loaded_mpeg4.content_size = 0
     for element in loaded_mpeg4.contents:
@@ -87,7 +82,7 @@ def load(fh):
 class Mpeg4Container(container.Container):
     """Specialized behaviour for the root mpeg4 container."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.contents = list()
         self.content_size = 0
         self.header_size = 0
@@ -95,7 +90,7 @@ class Mpeg4Container(container.Container):
         self.free_box = None
         self.first_mdat_box = None
         self.ftyp_box = None
-        self.first_mdat_position = None
+        self.first_mdat_position: Optional[int] = None
         self.padding = 0
 
     def merge(self, element):
@@ -103,9 +98,9 @@ class Mpeg4Container(container.Container):
         print("Cannot merge mpeg4 files")
         exit(0)
 
-    def print_structure(self):
+    def print_structure(self) -> None:
         """Print mpeg4 file structure recursively."""
-        print("mpeg4 [{}]".format(self.content_size))
+        print(f"mpeg4 [{self.content_size}]")
 
         size = len(self.contents)
         for i in range(size):
@@ -115,7 +110,7 @@ class Mpeg4Container(container.Container):
 
             self.contents[i].print_structure(next_indent)
 
-    def mdat_delta(self):
+    def mdat_delta(self) -> int:
         """Return how much the first mdat content offset would move after resize."""
         self.resize()
         new_position = 0
@@ -126,7 +121,7 @@ class Mpeg4Container(container.Container):
             new_position += element.size()
         return new_position - self.first_mdat_position
 
-    def save(self, in_fh, out_fh):
+    def save(self, in_fh: BinaryIO, out_fh: BinaryIO) -> None:
         """Save mpeg4 filecontent to file.
 
         Args:
@@ -138,7 +133,7 @@ class Mpeg4Container(container.Container):
         for element in self.contents:
             element.save(in_fh, out_fh, delta)
 
-    def save_moov_inplace(self, fh):
+    def save_moov_inplace(self, fh: BinaryIO) -> None:
         """Overwrite the on-disk moov box in place.
 
         Args:
@@ -149,13 +144,13 @@ class Mpeg4Container(container.Container):
           ValueError: if mdat would move, or moov is not the last top-level box.
         """
         if not self.contents or self.contents[-1] is not self.moov_box:
-            raise ValueError(
-                "In-place inject requires moov to be the last top-level box.")
+            raise ValueError("In-place inject requires moov to be the last top-level box.")
         delta = self.mdat_delta()
         if delta != 0:
             raise ValueError(
                 "In-place inject requires mdat offsets to stay unchanged "
-                "(typically moov after mdat). Use a separate output path.")
+                "(typically moov after mdat). Use a separate output path."
+            )
 
         moov_pos = self.moov_box.position
         buf = io.BytesIO()

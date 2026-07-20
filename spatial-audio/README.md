@@ -75,3 +75,10 @@ Please note, although the loudness is matched between different decoders and the
 
 ### Is there third party software for monitoring binaural output when working with ambisonic audio for YouTube?
 Some third party tools like [BlueRippleSound O3A View](http://www.blueripplesound.com/products/o3a-view-vst), [Noisemakers AmbiHead](http://www.noisemakers.fr/ambi-head/) and [SoundParticles](http://soundparticles.com/) (coming soon) implement their own binaural preview tools using the HRTFs from this repository which match those used by YouTube 360/VR.
+
+## Repository note on binary assets
+
+The HRIR / filter assets in this tree are currently small enough to live in
+regular git. If you add large binary measurement sets later, prefer
+[Git LFS](https://git-lfs.com/) (or ship them as release artifacts) instead of
+committing multi‑hundred‑MB files to the main history.
