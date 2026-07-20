@@ -1,3 +1,15 @@
+<p align="center">
+  <img src="web/assets/favicon.svg" alt="SpatialTag" width="96" height="96" />
+</p>
+
+<p align="center">
+  <a href="https://github.com/Nandan-18/spatial-media/actions/workflows/ci.yml"><img src="https://github.com/Nandan-18/spatial-media/actions/workflows/ci.yml/badge.svg" alt="CI" /></a>
+  <a href="https://nandan-18.github.io/spatial-media/"><img src="https://img.shields.io/badge/docs-SpatialTag-0B7A75" alt="Docs" /></a>
+  <a href="https://github.com/Nandan-18/spatial-media/releases/latest"><img src="https://img.shields.io/github/v/release/Nandan-18/spatial-media?label=release" alt="Release" /></a>
+  <img src="https://img.shields.io/badge/python-%3E%3D3.12-blue" alt="Python &gt;= 3.12" />
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-green" alt="License: MIT" /></a>
+</p>
+
 # SpatialTag
 
 inspect and inject immersive metadata
@@ -41,14 +53,14 @@ are on GitHub Releases if you prefer not to install Python.
 
 ## Repository layout
 
-| Path | Description |
-| ------ | ------------- |
-| [web/](web/) | Site source, browser demo, specifications |
-| [spatial/](spatial/) | Core library, CLI, and desktop GUI |
-| [docker/](docker/) | Flask web UI (Docker) |
-| [audio/](audio/) | HRIR reference assets for DAW monitoring |
-| [tests/](tests/) | Unit tests and media fixtures |
-| [tools/](tools/) | PyInstaller helper for the desktop GUI |
+| Path                 | Description                               |
+| -------------------- | ----------------------------------------- |
+| [web/](web/)         | Site source, browser demo, specifications |
+| [spatial/](spatial/) | Core library, CLI, and desktop GUI        |
+| [docker/](docker/)   | Flask web UI (Docker)                     |
+| [audio/](audio/)     | HRIR reference assets for DAW monitoring  |
+| [tests/](tests/)     | Unit tests and media fixtures             |
+| [tools/](tools/)     | PyInstaller helper for the desktop GUI    |
 
 ## Development
 
@@ -68,3 +80,7 @@ pnpm dev
 
 User-facing docs live in [web/guide/](web/guide/) and are published to the
 site on push to `main`.
+
+## License
+
+[MIT](LICENSE)
