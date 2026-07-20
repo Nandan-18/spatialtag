@@ -141,7 +141,7 @@ class Container(box.Box):
     def remove(self, tag):
         """Removes a tag recursively from all containers."""
         new_contents = []
-        self.content_size = 0
+        self.content_size = self.padding
         for element in self.contents:
             if element.name != tag:
                 new_contents.append(element)
@@ -158,7 +158,7 @@ class Container(box.Box):
         """
         for content in self.contents:
             if content.name == element.name:
-                if isinstance(content, box.Box):
+                if isinstance(content, Container):
                     return content.merge(element)
                 print("Error, cannot merge leafs.")
                 return False

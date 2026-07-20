@@ -80,8 +80,8 @@ class SVHDBox(box.Box):
     def save(self, in_fh, out_fh, delta):
         if self.header_size == 16:
             out_fh.write(struct.pack(">I", 1))
-            out_fh.write(struct.pack(">Q", self.size()))
             out_fh.write(self.name)
+            out_fh.write(struct.pack(">Q", self.size()))
         elif self.header_size == 8:
             out_fh.write(struct.pack(">I", self.size()))
             out_fh.write(self.name)
@@ -130,21 +130,21 @@ class PRHDBox(box.Box):
     def save(self, in_fh, out_fh, delta):
         if self.header_size == 16:
             out_fh.write(struct.pack(">I", 1))
-            out_fh.write(struct.pack(">Q", self.size()))
             out_fh.write(self.name)
+            out_fh.write(struct.pack(">Q", self.size()))
         elif self.header_size == 8:
             out_fh.write(struct.pack(">I", self.size()))
             out_fh.write(self.name)
         out_fh.write(struct.pack(">I", 0))  # Version and flags
-        out_fh.write(struct.pack(">I", self.pose_yaw_degrees))
-        out_fh.write(struct.pack(">I", self.pose_pitch_degrees))
-        out_fh.write(struct.pack(">I", self.pose_roll_degrees))
+        out_fh.write(struct.pack(">i", self.pose_yaw_degrees))
+        out_fh.write(struct.pack(">i", self.pose_pitch_degrees))
+        out_fh.write(struct.pack(">i", self.pose_roll_degrees))
 
     def load_content(self, in_fh):
         in_fh.read(4)  # Version and flags
-        self.pose_yaw_degrees = struct.unpack(">I", in_fh.read(4))[0]
-        self.pose_pitch_degrees = struct.unpack(">I", in_fh.read(4))[0]
-        self.pose_roll_degrees = struct.unpack(">I", in_fh.read(4))[0]
+        self.pose_yaw_degrees = struct.unpack(">i", in_fh.read(4))[0]
+        self.pose_pitch_degrees = struct.unpack(">i", in_fh.read(4))[0]
+        self.pose_roll_degrees = struct.unpack(">i", in_fh.read(4))[0]
 
 
 class EQUIBox(box.Box):
@@ -183,8 +183,8 @@ class EQUIBox(box.Box):
     def save(self, in_fh, out_fh, delta):
         if self.header_size == 16:
             out_fh.write(struct.pack(">I", 1))
-            out_fh.write(struct.pack(">Q", self.size()))
             out_fh.write(self.name)
+            out_fh.write(struct.pack(">Q", self.size()))
         elif self.header_size == 8:
             out_fh.write(struct.pack(">I", self.size()))
             out_fh.write(self.name)
@@ -235,8 +235,8 @@ class ST3DBox(box.Box):
     def save(self, in_fh, out_fh, delta):
         if self.header_size == 16:
             out_fh.write(struct.pack(">I", 1))
-            out_fh.write(struct.pack(">Q", self.size()))
             out_fh.write(self.name)
+            out_fh.write(struct.pack(">Q", self.size()))
         elif self.header_size == 8:
             out_fh.write(struct.pack(">I", self.size()))
             out_fh.write(self.name)
