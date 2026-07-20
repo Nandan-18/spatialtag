@@ -28,7 +28,7 @@ SPHERICAL_XML_CONTENTS = (
     "<GSpherical:Spherical>true</GSpherical:Spherical>"
     "<GSpherical:Stitched>true</GSpherical:Stitched>"
     "<GSpherical:StitchingSoftware>"
-    "Spherical Metadata Tool"
+    "SpatialTag"
     "</GSpherical:StitchingSoftware>"
     "<GSpherical:ProjectionType>equirectangular</GSpherical:ProjectionType>"
 )
@@ -37,7 +37,7 @@ NOT_SPHERICAL_XML_CONTENTS = (
     "<GSpherical:Spherical>false</GSpherical:Spherical>"
     "<GSpherical:Stitched>false</GSpherical:Stitched>"
     "<GSpherical:StitchingSoftware>"
-    "Spherical Metadata Tool"
+    "SpatialTag"
     "</GSpherical:StitchingSoftware>"
     "<GSpherical:ProjectionType>rectangular</GSpherical:ProjectionType>"
 )

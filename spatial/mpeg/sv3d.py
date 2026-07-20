@@ -57,7 +57,7 @@ def load(fh, position=None, end=None):
 class SVHDBox(box.Box):
     """Spherical Video Header (svhd) FullBox; mandatory first child of sv3d per v2 RFC."""
 
-    def __init__(self, metadata_source="Spherical Metadata Tool"):
+    def __init__(self, metadata_source="SpatialTag"):
         box.Box.__init__(self)
         self.name = constants.TAG_SVHD
         self.header_size = 8
@@ -68,7 +68,7 @@ class SVHDBox(box.Box):
         return self.metadata_source.encode("utf-8")
 
     @staticmethod
-    def create(metadata_source="Spherical Metadata Tool"):
+    def create(metadata_source="SpatialTag"):
         return SVHDBox(metadata_source=metadata_source)
 
     def print_box(self, console):

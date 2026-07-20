@@ -18,7 +18,7 @@ const SPHERICAL_XML_HEADER =
 const SPHERICAL_XML_CORE =
   "<GSpherical:Spherical>true</GSpherical:Spherical>" +
   "<GSpherical:Stitched>true</GSpherical:Stitched>" +
-  "<GSpherical:StitchingSoftware>Spherical Metadata Tool</GSpherical:StitchingSoftware>" +
+  "<GSpherical:StitchingSoftware>SpatialTag</GSpherical:StitchingSoftware>" +
   "<GSpherical:ProjectionType>equirectangular</GSpherical:ProjectionType>";
 
 const SPHERICAL_XML_FOOTER = "</rdf:SphericalVideo>";

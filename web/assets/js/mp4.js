@@ -486,7 +486,7 @@ function createSt3dBox(stereoMode) {
 }
 
 function createSvhdBox() {
-  const text = new TextEncoder().encode("Spherical Metadata Tool\0");
+  const text = new TextEncoder().encode("SpatialTag\0");
   const body = new Uint8Array(4 + text.length);
   writeU32(body, 0, 0);
   body.set(text, 4);
