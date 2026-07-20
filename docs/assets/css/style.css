@@ -294,8 +294,6 @@ pre code {
 .sphere-tag {
   position: absolute;
   bottom: -8px;
-  left: 50%;
-  transform: translateX(-50%);
   font-family: var(--mono);
   font-size: 11px;
   padding: 4px 10px;
@@ -303,6 +301,16 @@ pre code {
   border: 1px solid var(--border);
   border-radius: 6px;
   color: var(--text-secondary);
+}
+
+.sphere-tag-v {
+  left: 38%;
+  transform: translateX(-50%);
+}
+
+.sphere-tag-a {
+  left: 62%;
+  transform: translateX(-50%);
 }
 
 @keyframes spin {
@@ -376,6 +384,10 @@ pre code {
   gap: 20px;
 }
 
+.compare-grid-3 {
+  grid-template-columns: repeat(3, 1fr);
+}
+
 .compare-card {
   background: #fff;
   border-radius: var(--radius);
@@ -401,6 +413,29 @@ pre code {
 .compare-good {
   background: linear-gradient(180deg, #e8f4fc 0%, #f5f5f7 100%);
 }
+
+.compare-audio {
+  background: linear-gradient(180deg, #f3ecff 0%, #f5f5f7 100%);
+}
+
+.audio-waves {
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+  height: 48px;
+}
+
+.audio-waves span {
+  display: block;
+  width: 8px;
+  border-radius: 4px;
+  background: linear-gradient(180deg, #bf5af2, #7d47c9);
+}
+
+.audio-waves span:nth-child(1) { height: 24px; }
+.audio-waves span:nth-child(2) { height: 40px; }
+.audio-waves span:nth-child(3) { height: 32px; }
+.audio-waves span:nth-child(4) { height: 20px; }
 
 .compare-label {
   position: absolute;
@@ -450,6 +485,10 @@ pre code {
   gap: 20px;
 }
 
+.format-grid-3 {
+  grid-template-columns: repeat(3, 1fr);
+}
+
 .format-card {
   background: #fff;
   border-radius: var(--radius);
@@ -485,6 +524,32 @@ pre code {
   background: radial-gradient(circle at 35% 30%, #a2d2ff, #0066cc);
 }
 
+.ambix-channels {
+  display: flex;
+  gap: 8px;
+}
+
+.ambix-channels span {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 600;
+  color: #fff;
+  background: linear-gradient(135deg, #bf5af2, #7d47c9);
+}
+
+.format-card code {
+  background: rgba(0, 0, 0, 0.05);
+  padding: 0.1em 0.35em;
+  border-radius: 4px;
+  font-size: 0.9em;
+}
+
 .format-card h3 {
   margin: 0 0 8px;
   font-size: 21px;
@@ -496,6 +561,67 @@ pre code {
   font-size: 14px;
   color: var(--text-secondary);
   line-height: 1.5;
+}
+
+/* —— Tools grid —— */
+.tools-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+.tool-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 24px;
+  background: #fff;
+  border-radius: var(--radius);
+  text-decoration: none;
+  color: inherit;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+  transition: transform 0.2s var(--ease), box-shadow 0.2s;
+}
+
+.tool-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  text-decoration: none;
+}
+
+.tool-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: #0066cc;
+  background: rgba(0, 102, 204, 0.1);
+}
+
+.tool-card h3 {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 600;
+}
+
+.tool-card p {
+  margin: 0;
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.45;
+}
+
+.tool-card code {
+  background: rgba(0, 0, 0, 0.05);
+  padding: 0.1em 0.3em;
+  border-radius: 4px;
+  font-size: 0.85em;
 }
 
 /* —— Steps —— */
@@ -1478,6 +1604,9 @@ pre code {
 
   .compare-grid,
   .format-grid,
+  .compare-grid-3,
+  .format-grid-3,
+  .tools-grid,
   .steps {
     grid-template-columns: 1fr;
   }
