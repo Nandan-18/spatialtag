@@ -303,10 +303,28 @@
 
 .doc-footer {
   margin-top: 48px;
-  padding-top: 24px;
+  padding-top: 20px;
   border-top: 1px solid var(--border);
+}
+
+.doc-footer .footer-bottom {
+  margin: 0;
+  padding: 0;
+  border-top: none;
+}
+
+.doc-footer .footer-bottom p {
   font-size: 12px;
   color: var(--text-tertiary);
+}
+
+.doc-footer .footer-bottom a {
+  color: var(--text-tertiary);
+  text-decoration: none;
+}
+
+.doc-footer .footer-bottom a:hover {
+  color: var(--text-secondary);
 }
 
 @media (max-width: 900px) {

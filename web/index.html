@@ -28,9 +28,68 @@
           <span class="nav-toggle-bar" aria-hidden="true"></span>
         </button>
         <div class="nav-links" id="global-nav-links">
-          <a href="#demo">Demo</a>
-          <a href="docs/download.html">Download</a>
-          <a href="docs/index.html">Docs</a>
+          <a href="#demo">
+            <span class="nav-icon" aria-hidden="true">
+              <svg
+                viewBox="0 0 16 16"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M3 4.5h10v7H3z"></path>
+                <path d="M6.5 11.5L8 10l1.5 1.5"></path>
+                <path d="M8 10V7"></path>
+              </svg>
+            </span>
+            <span>Demo</span>
+          </a>
+          <a href="docs/index.html">
+            <span class="nav-icon" aria-hidden="true">
+              <svg
+                viewBox="0 0 16 16"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M4 2.5h6.5L13 5v8.5H4z"></path>
+                <path d="M10.5 2.5V5H13"></path>
+                <path d="M6 8h5"></path>
+                <path d="M6 10.5h5"></path>
+              </svg>
+            </span>
+            <span>Docs</span>
+          </a>
+          <a href="docs/download.html">
+            <span class="nav-icon" aria-hidden="true">
+              <svg
+                viewBox="0 0 16 16"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M8 2.5v7"></path>
+                <path d="M5.5 7.5L8 10l2.5-2.5"></path>
+                <path d="M3 12.5h10"></path>
+              </svg>
+            </span>
+            <span>Download</span>
+          </a>
+          <a href="https://github.com/Nandan-18/spatial-media">
+            <span class="nav-icon" aria-hidden="true">
+              <svg viewBox="0 0 16 16" fill="currentColor">
+                <path
+                  d="M8 1.5a6.5 6.5 0 0 0-2.055 12.666c.325.06.444-.141.444-.313v-1.106c-1.807.393-2.188-.87-2.188-.87-.296-.75-.723-.95-.723-.95-.591-.404.044-.396.044-.396.654.046.998.672.998.672.581.996 1.524.708 1.895.541.059-.421.227-.708.412-.87-1.443-.164-2.96-.722-2.96-3.214 0-.71.253-1.291.669-1.746-.067-.165-.29-.828.064-1.726 0 0 .546-.175 1.789.667A6.205 6.205 0 0 1 8 4.642c.55.003 1.104.074 1.62.218 1.242-.842 1.787-.667 1.787-.667.355.898.132 1.561.065 1.726.417.455.668 1.036.668 1.746 0 2.498-1.52 3.048-2.968 3.209.233.2.441.592.441 1.193v1.769c0 .174.117.377.447.313A6.5 6.5 0 0 0 8 1.5Z"
+                ></path>
+              </svg>
+            </span>
+            <span>GitHub</span>
+          </a>
         </div>
       </div>
     </nav>
@@ -380,7 +439,37 @@
     </section>
 
     <footer class="site-footer">
-      <p>Spatial Media metadata tools</p>
+      <div class="footer-inner">
+        <div class="footer-brand">
+          <p class="footer-name">Spatial Media</p>
+          <p class="footer-tagline">Immersive MP4/MOV metadata tools</p>
+        </div>
+        <div class="footer-links">
+          <div class="footer-col">
+            <p class="footer-col-label">Tools</p>
+            <a href="#demo">Browser demo</a>
+            <a href="docs/cli.html">CLI</a>
+            <a href="docs/docker.html">Docker</a>
+            <a href="docs/download.html">Download</a>
+          </div>
+          <div class="footer-col">
+            <p class="footer-col-label">Specs</p>
+            <a href="docs/spec/v1.html">Spherical v1</a>
+            <a href="docs/spec/v2.html">Spherical v2</a>
+            <a href="docs/spec/vr180.html">VR180</a>
+            <a href="docs/spec/audio.html">Spatial audio</a>
+          </div>
+          <div class="footer-col">
+            <p class="footer-col-label">Resources</p>
+            <a href="docs/index.html">Docs</a>
+            <a href="docs/audio.html">HRIR assets</a>
+            <a href="https://github.com/Nandan-18/spatial-media">GitHub</a>
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>Open source. Your files never leave your device.</p>
+      </div>
     </footer>
 
     <script src="assets/js/site.js" defer></script>

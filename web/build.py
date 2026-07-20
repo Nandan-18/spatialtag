@@ -62,8 +62,9 @@ DOC_SIDEBAR: list[tuple[str, list[tuple[str, str]]]] = [
 # Keep in sync with web/index.html.
 GLOBAL_NAV_LINKS: list[tuple[str, str]] = [
     ("Demo", "index.html#demo"),
-    ("Download", "docs/download.html"),
     ("Docs", "docs/index.html"),
+    ("Download", "docs/download.html"),
+    ("GitHub", "https://github.com/Nandan-18/spatial-media"),
 ]
 
 
@@ -91,9 +92,50 @@ def render_global_nav(current_page: str) -> str:
     logo_href = html.escape(nav_href(current_page, "index.html"))
     items: list[str] = []
     for text, href in GLOBAL_NAV_LINKS:
-        items.append(
-            f'<a href="{html.escape(nav_href(current_page, href))}">{html.escape(text)}</a>'
-        )
+        if href.startswith("https://"):
+            url = href
+        else:
+            url = html.escape(nav_href(current_page, href))
+        icon = ""
+        if text == "Demo":
+            icon = (
+                '<span class="nav-icon" aria-hidden="true">'
+                '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" '
+                'stroke-linecap="round" stroke-linejoin="round">'
+                '<path d="M3 4.5h10v7H3z"></path>'
+                '<path d="M6.5 11.5L8 10l1.5 1.5"></path>'
+                '<path d="M8 10V7"></path>'
+                "</svg></span>"
+            )
+        elif text == "Docs":
+            icon = (
+                '<span class="nav-icon" aria-hidden="true">'
+                '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" '
+                'stroke-linecap="round" stroke-linejoin="round">'
+                '<path d="M4 2.5h6.5L13 5v8.5H4z"></path>'
+                '<path d="M10.5 2.5V5H13"></path>'
+                '<path d="M6 8h5"></path>'
+                '<path d="M6 10.5h5"></path>'
+                "</svg></span>"
+            )
+        elif text == "Download":
+            icon = (
+                '<span class="nav-icon" aria-hidden="true">'
+                '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" '
+                'stroke-linecap="round" stroke-linejoin="round">'
+                '<path d="M8 2.5v7"></path>'
+                '<path d="M5.5 7.5L8 10l2.5-2.5"></path>'
+                '<path d="M3 12.5h10"></path>'
+                "</svg></span>"
+            )
+        elif text == "GitHub":
+            icon = (
+                '<span class="nav-icon" aria-hidden="true">'
+                '<svg viewBox="0 0 16 16" fill="currentColor">'
+                '<path d="M8 1.5a6.5 6.5 0 0 0-2.055 12.666c.325.06.444-.141.444-.313v-1.106c-1.807.393-2.188-.87-2.188-.87-.296-.75-.723-.95-.723-.95-.591-.404.044-.396.044-.396.654.046.998.672.998.672.581.996 1.524.708 1.895.541.059-.421.227-.708.412-.87-1.443-.164-2.96-.722-2.96-3.214 0-.71.253-1.291.669-1.746-.067-.165-.29-.828.064-1.726 0 0 .546-.175 1.789.667A6.205 6.205 0 0 1 8 4.642c.55.003 1.104.074 1.62.218 1.242-.842 1.787-.667 1.787-.667.355.898.132 1.561.065 1.726.417.455.668 1.036.668 1.746 0 2.498-1.52 3.048-2.968 3.209.233.2.441.592.441 1.193v1.769c0 .174.117.377.447.313A6.5 6.5 0 0 0 8 1.5Z"></path>'
+                "</svg></span>"
+            )
+        items.append(f'<a href="{url}">{icon}<span>{html.escape(text)}</span></a>')
     links_html = "".join(items)
     return (
         f'<nav class="global-nav" aria-label="Global">\n'
@@ -171,7 +213,15 @@ def render_doc_page(title: str, body_html: str, current_page: str) -> str:
         {body_html}
       </main>
       <footer class="doc-footer">
-        <p>Spatial Media metadata tools</p>
+        <div class="footer-bottom">
+          <p>Spatial Media &middot;
+            <a href="{html.escape(nav_href(current_page, "index.html"))}">Home</a>
+            <span aria-hidden="true">&middot;</span>
+            <a href="{html.escape(nav_href(current_page, "docs/download.html"))}">Download</a>
+            <span aria-hidden="true">&middot;</span>
+            <a href="https://github.com/Nandan-18/spatial-media">GitHub</a>
+          </p>
+        </div>
       </footer>
     </div>
   </div>
