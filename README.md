@@ -7,14 +7,13 @@ SpatialTag inspects and injects the MP4/MOV metadata that platforms need for
 
 Platforms like YouTube, Facebook, and VR headsets rely on special metadata
 boxes inside MP4/MOV files to know that a video is spherical and how its audio
-should be spatially rendered. This project lets you **inspect, inject, and
-strip** that metadata so your immersive content plays back correctly
-everywhere.
+should be spatially rendered. This project lets you **inspect and inject**
+that metadata so your immersive content plays back correctly everywhere.
 
 ## What it does
 
-- **Reads** existing spherical-video (V1 XML and V2 `sv3d`/`SA3D`) and
-  spatial-audio metadata from any MP4/MOV file.
+- **Reads** existing spherical-video (V1 XML and V2 `sv3d`/`st3d`) and
+  spatial-audio (`SA3D`) metadata from any MP4/MOV file.
 - **Writes** the correct MPEG-4 boxes so players recognise a file as 360°
   equirectangular, VR180 side-by-side, or ambisonics-enabled.
 - Works as a **SpatialTag CLI** (`spatialtag`), a **desktop GUI**

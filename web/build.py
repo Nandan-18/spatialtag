@@ -13,6 +13,7 @@ import markdown
 from markdown.extensions.codehilite import CodeHiliteExtension
 from markdown.extensions.fenced_code import FencedCodeExtension
 from markdown.extensions.tables import TableExtension
+from markdown.extensions.toc import TocExtension
 
 ROOT = Path(__file__).resolve().parent.parent
 WEB = Path(__file__).resolve().parent
@@ -309,6 +310,7 @@ def md_to_html(text: str) -> str:
         extensions=[
             TableExtension(),
             FencedCodeExtension(),
+            TocExtension(permalink=False, toc_depth="2-3"),
             CodeHiliteExtension(
                 css_class="highlight",
                 guess_lang=False,

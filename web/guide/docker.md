@@ -11,8 +11,8 @@ same `spatial` library as the command-line tool and desktop GUI.
   supports it (default on; avoids a second full copy on disk)
 - **Spatial audio:** inject ambisonics metadata when the source track is
   compatible
-- **Large files:** up to 16 GB per upload; mount a host directory to process
-  files without uploading through the browser
+- **Large files:** up to 4 GB per upload by default (`MAX_UPLOAD_BYTES`); mount
+  a host directory to process files without uploading through the browser
 - **Headless:** no X11 or Tkinter in the container
 
 ## Prerequisites

@@ -46,8 +46,8 @@ SpatialTag inspects and injects the MP4/MOV metadata that platforms need for
 ## Requirements
 
 - **Browser demo:** any modern desktop browser; files stay local.
-- **CLI binaries:** Linux (x86_64) or macOS (Apple Silicon) from [GitHub
-  Releases](download.html).
+- **CLI binaries:** Linux (x86_64), macOS (Apple Silicon), or Windows (x86_64)
+  from [GitHub Releases](download.html).
 - **Python install:** `git clone` and `pip install -e .`; see the [CLI
   guide](cli.html).
 - **Docker UI:** [Docker](https://docs.docker.com/get-docker/) and a local
