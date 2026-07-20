@@ -140,7 +140,7 @@ def render_global_nav(current_page: str) -> str:
     return (
         f'<nav class="global-nav" aria-label="Global">\n'
         f'  <div class="nav-inner">\n'
-        f'    <a class="nav-logo" href="{logo_href}">Spatial Media</a>\n'
+        f'    <a class="nav-logo" href="{logo_href}">SpatialTag</a>\n'
         f'    <button class="nav-toggle" type="button" aria-expanded="false" '
         f'aria-controls="global-nav-links" aria-label="Open menu">\n'
         f'      <span class="nav-toggle-bar" aria-hidden="true"></span>\n'
@@ -198,7 +198,7 @@ def render_doc_page(title: str, body_html: str, current_page: str) -> str:
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>{html.escape(title)} · Spatial Media</title>
+  <title>{html.escape(title)} · SpatialTag</title>
   {favicon}
   <link rel="stylesheet" href="{html.escape(style_href)}" />
   <link rel="stylesheet" href="{html.escape(site_href)}" />
@@ -214,7 +214,7 @@ def render_doc_page(title: str, body_html: str, current_page: str) -> str:
       </main>
       <footer class="doc-footer">
         <div class="footer-bottom">
-          <p>Spatial Media &middot;
+          <p>SpatialTag &middot;
             <a href="{html.escape(nav_href(current_page, "index.html"))}">Home</a>
             <span aria-hidden="true">&middot;</span>
             <a href="{html.escape(nav_href(current_page, "docs/download.html"))}">Download</a>
