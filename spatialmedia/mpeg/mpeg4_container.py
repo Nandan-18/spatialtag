@@ -20,6 +20,8 @@
 Functions for loading MP4/MOV files and manipulating boxes.
 """
 
+import io
+
 from spatialmedia.mpeg import box
 from spatialmedia.mpeg import constants
 from spatialmedia.mpeg import container
@@ -113,13 +115,8 @@ class Mpeg4Container(container.Container):
 
             self.contents[i].print_structure(next_indent)
 
-    def save(self, in_fh, out_fh):
-        """Save mpeg4 filecontent to file.
-
-        Args:
-          in_fh: file handle, source file handle for uncached contents.
-          out_fh: file handle, destination file hand for saved file.
-        """
+    def mdat_delta(self):
+        """Return how much the first mdat content offset would move after resize."""
         self.resize()
         new_position = 0
         for element in self.contents:
@@ -127,7 +124,44 @@ class Mpeg4Container(container.Container):
                 new_position += element.header_size
                 break
             new_position += element.size()
-        delta = new_position - self.first_mdat_position
+        return new_position - self.first_mdat_position
+
+    def save(self, in_fh, out_fh):
+        """Save mpeg4 filecontent to file.
+
+        Args:
+          in_fh: file handle, source file handle for uncached contents.
+          out_fh: file handle, destination file hand for saved file.
+        """
+        delta = self.mdat_delta()
 
         for element in self.contents:
             element.save(in_fh, out_fh, delta)
+
+    def save_moov_inplace(self, fh):
+        """Overwrite the on-disk moov box in place.
+
+        Args:
+          fh: file handle opened r+b on the original file. Must still contain
+              the original moov bytes for any leaf reads during serialization.
+
+        Raises:
+          ValueError: if mdat would move, or moov is not the last top-level box.
+        """
+        if not self.contents or self.contents[-1] is not self.moov_box:
+            raise ValueError(
+                "In-place inject requires moov to be the last top-level box.")
+        delta = self.mdat_delta()
+        if delta != 0:
+            raise ValueError(
+                "In-place inject requires mdat offsets to stay unchanged "
+                "(typically moov after mdat). Use a separate output path.")
+
+        moov_pos = self.moov_box.position
+        buf = io.BytesIO()
+        self.moov_box.save(fh, buf, 0)
+        moov_bytes = buf.getvalue()
+        fh.seek(moov_pos)
+        fh.write(moov_bytes)
+        fh.truncate(moov_pos + len(moov_bytes))
+        fh.flush()
